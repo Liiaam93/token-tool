@@ -79,13 +79,7 @@ function App() {
         bgGradient="linear(to-r, red.500, orange.400, yellow.300, green.300, teal.300, blue.400, purple.500)"
         bgClip="text"
       >
-        <Heading
-          size={"md"}
-          textAlign="center"
-          pt="5"
-          pb="5"
-          fontFamily={"fantasy"}
-        >
+        <Heading size={"md"} textAlign="center" pt="5" pb="5">
           Liam's Magical Token Tool
         </Heading>
       </Box>
