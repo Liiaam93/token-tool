@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Textarea,
   Button,
@@ -14,11 +14,42 @@ function App() {
   const [formattedBarcodes, setFormattedBarcodes] = useState<string[]>([]);
   const [selectedTokens, setSelectedTokens] = useState<string[]>([]);
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
+  const [displayedMessage, setDisplayedMessage] = useState<JSX.Element | null>(
+    null
+  );
 
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const inputValue = e.target.value;
     setValue(inputValue);
   };
+
+  useEffect(() => {
+    const updatedMessage = displayMessage(); // Get the initial message
+
+    // Check if any barcode is less than 18 characters and update the message accordingly
+    const invalidTokens = formattedBarcodes
+      .filter((barcode) => barcode.length < 18)
+      .map((barcode) => barcode.replace(/(.{6})(.{6})(.{6})/, "$1-$2-$3"));
+
+    if (invalidTokens.length > 0) {
+      const invalidTokensMessage = `The following tokens are invalid: \n ${invalidTokens.join(
+        "\n "
+      )}`;
+      setDisplayedMessage(
+        <div style={{ whiteSpace: "pre-line" }}>
+          Hi thank you for your e-mail,
+          <br />
+          {updatedMessage}
+          <br />
+          {invalidTokensMessage}
+          <br />
+          Many Thanks
+        </div>
+      );
+    } else {
+      setDisplayedMessage(updatedMessage);
+    }
+  }, [selectedTokens, formattedBarcodes]);
 
   const handleCheckboxChange = (barcode: string) => {
     setSelectedTokens((prevTokens) =>
@@ -36,12 +67,11 @@ function App() {
 
       return (
         <div style={{ whiteSpace: "pre-line" }}>
-          Thank you for your email, please return the following tokens to the
-          spine so that your order can be placed:
+          Please return the following tokens to the spine so that your order can
+          be placed:
           <br />
           {tokensString}
           <br />
-          Many Thanks
         </div>
       );
     }
@@ -54,19 +84,13 @@ function App() {
   };
 
   const handleClick = () => {
-    const barcodes = value.split(/\s+/); // Split by spaces or newlines
+    const barcodes = value.split(/\s+/);
     const formattedBarcodes = barcodes
       .map((barcode) => {
-        // Remove extra characters after the barcode
         const trimmedBarcode = barcode.replace(/[^A-Za-z0-9+]/g, "");
-        // Ensure barcode length is 18 (including the '+' if present)
-        if (trimmedBarcode.length <= 18) {
-          return trimmedBarcode;
-        } else {
-          return trimmedBarcode.substring(0, 18); // Trim to 18 characters
-        }
+        return trimmedBarcode.slice(0, 18); // Trim to 18 characters
       })
-      .filter((barcode) => barcode.length >= 18); // Ensure barcode length is at least 18
+      .filter((barcode) => barcode.length >= 16);
 
     setFormattedBarcodes(formattedBarcodes);
   };
@@ -114,7 +138,7 @@ function App() {
             {selectedTokens.length > 0 && (
               <Flex bgColor={"slategrey"} m="2" w={"90%"} borderRadius="5">
                 <Text p="5" color={"black"}>
-                  {displayMessage()}
+                  {displayedMessage}
                 </Text>
               </Flex>
             )}
@@ -142,7 +166,9 @@ function App() {
                 fontSize="12"
                 color={"white"}
               >
-                {barcode.replace(/(.{6})(.{6})(.{6})/, "$1-$2-$3")}
+                {barcode.length === 18
+                  ? barcode.replace(/(.{6})(.{6})(.{6})/, "$1-$2-$3")
+                  : barcode + " - Token Invalid"}
               </Text>
               <Button
                 m="5"
