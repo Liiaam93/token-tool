@@ -9,7 +9,9 @@ import {
   Checkbox,
 } from "@chakra-ui/react";
 
-function App() {
+interface AppProps {}
+
+const App: React.FC<AppProps> = () => {
   const [value, setValue] = useState("");
   const [formattedBarcodes, setFormattedBarcodes] = useState<string[]>([]);
   const [selectedTokens, setSelectedTokens] = useState<string[]>([]);
@@ -17,6 +19,7 @@ function App() {
   const [displayedMessage, setDisplayedMessage] = useState<JSX.Element | null>(
     null
   );
+  const [hasInvalidTokens, setHasInvalidTokens] = useState(false);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const inputValue = e.target.value;
@@ -24,17 +27,25 @@ function App() {
   };
 
   useEffect(() => {
-    const updatedMessage = displayMessage(); // Get the initial message
+    const updatedMessage = displayMessage();
 
-    // Check if any barcode is less than 18 characters and update the message accordingly
     const invalidTokens = formattedBarcodes
       .filter((barcode) => barcode.length < 18)
       .map((barcode) => barcode.replace(/(.{6})(.{6})(.{6})/, "$1-$2-$3"));
 
+    setHasInvalidTokens(
+      invalidTokens.length > 0 && selectedTokens.length === 0
+    );
+
     if (invalidTokens.length > 0) {
-      const invalidTokensMessage = `The following tokens are invalid: \n ${invalidTokens.join(
-        "\n "
-      )}`;
+      const invalidTokensMessage =
+        selectedTokens.length > 0
+          ? `Also, the following tokens are invalid:\n \n ${invalidTokens.join(
+              "\n "
+            )} \n \n Please check the values and reply with the correct barcode so that your order can be placed. \n`
+          : `The following tokens are invalid:\n \n ${invalidTokens.join(
+              "\n "
+            )} \n \n Please check the values and reply with the correct barcode so that your order can be placed. \n`;
       setDisplayedMessage(
         <div style={{ whiteSpace: "pre-line" }}>
           Hi thank you for your e-mail,
@@ -67,8 +78,9 @@ function App() {
 
       return (
         <div style={{ whiteSpace: "pre-line" }}>
+          {"\n"}
           Please return the following tokens to the spine so that your order can
-          be placed:
+          be placed:{"\n"}
           <br />
           {tokensString}
           <br />
@@ -84,13 +96,15 @@ function App() {
   };
 
   const handleClick = () => {
+    setCopiedIndex(null);
+
     const barcodes = value.split(/\s+/);
     const formattedBarcodes = barcodes
       .map((barcode) => {
         const trimmedBarcode = barcode.replace(/[^A-Za-z0-9+]/g, "");
         return trimmedBarcode.slice(0, 18); // Trim to 18 characters
       })
-      .filter((barcode) => barcode.length >= 16);
+      .filter((barcode) => barcode.length >= 16) as string[]; // Type assertion to string[]
 
     setFormattedBarcodes(formattedBarcodes);
   };
@@ -103,7 +117,7 @@ function App() {
         bgGradient="linear(to-r, red.500, orange.400, yellow.300, green.300, teal.300, blue.400, purple.500)"
         bgClip="text"
       >
-        <Heading size={"md"} textAlign="center" pt="5" pb="5">
+        <Heading size="md" textAlign="center" pt="5" pb="5">
           Liam's Magical Token Tool
         </Heading>
       </Box>
@@ -112,12 +126,11 @@ function App() {
         maxW="80vw"
         m="auto"
         border="solid white 2px"
-        borderRadius={"5"}
+        borderRadius="5"
       >
-        {/* Input box on the left */}
         <Box flex="1" mr={4}>
           <Textarea
-            color={"white"}
+            color="white"
             placeholder="Paste barcodes here..."
             value={value}
             onChange={handleInputChange}
@@ -127,7 +140,7 @@ function App() {
           />
           <Box display="flex" flexDirection="column" justifyContent="center">
             <Button
-              color={"black"}
+              color="black"
               colorScheme="green"
               onClick={handleClick}
               m="2"
@@ -135,28 +148,33 @@ function App() {
             >
               Format Barcodes
             </Button>
-            {selectedTokens.length > 0 && (
-              <Flex bgColor={"slategrey"} m="2" w={"90%"} borderRadius="5">
-                <Text p="5" color={"black"}>
+            {selectedTokens.length > 0 || hasInvalidTokens ? (
+              <Flex bgColor="slategrey" m="2" w="90%" borderRadius="5">
+                <Text p="5" color="black">
                   {displayedMessage}
                 </Text>
               </Flex>
-            )}
+            ) : null}
           </Box>
         </Box>
 
-        {/* Formatted list on the right */}
-        <Box flex="1" p="1">
+        <Box flex="1" m="2">
           {formattedBarcodes.map((barcode, index) => (
             <Flex
               key={index}
               align="center"
               mb={1}
-              maxH={"5vh"}
+              maxH="5vh"
               border="solid 1px white"
               borderRadius="5"
-              backgroundColor={"whiteAlpha.200"}
-              _hover={{ bg: "whiteAlpha.400" }}
+              backgroundColor={
+                barcode.length < 18 ? "red.900" : "whiteAlpha.200"
+              }
+              _hover={
+                barcode.length < 18
+                  ? { bg: "red.700" }
+                  : { bg: "whiteAlpha.400" }
+              }
             >
               <Text
                 flex="1"
@@ -164,7 +182,7 @@ function App() {
                 ml="10"
                 textAlign="center"
                 fontSize="12"
-                color={"white"}
+                color="white"
               >
                 {barcode.length === 18
                   ? barcode.replace(/(.{6})(.{6})(.{6})/, "$1-$2-$3")
@@ -188,7 +206,7 @@ function App() {
                 mr={2}
                 size="sm"
                 colorScheme="red"
-                color={"white"}
+                color="white"
               >
                 RTS
               </Checkbox>
@@ -198,6 +216,6 @@ function App() {
       </Flex>
     </Box>
   );
-}
+};
 
 export default App;
