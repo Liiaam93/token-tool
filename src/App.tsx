@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
   Textarea,
   Button,
@@ -8,6 +8,7 @@ import {
   Heading,
   Checkbox,
 } from "@chakra-ui/react";
+import MessageDisplay from "./components/MessageDisplay";
 
 interface AppProps {}
 
@@ -16,10 +17,6 @@ const App: React.FC<AppProps> = () => {
   const [formattedBarcodes, setFormattedBarcodes] = useState<string[]>([]);
   const [selectedTokens, setSelectedTokens] = useState<string[]>([]);
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
-  const [displayedMessage, setDisplayedMessage] = useState<JSX.Element | null>(
-    null
-  );
-  const [hasInvalidTokens, setHasInvalidTokens] = useState(false);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const inputValue = e.target.value;
@@ -32,26 +29,6 @@ const App: React.FC<AppProps> = () => {
         ? prevTokens.filter((token) => token !== barcode)
         : [...prevTokens, barcode]
     );
-  };
-
-  const displayMessage = () => {
-    if (selectedTokens.length > 0) {
-      const tokensString = selectedTokens
-        .map((token) => `${token.replace(/(.{6})(.{6})(.{6})/, "$1-$2-$3")}`)
-        .join("\n"); // New line after each token
-
-      return (
-        <div style={{ whiteSpace: "pre-line" }}>
-          {"\n"}
-          Please return the following tokens to the spine so that your order can
-          be placed:{"\n"}
-          <br />
-          {tokensString}
-          <br />
-        </div>
-      );
-    }
-    return null;
   };
 
   const copyToClipboard = (barcode: string, index: number) => {
@@ -72,42 +49,6 @@ const App: React.FC<AppProps> = () => {
 
     setFormattedBarcodes(formattedBarcodes);
   };
-
-  useEffect(() => {
-    const updatedMessage = displayMessage();
-
-    const invalidTokens = formattedBarcodes
-      .filter((barcode) => barcode.length < 18)
-      .map((barcode) => barcode.replace(/(.{6})(.{6})(.{6})/, "$1-$2-$3"));
-
-    setHasInvalidTokens(
-      invalidTokens.length > 0 && selectedTokens.length === 0
-    );
-
-    if (invalidTokens.length > 0) {
-      const invalidTokensMessage =
-        selectedTokens.length > 0
-          ? `Also, the following tokens are invalid:\n \n ${invalidTokens.join(
-              "\n "
-            )} \n \n Please check the values and reply with the correct barcode so that your order can be placed. \n`
-          : `The following tokens are invalid:\n \n ${invalidTokens.join(
-              "\n "
-            )} \n \n Please check the values and reply with the correct barcode so that your order can be placed. \n`;
-      setDisplayedMessage(
-        <div style={{ whiteSpace: "pre-line" }}>
-          Hi thank you for your e-mail,
-          <br />
-          {updatedMessage}
-          <br />
-          {invalidTokensMessage}
-          <br />
-          Many Thanks
-        </div>
-      );
-    } else {
-      setDisplayedMessage(updatedMessage);
-    }
-  }, [selectedTokens, formattedBarcodes]);
 
   return (
     <Box bg="gray.800" minHeight="100vh">
@@ -148,13 +89,11 @@ const App: React.FC<AppProps> = () => {
             >
               Format Barcodes
             </Button>
-            {selectedTokens.length > 0 || hasInvalidTokens ? (
-              <Flex bgColor="slategrey" m="2" w="90%" borderRadius="5">
-                <Text p="5" color="black">
-                  {displayedMessage}
-                </Text>
-              </Flex>
-            ) : null}
+
+            <MessageDisplay
+              selectedTokens={selectedTokens}
+              formattedBarcodes={formattedBarcodes}
+            />
           </Box>
         </Box>
 
