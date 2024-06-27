@@ -1,11 +1,11 @@
 import { Button, Flex, Text } from "@chakra-ui/react";
 import React, { useState, useEffect } from "react";
+import { FormattedBarcode } from "../pages/Home";
 
 interface DisplayMessageProps {
   selectedTokens: string[];
-  formattedBarcodes: string[];
+  formattedBarcodes: FormattedBarcode[];
 }
-
 const MessageDisplay: React.FC<DisplayMessageProps> = ({
   selectedTokens,
   formattedBarcodes,
@@ -30,18 +30,18 @@ const MessageDisplay: React.FC<DisplayMessageProps> = ({
       return ""; // Return an empty string when there are no selectedTokens
     };
 
-    const invalidTokens = formattedBarcodes
-      .filter((barcode) => barcode.length < 18)
-      .map((barcode) => barcode.replace(/(.{6})(.{6})(.{6})/, "$1-$2-$3"));
+    const invalidTokens = formattedBarcodes.filter(({ valid }) => !valid);
 
     const hasInvalidTokens = invalidTokens.length > 0;
 
     const invalidTokensText = hasInvalidTokens
       ? `\n${
           displaySelectedTokens() !== "" ? "Also the" : "The"
-        } following tokens are invalid:\n\n${invalidTokens.join(
-          "\n "
-        )}\n\nPlease check the values and reply with the correct barcode so that your order can be placed.\n\n`
+        } following tokens are invalid:\n\n${invalidTokens
+          .map(({ originalBarcode }) => originalBarcode)
+          .join(
+            "\n "
+          )}\n\nPlease check the values and reply with the correct barcode so that your order can be placed.\n\n`
       : "";
 
     const fullMessage = `${displaySelectedTokens()}${invalidTokensText}`;
@@ -64,8 +64,8 @@ const MessageDisplay: React.FC<DisplayMessageProps> = ({
             </Text>
           </Flex>
           <Button
-            w="90%"
             m="2"
+            w="90%"
             color={"black"}
             colorScheme="whatsapp"
             onClick={() => copyToClipboard()}
