@@ -16,18 +16,18 @@ const SearchPage: React.FC = () => {
   const [searchResults, setSearchResults] = useState<Pharmacy[]>([]);
 
   const handleSearch = () => {
+    const trimmedSearchTerm = searchTerm.trim().toLowerCase();
+
     const results = pharmacyData.filter((pharmacy) => {
       return (
         (pharmacy["ODS Code"] &&
-          pharmacy["ODS Code"]
-            .toLowerCase()
-            .includes(searchTerm.toLowerCase())) ||
+          pharmacy["ODS Code"].toLowerCase().includes(trimmedSearchTerm)) ||
         (pharmacy["Pharmacy Number"] &&
           pharmacy["Pharmacy Number"]
             .toLowerCase()
-            .includes(searchTerm.toLowerCase())) ||
+            .includes(trimmedSearchTerm)) ||
         (pharmacy["Postcode"] &&
-          pharmacy["Postcode"].toLowerCase().includes(searchTerm.toLowerCase()))
+          pharmacy["Postcode"].toLowerCase().includes(trimmedSearchTerm))
       );
     });
     setSearchResults(results);
