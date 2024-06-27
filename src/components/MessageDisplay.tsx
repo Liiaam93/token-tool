@@ -64,6 +64,8 @@ const MessageDisplay: React.FC<DisplayMessageProps> = ({
             </Text>
           </Flex>
           <Button
+            w="90%"
+            m="2"
             color={"black"}
             colorScheme="whatsapp"
             onClick={() => copyToClipboard()}

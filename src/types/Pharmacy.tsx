@@ -1,0 +1,35 @@
+export interface Pharmacy {
+  "Pharmacy Number"?: string;
+  "Pharmacy Name"?: string;
+  "ODS Code"?: string;
+  Division?: string;
+  Region?: string;
+  Area?: string;
+  Country?: string;
+  "Phone No"?: string;
+  "Fax No"?: string;
+  "Address Line 1"?: string;
+  "Address Line 2"?: string;
+  "Address Line 3"?: string;
+  Postcode?: string;
+  "Pharmacy Email"?: string;
+  "Pharmacy Secondary Email"?: string;
+  "Area Operation Manager (AOM)"?: string;
+  "AOM Email"?: string;
+  "AOM Phone Number"?: string;
+  "Regional Operation Manager (ROM)"?: string;
+  "ROM Email"?: string;
+  "ROM Phone Number"?: string;
+  "Head of Operations (HOO)"?: string;
+  "HOO Email"?: string;
+  "HOO Phone Number"?: string;
+  "PCO CCG Name"?: string;
+  "NHS Organisation"?: string;
+  "NHS Organisation Email"?: string;
+  PMR?: string;
+  "Item Disp"?: string;
+  "Consultation Room"?: string;
+  Parking?: string;
+  "Parking Desc"?: string;
+  "Date Modified"?: number;
+}
