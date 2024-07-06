@@ -128,6 +128,15 @@ const Home: React.FC = () => {
                 >
                   {copiedIndex === index ? "Copied" : "Copy"}
                 </Button>
+                {/* <Button
+                  colorScheme="blue"
+                  size="xs"
+                  onClick={() =>
+                    (window.location.href = `https://portal2.national.ncrs.nhs.uk/prescriptionsadmin/prescription?id=${renderBarcode}&instance=1`)
+                  }
+                >
+                  NHS
+                </Button> */}
                 <Checkbox
                   isChecked={selectedTokens.includes(barcode)}
                   onChange={() => handleCheckboxChange(barcode)}
