@@ -56,7 +56,6 @@ const Templates = () => {
   const toast = useToast();
 
   useEffect(() => {
-    // Load templates from the JSON file
     setTemplates(messages);
   }, []);
 
@@ -86,7 +85,7 @@ const Templates = () => {
   return (
     <Box bg="gray.800" minHeight="100vh" color="white">
       <VStack spacing={4} maxW="90vw" m="auto" p={4}>
-        <Heading>Message Templates</Heading>
+        <Heading size={"lg"}>Email Message Templates</Heading>
 
         <Flex wrap={"wrap"} justifyContent={"center"}>
           {templates.length > 0 ? (
