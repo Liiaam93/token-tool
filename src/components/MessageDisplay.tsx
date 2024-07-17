@@ -1,4 +1,4 @@
-import { Button, Flex, Text } from "@chakra-ui/react";
+import { Button, Flex, Text, useToast } from "@chakra-ui/react";
 import React, { useState, useEffect } from "react";
 import { FormattedBarcode } from "../pages/Home";
 
@@ -12,10 +12,21 @@ const MessageDisplay: React.FC<DisplayMessageProps> = ({
 }) => {
   const [messageText, setMessageText] = useState<string>("");
 
+  const toast = useToast();
+
   const copyToClipboard = () => {
-    navigator.clipboard.writeText(
-      "Hi, thank you for your e-mail,\n" + messageText + "\nMany Thanks"
-    );
+    navigator.clipboard
+      .writeText(
+        "Hi, thank you for your e-mail,\n" + messageText + "\nMany Thanks"
+      )
+      .then(() => {
+        toast({
+          title: "Copied to clipboard.",
+          status: "success",
+          duration: 2000,
+          isClosable: true,
+        });
+      });
   };
 
   useEffect(() => {
@@ -27,7 +38,7 @@ const MessageDisplay: React.FC<DisplayMessageProps> = ({
 
         return `\nPlease return the following tokens to the spine so that your order can be placed:\n\n${tokensString}\n`;
       }
-      return ""; // Return an empty string when there are no selectedTokens
+      return "";
     };
 
     const invalidTokens = formattedBarcodes.filter(({ valid }) => !valid);

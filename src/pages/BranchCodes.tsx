@@ -8,7 +8,7 @@ import {
   Heading,
   Flex,
 } from "@chakra-ui/react";
-import pharmacyData from "../data/BranchCodes.json"; // Adjust this import according to your setup
+import pharmacyData from "../data/BranchCodes.json";
 import { Pharmacy } from "../types/Pharmacy";
 
 const SearchPage: React.FC = () => {
@@ -82,7 +82,6 @@ const SearchPage: React.FC = () => {
                 <Text>
                   <strong>Postcode:</strong> {pharmacy["Postcode"]}
                 </Text>
-                {/* Add more fields as needed */}
               </Box>
             ))
           ) : (

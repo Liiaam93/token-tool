@@ -48,7 +48,7 @@ const Home: React.FC = () => {
           originalBarcode: barcode,
         };
       })
-      .filter(({ barcode }) => barcode.length >= 16) as FormattedBarcode[]; // Type assertion to string[]
+      .filter(({ barcode }) => barcode.length >= 16) as FormattedBarcode[];
 
     setFormattedBarcodes(formattedBarcodes);
   };
@@ -110,6 +110,18 @@ const Home: React.FC = () => {
                     : { bg: "whiteAlpha.400" }
                 }
               >
+                <Button
+                  colorScheme="blue"
+                  size="xs"
+                  onClick={() =>
+                    window.open(
+                      `https://portal2.national.ncrs.nhs.uk/prescriptionsadmin/prescription?id=${renderBarcode}&instance=1`,
+                      "_blank"
+                    )
+                  }
+                >
+                  NHS
+                </Button>
                 <Text
                   flex="1"
                   marginY="0"
@@ -128,15 +140,7 @@ const Home: React.FC = () => {
                 >
                   {copiedIndex === index ? "Copied" : "Copy"}
                 </Button>
-                {/* <Button
-                  colorScheme="blue"
-                  size="xs"
-                  onClick={() =>
-                    (window.location.href = `https://portal2.national.ncrs.nhs.uk/prescriptionsadmin/prescription?id=${renderBarcode}&instance=1`)
-                  }
-                >
-                  NHS
-                </Button> */}
+
                 <Checkbox
                   isChecked={selectedTokens.includes(barcode)}
                   onChange={() => handleCheckboxChange(barcode)}
