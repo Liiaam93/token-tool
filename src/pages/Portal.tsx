@@ -11,6 +11,7 @@ import {
   Th,
   Td,
   TableContainer,
+  useToast,
 } from "@chakra-ui/react";
 import React, { useEffect, useState } from "react";
 import { fetchPortal } from "../utils/fetchPortal";
@@ -33,12 +34,13 @@ export interface PortalType {
   record_status: string;
   record_type: string;
 }
-
 const Portal: React.FC = () => {
   const [token, setToken] = useState<string>("");
   const [portalData, setPortalData] = useState<PortalType[]>([]);
   const [printCount, setPrintCount] = useState<number>(0);
   const [userEmail] = useState<string>("liam.burbidge@well.co.uk");
+
+  const toast = useToast();
 
   useEffect(() => {
     setPrintCount(0);
@@ -53,6 +55,17 @@ const Portal: React.FC = () => {
   const fetchPortalData = async () => {
     const { data } = await fetchPortal(token);
     setPortalData(data.items);
+  };
+
+  const handleCopyToClipboard = (id: string) => {
+    navigator.clipboard.writeText(id);
+    toast({
+      title: "Copied to clipboard",
+      // description: ,
+      status: "success",
+      duration: 2000,
+      isClosable: true,
+    });
   };
 
   const handleUpdatePatientName = async (
@@ -76,6 +89,13 @@ const Portal: React.FC = () => {
 
         // Adding a delay to ensure server updates are processed
         await new Promise((resolve) => setTimeout(resolve, 500)); // 500ms delay
+        toast({
+          title: "Patient Name Updated",
+          // description: ,
+          status: "success",
+          duration: 2000,
+          isClosable: true,
+        });
 
         // Now refetch the data
         fetchPortalData();
@@ -135,9 +155,7 @@ const Portal: React.FC = () => {
                     <Text
                       cursor="pointer"
                       _hover={{ textDecoration: "underline" }}
-                      onClick={() => {
-                        navigator.clipboard.writeText(data.id);
-                      }}
+                      onClick={() => handleCopyToClipboard(data.id)}
                     >
                       {data.id}
                     </Text>
