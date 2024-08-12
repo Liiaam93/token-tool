@@ -128,7 +128,7 @@ const Portal: React.FC = () => {
           </Thead>
           <Tbody>
             {portalData.map((data, index) => {
-              if (data.id === "manual") return null;
+              if (data.order_type === "manual") return null;
 
               return (
                 <Tr key={index} color={data.patient_name ? "yellow" : "white"}>
