@@ -14,10 +14,7 @@ import {
 } from "@chakra-ui/react";
 import React, { useEffect, useState } from "react";
 import { fetchPortal } from "../utils/fetchPortal";
-// import {
-//   updatePatientName,
-//   updateOrderSearchId,
-// } from "../utils/updatePatientName";
+import { updatePatientName } from "../utils/updatePatientName";
 
 export interface PortalType {
   created_by: string;
@@ -41,11 +38,15 @@ const Portal: React.FC = () => {
   const [token, setToken] = useState<string>("");
   const [portalData, setPortalData] = useState<PortalType[]>([]);
   const [printCount, setPrintCount] = useState<number>(0);
+  const [userEmail] = useState<string>("liam.burbidge@well.co.uk");
 
   useEffect(() => {
     setPrintCount(0);
     portalData.forEach((e) => {
-      e.patient_name === "print" ? setPrintCount((prev) => prev + 1) : "";
+      if (e.patient_name) {
+        const name = e.patient_name.toLowerCase();
+        name === "print" ? setPrintCount((prev) => prev + 1) : "";
+      }
     });
   }, [portalData]);
 
@@ -54,40 +55,37 @@ const Portal: React.FC = () => {
     setPortalData(data.items);
   };
 
-  //   const handleUpdatePatientName = async (id: string, email: string) => {
-  //     const token = "your-auth-token"; // Replace with actual token
-  //     const modifiedBy = "liam.burbidge@well.co.uk";
+  const handleUpdatePatientName = async (
+    email: string,
+    id: string,
+    patientName: string,
+    orderSearchId: string,
+    modifiedBy: string
+  ) => {
+    if (token && email && id && patientName && orderSearchId) {
+      try {
+        // Await the update request and make sure it completes successfully
+        await updatePatientName(
+          token,
+          email,
+          id,
+          patientName,
+          orderSearchId,
+          modifiedBy
+        );
 
-  //     try {
-  //       const updatePatientNamePayload = {
-  //         token,
-  //         id,
-  //         newName: "Print",
-  //         email,
-  //         modifiedBy,
-  //       };
-  //       const patientNameResponse = await updatePatientName(
-  //         updatePatientNamePayload
-  //       );
-  //       console.log("Updated patient name:", patientNameResponse);
+        // Adding a delay to ensure server updates are processed
+        await new Promise((resolve) => setTimeout(resolve, 500)); // 500ms delay
 
-  //       const updateOrderSearchIdPayload = {
-  //         token,
-  //         id,
-  //         newOrderSearchId: `${id}-print`,
-  //         email,
-  //         modifiedBy,
-  //       };
-  //       const orderSearchIdResponse = await updateOrderSearchId(
-  //         updateOrderSearchIdPayload
-  //       );
-  //       console.log("Updated order_search_id:", orderSearchIdResponse);
-
-  //       fetchPortalData();
-  //     } catch (error) {
-  //       console.error("Failed to update:", error);
-  //     }
-  //   };
+        // Now refetch the data
+        fetchPortalData();
+      } catch (error) {
+        console.error("Failed to update patient name:", error);
+      }
+    } else {
+      console.error("All fields are required");
+    }
+  };
 
   return (
     <Box bg="gray.800" minHeight="100vh">
@@ -145,15 +143,21 @@ const Portal: React.FC = () => {
                     </Text>
                   </Td>
                   <Td textAlign="center">{data.patient_name}</Td>
-                  {/* <Td textAlign="center">
+                  <Td textAlign="center">
                     <Button
                       onClick={() =>
-                        handleUpdatePatientName(data.id, data.email)
+                        handleUpdatePatientName(
+                          data.email,
+                          data.id,
+                          "print",
+                          data.order_search_id,
+                          userEmail
+                        )
                       }
                     >
                       Click
                     </Button>
-                  </Td> */}
+                  </Td>
                 </Tr>
               );
             })}
