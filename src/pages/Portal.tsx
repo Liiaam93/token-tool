@@ -43,6 +43,14 @@ const Portal: React.FC = () => {
   const toast = useToast();
 
   useEffect(() => {
+    const intervalId = setInterval(() => {
+      fetchPortalData();
+    }, 60000);
+
+    return () => clearInterval(intervalId);
+  }, [token]);
+
+  useEffect(() => {
     setPrintCount(0);
     portalData.forEach((e) => {
       if (e.patient_name) {
@@ -75,9 +83,8 @@ const Portal: React.FC = () => {
     orderSearchId: string,
     modifiedBy: string
   ) => {
-    if (token && email && id && patientName && orderSearchId) {
+    if (token && email && id && orderSearchId) {
       try {
-        // Await the update request and make sure it completes successfully
         await updatePatientName(
           token,
           email,
@@ -86,24 +93,19 @@ const Portal: React.FC = () => {
           orderSearchId,
           modifiedBy
         );
-
-        // Adding a delay to ensure server updates are processed
-        await new Promise((resolve) => setTimeout(resolve, 500)); // 500ms delay
+        await new Promise((resolve) => setTimeout(resolve, 500));
         toast({
           title: "Patient Name Updated",
-          // description: ,
           status: "success",
           duration: 2000,
           isClosable: true,
         });
-
-        // Now refetch the data
         fetchPortalData();
       } catch (error) {
         console.error("Failed to update patient name:", error);
       }
     } else {
-      console.error("All fields are required");
+      console.error("All fields except patient name are required");
     }
   };
 
@@ -173,7 +175,7 @@ const Portal: React.FC = () => {
                         )
                       }
                     >
-                      Click
+                      Set Printed
                     </Button>
                   </Td>
                 </Tr>
