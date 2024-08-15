@@ -28,7 +28,7 @@ export const updatePatientName = async (
     "Sec-Fetch-Site": "cross-site",
   };
 
-  const updatePayload = async (updateKey, updateValue) => {
+  const updatePayload = async (updateKey: string, updateValue: string) => {
     const payload = {
       email: email,
       id: id,
