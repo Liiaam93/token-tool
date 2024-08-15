@@ -45,7 +45,7 @@ const Portal: React.FC = () => {
   useEffect(() => {
     const intervalId = setInterval(() => {
       fetchPortalData();
-    }, 60000);
+    }, 120000);
 
     return () => clearInterval(intervalId);
   }, [token]);
