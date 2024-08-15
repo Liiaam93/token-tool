@@ -38,7 +38,7 @@ export interface PortalType {
 const Portal: React.FC = () => {
   const [token, setToken] = useState<string>("");
   const [portalData, setPortalData] = useState<PortalType[]>([]);
-  const [selectedId, setSelectedId] = useState<string | null>(null); // New state to track selected row
+  const [selectedId, setSelectedId] = useState<string | null>(null); // State to track selected row
   const [printCount, setPrintCount] = useState<number>(0);
   const [userEmail] = useState<string>("liam.burbidge@well.co.uk");
 
@@ -57,7 +57,7 @@ const Portal: React.FC = () => {
     portalData.forEach((e) => {
       if (e.patient_name) {
         const name = e.patient_name.toLowerCase();
-        name === "print" ? setPrintCount((prev) => prev + 1) : "";
+        if (name === "print") setPrintCount((prev) => prev + 1);
       }
     });
   }, [portalData]);
@@ -130,7 +130,7 @@ const Portal: React.FC = () => {
         <Button
           colorScheme="green"
           fontSize={"xs"}
-          onClick={() => fetchPortalData()}
+          onClick={fetchPortalData}
         >
           Validate
         </Button>
@@ -155,8 +155,8 @@ const Portal: React.FC = () => {
               return (
                 <Tr
                   key={index}
-                  color={data.patient_name ? "yellow" : "white"}
                   bg={selectedId === data.id ? "teal.500" : "transparent"} // Change background color if row is selected
+                  color={data.patient_name ? "yellow" : "white"}
                 >
                   <Td textAlign="center">{data.pharmacy_account_number}</Td>
                   <Td textAlign="center">
