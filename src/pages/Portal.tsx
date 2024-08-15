@@ -70,6 +70,7 @@ const Portal: React.FC = () => {
   const handleCopyToClipboard = (id: string) => {
     navigator.clipboard.writeText(id);
     setSelectedId(id); // Set the selected ID when copying
+    console.log(selectedId)
     toast({
       title: "Copied to clipboard",
       status: "success",
