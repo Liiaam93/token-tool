@@ -1,3 +1,4 @@
+import React, { useEffect, useState } from "react";
 import {
   Box,
   Button,
@@ -13,7 +14,6 @@ import {
   TableContainer,
   useToast,
 } from "@chakra-ui/react";
-import React, { useEffect, useState } from "react";
 import { fetchPortal } from "../utils/fetchPortal";
 import { updatePatientName } from "../utils/updatePatientName";
 
@@ -34,9 +34,11 @@ export interface PortalType {
   record_status: string;
   record_type: string;
 }
+
 const Portal: React.FC = () => {
   const [token, setToken] = useState<string>("");
   const [portalData, setPortalData] = useState<PortalType[]>([]);
+  const [selectedId, setSelectedId] = useState<string | null>(null); // New state to track selected row
   const [printCount, setPrintCount] = useState<number>(0);
   const [userEmail] = useState<string>("liam.burbidge@well.co.uk");
 
@@ -67,9 +69,9 @@ const Portal: React.FC = () => {
 
   const handleCopyToClipboard = (id: string) => {
     navigator.clipboard.writeText(id);
+    setSelectedId(id); // Set the selected ID when copying
     toast({
       title: "Copied to clipboard",
-      // description: ,
       status: "success",
       duration: 2000,
       isClosable: true,
@@ -151,7 +153,11 @@ const Portal: React.FC = () => {
               if (data.order_type === "manual") return null;
 
               return (
-                <Tr key={index} color={data.patient_name ? "yellow" : "white"}>
+                <Tr
+                  key={index}
+                  color={data.patient_name ? "yellow" : "white"}
+                  bg={selectedId === data.id ? "teal.500" : "transparent"} // Change background color if row is selected
+                >
                   <Td textAlign="center">{data.pharmacy_account_number}</Td>
                   <Td textAlign="center">
                     <Text
