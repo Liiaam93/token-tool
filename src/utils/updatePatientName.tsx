@@ -28,50 +28,42 @@ export const updatePatientName = async (
     "Sec-Fetch-Site": "cross-site",
   };
 
-  const payload1 = {
-    email: email,
-    id: id,
-    modifiedBy: modifiedBy,
-    updateKey: "patient_name",
-    updateValue: patientName,
-  };
+  const updatePayload = async (updateKey, updateValue) => {
+    const payload = {
+      email: email,
+      id: id,
+      modifiedBy: modifiedBy,
+      updateKey: updateKey,
+      updateValue: updateValue,
+    };
 
-  const payload2 = {
-    email: email,
-    id: id,
-    modifiedBy: modifiedBy,
-    updateKey: "order_search_id",
-    updateValue: orderSearchId + patientName,
+    const response = await fetch(url, {
+      method: "PUT",
+      headers: headers,
+      body: JSON.stringify(payload),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to update ${updateKey}`);
+    }
+
+    return response.json();
   };
 
   try {
-    // First PUT request
-    const response1 = await fetch(url, {
-      method: "PUT",
-      headers: headers,
-      body: JSON.stringify(payload1),
-    });
+    // Mark order as open
+    await updatePayload("order_open", "open");
 
-    if (!response1.ok) {
-      throw new Error("Failed to update patient_name");
-    }
+    // Update patient name
+    await updatePayload("patient_name", patientName);
 
-    const data1 = await response1.json();
-    console.log("Response 1:", data1);
+    // Update order search ID
+    await updatePayload("order_search_id", orderSearchId + patientName);
 
-    // Second PUT request
-    const response2 = await fetch(url, {
-      method: "PUT",
-      headers: headers,
-      body: JSON.stringify(payload2),
-    });
+    // Mark order as closed
+    await updatePayload("order_open", "closed");
 
-    if (!response2.ok) {
-      throw new Error("Failed to update order_search_id");
-    }
-
-    const data2 = await response2.json();
-    console.log("Response 2:", data2);
+    console.log("Patient name and order updated successfully");
   } catch (error) {
     console.error("Error updating order:", error);
   }
