@@ -6,8 +6,8 @@ export const updatePatientName = async (
   orderSearchId: string,
   modifiedBy: string
 ) => {
-  const url =
-    "https://vfgar9uinc.execute-api.eu-west-2.amazonaws.com/prod/order";
+  const url = "https://vfgar9uinc.execute-api.eu-west-2.amazonaws.com/prod/order";
+  const closeUrl = `${url}/close`;
 
   const headers = {
     "Content-Type": "application/json",
@@ -17,10 +17,8 @@ export const updatePatientName = async (
     "Accept-Language": "en-US,en;q=0.9",
     Origin: "https://fp.bestwaymedhub.co.uk",
     Referer: "https://fp.bestwaymedhub.co.uk/",
-    "User-Agent":
-      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36",
-    "Sec-Ch-Ua":
-      '"Not/A)Brand";v="8", "Chromium";v="126", "Google Chrome";v="126"',
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36",
+    "Sec-Ch-Ua": '"Not/A)Brand";v="8", "Chromium";v="126", "Google Chrome";v="126"',
     "Sec-Ch-Ua-Mobile": "?0",
     "Sec-Ch-Ua-Platform": '"Windows"',
     "Sec-Fetch-Dest": "empty",
@@ -28,7 +26,7 @@ export const updatePatientName = async (
     "Sec-Fetch-Site": "cross-site",
   };
 
-  const updatePayload = async (updateKey: string, updateValue: string) => {
+  const updatePayload = async (updateKey: string, updateValue: string, close = false) => {
     const payload = {
       email: email,
       id: id,
@@ -37,7 +35,9 @@ export const updatePatientName = async (
       updateValue: updateValue,
     };
 
-    const response = await fetch(url, {
+    const endpoint = close ? closeUrl : url;
+
+    const response = await fetch(endpoint, {
       method: "PUT",
       headers: headers,
       body: JSON.stringify(payload),
@@ -60,8 +60,8 @@ export const updatePatientName = async (
     // Update order search ID
     await updatePayload("order_search_id", orderSearchId + patientName);
 
-    // Mark order as closed
-    await updatePayload("order_open", "closed");
+    // Mark order as closed using the close endpoint
+    await updatePayload("order_open", "close", true);
 
     console.log("Patient name and order updated successfully");
   } catch (error) {
