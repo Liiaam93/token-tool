@@ -155,7 +155,7 @@ const Portal: React.FC = () => {
               return (
                 <Tr
                   key={index}
-                  bg={selectedId === data.id ? "teal.500" : "transparent"} // Change background color if row is selected
+                  bg={selectedId === data.id ? "teal" : "transparent"} // Change background color if row is selected
                   color={data.patient_name ? "yellow" : "white"}
                 >
                   <Td textAlign="center">{data.pharmacy_account_number}</Td>
