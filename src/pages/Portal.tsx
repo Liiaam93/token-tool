@@ -15,7 +15,7 @@ import {
   useToast,
 } from "@chakra-ui/react";
 import { fetchPortal } from "../utils/fetchPortal";
-import { updatePatientName } from "../utils/updatePatientName";
+import { updateOrder } from "../utils/updatePatientName";
 
 export interface PortalType {
   created_by: string;
@@ -64,13 +64,60 @@ const Portal: React.FC = () => {
 
   const fetchPortalData = async () => {
     const { data } = await fetchPortal(token);
-    setPortalData(data.items);
+
+    // Filter out the manual orders
+    const filteredData = data.items.filter(
+      (item: PortalType) => item.order_type !== "manual"
+    );
+
+    setPortalData(filteredData);
+  };
+
+  const handleReturnToSpine = async (
+    email: string,
+    id: string,
+    modifiedBy: string,
+    orderSearchId: string
+  ) => {
+    try {
+      await updateOrder(
+        token,
+        email,
+        id,
+        modifiedBy,
+        orderSearchId,
+        "Please return token to the NHS spine and call 0333 8666 977 when done",
+        "return to nhs spine"
+      );
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  };
+  const handleCancelOrder = async (
+    email: string,
+    id: string,
+    modifiedBy: string,
+    orderSearchId: string
+  ) => {
+    try {
+      await updateOrder(
+        token,
+        email,
+        id,
+        modifiedBy,
+        orderSearchId,
+        "Token Invalid - Please check and re-submit",
+        "request cancelled"
+      );
+    } catch (error) {
+      console.error("Error:", error);
+    }
   };
 
   const handleCopyToClipboard = (id: string) => {
     navigator.clipboard.writeText(id);
     setSelectedId(id); // Set the selected ID when copying
-    console.log(selectedId)
+    console.log(selectedId);
     toast({
       title: "Copied to clipboard",
       status: "success",
@@ -88,7 +135,7 @@ const Portal: React.FC = () => {
   ) => {
     if (token && email && id && orderSearchId) {
       try {
-        await updatePatientName(
+        await updateOrder(
           token,
           email,
           id,
@@ -114,7 +161,7 @@ const Portal: React.FC = () => {
 
   return (
     <Box bg="gray.800" minHeight="100vh">
-      <Flex p={2} maxW="90vw" m="auto" borderRadius="5" color={"white"}>
+      <Flex p={2} maxW="80vw" m="auto" borderRadius="5" color={"white"}>
         <Input
           alignSelf={"center"}
           m="auto"
@@ -123,7 +170,6 @@ const Portal: React.FC = () => {
           value={token}
           onChange={(e) => setToken(e.target.value)}
           textAlign={"center"}
-          w="80%"
           outline={"green"}
           fontSize={"xs"}
         />
@@ -132,6 +178,7 @@ const Portal: React.FC = () => {
           colorScheme="green"
           fontSize={"xs"}
           onClick={fetchPortalData}
+          m="5"
         >
           Validate
         </Button>
@@ -139,7 +186,7 @@ const Portal: React.FC = () => {
       <Text textAlign={"center"} color={"orange"}>
         Prints: {printCount}
       </Text>
-      <TableContainer w={"80%"} m="auto">
+      <TableContainer m="auto" w="95%" border={"solid white 1px"}>
         <Table variant="simple">
           <Thead>
             <Tr>
@@ -147,16 +194,26 @@ const Portal: React.FC = () => {
               <Th textAlign={"center"}>Barcode</Th>
               <Th textAlign={"center"}>Name</Th>
               <Th textAlign={"center"}>Print</Th>
+              <Th textAlign={"center"}>RTS</Th>
+              <Th textAlign={"center"}>Invalid</Th>
             </Tr>
           </Thead>
-          <Tbody>
+          <Tbody fontSize={"sm"}>
             {portalData.map((data, index) => {
               if (data.order_type === "manual") return null;
 
               return (
                 <Tr
+                  _hover={{ background: "green.800" }}
                   key={index}
-  color={selectedId === data.id ? "green" : data.patient_name ? "yellow" : "white"} // Change text color when copied
+                  bg={index % 2 === 0 ? "gray.800" : "blue.800"}
+                  color={
+                    selectedId === data.id
+                      ? "salmon"
+                      : data.patient_name
+                      ? "yellow"
+                      : "white"
+                  } // Change text color when copied
                 >
                   <Td textAlign="center">{data.pharmacy_account_number}</Td>
                   <Td textAlign="center">
@@ -168,9 +225,23 @@ const Portal: React.FC = () => {
                       {data.id}
                     </Text>
                   </Td>
-                  <Td textAlign="center">{data.patient_name}</Td>
-                  <Td textAlign="center">
+                  <Td
+                    textAlign="center"
+                    maxW="400px"
+                    whiteSpace="nowrap"
+                    overflow="hidden"
+                    textOverflow="ellipsis"
+                  >
+                    {data.patient_name}
+                  </Td>
+                  <Td
+                    textAlign="center"
+                    w="100px"
+                    borderLeft={"solid 1px white"}
+                  >
                     <Button
+                      colorScheme="green"
+                      size={"sm"}
                       onClick={() =>
                         handleUpdatePatientName(
                           data.email,
@@ -181,7 +252,39 @@ const Portal: React.FC = () => {
                         )
                       }
                     >
-                      Set Printed
+                      Printed
+                    </Button>
+                  </Td>
+                  <Td textAlign="center" w="100px">
+                    <Button
+                      colorScheme="orange"
+                      size={"sm"}
+                      onClick={() =>
+                        handleReturnToSpine(
+                          data.email,
+                          data.id,
+                          userEmail,
+                          data.order_search_id
+                        )
+                      }
+                    >
+                      RTS
+                    </Button>
+                  </Td>
+                  <Td textAlign="center" w="100px">
+                    <Button
+                      colorScheme="red"
+                      size={"sm"}
+                      onClick={() =>
+                        handleCancelOrder(
+                          data.email,
+                          data.id,
+                          userEmail,
+                          data.order_search_id
+                        )
+                      }
+                    >
+                      Invalid
                     </Button>
                   </Td>
                 </Tr>
