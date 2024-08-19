@@ -38,7 +38,7 @@ export interface PortalType {
 const Portal: React.FC = () => {
   const [token, setToken] = useState<string>("");
   const [portalData, setPortalData] = useState<PortalType[]>([]);
-  const [selectedId, setSelectedId] = useState<string | null>(null); // State to track selected row
+  const [selectedId, setSelectedId] = useState<string | null>(null);
   const [printCount, setPrintCount] = useState<number>(0);
   const [userEmail] = useState<string>("liam.burbidge@well.co.uk");
 
@@ -65,11 +65,16 @@ const Portal: React.FC = () => {
   const fetchPortalData = async () => {
     const { data } = await fetchPortal(token);
     setPortalData(data.items);
+    const filteredData = data.items.filter(
+      (item: PortalType) => item.order_type !== "manual"
+    );
+
+    setPortalData(filteredData);
   };
 
   const handleCopyToClipboard = (id: string) => {
     navigator.clipboard.writeText(id);
-    setSelectedId(id); // Set the selected ID when copying
+    setSelectedId(id);
     console.log(selectedId);
     toast({
       title: "Copied to clipboard",
@@ -83,18 +88,22 @@ const Portal: React.FC = () => {
     email: string,
     id: string,
     patientName: string,
-    orderSearchId: string,
-    modifiedBy: string
+    // orderSearchId: string,
+    modifiedBy: string,
+    accountNumber: string,
+    pharmacyName: string
   ) => {
-    if (token && email && id && orderSearchId) {
+    if (token && email && id) {
       try {
         await updatePatientName(
           token,
           email,
           id,
           patientName,
-          orderSearchId,
-          modifiedBy
+          // orderSearchId,
+          modifiedBy,
+          accountNumber,
+          pharmacyName
         );
         await new Promise((resolve) => setTimeout(resolve, 500));
         toast({
@@ -147,18 +156,20 @@ const Portal: React.FC = () => {
           </Thead>
           <Tbody>
             {portalData.map((data, index) => {
-              if (data.order_type === "manual") return null;
-
               return (
                 <Tr
-                  key={index}
+                  _hover={{ background: "green.800" }}
+                  bg={index % 2 === 0 ? "gray.800" : "blue.800"}
                   color={
                     selectedId === data.id
-                      ? "green"
+                      ? "salmon"
                       : data.patient_name
                       ? "yellow"
                       : "white"
                   } // Change text color when copied
+                  key={index}
+
+                  // Change text color when copied
                 >
                   <Td textAlign="center">{data.pharmacy_account_number}</Td>
                   <Td textAlign="center">
@@ -177,9 +188,11 @@ const Portal: React.FC = () => {
                         handleUpdatePatientName(
                           data.email,
                           data.id,
-                          "print",
-                          data.order_search_id,
-                          userEmail
+                          "Print",
+                          // data.order_search_id,
+                          userEmail,
+                          data.pharmacy_account_number,
+                          data.pharmacy_name
                         )
                       }
                     >
