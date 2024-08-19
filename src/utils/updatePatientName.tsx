@@ -1,14 +1,12 @@
-export const updateOrder = async (
+export const updatePatientName = async (
   token: string,
   email: string,
   id: string,
-  modifiedBy: string,
-  orderSearchId?: string,
-  patientName?: string,
-  orderStatus?: string
+  patientName: string,
+  orderSearchId: string,
+  modifiedBy: string
 ) => {
-  const url =
-    "https://vfgar9uinc.execute-api.eu-west-2.amazonaws.com/prod/order";
+  const url = "https://vfgar9uinc.execute-api.eu-west-2.amazonaws.com/prod/order";
   const closeUrl = `${url}/close`;
 
   const headers = {
@@ -19,10 +17,8 @@ export const updateOrder = async (
     "Accept-Language": "en-US,en;q=0.9",
     Origin: "https://fp.bestwaymedhub.co.uk",
     Referer: "https://fp.bestwaymedhub.co.uk/",
-    "User-Agent":
-      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36",
-    "Sec-Ch-Ua":
-      '"Not/A)Brand";v="8", "Chromium";v="126", "Google Chrome";v="126"',
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36",
+    "Sec-Ch-Ua": '"Not/A)Brand";v="8", "Chromium";v="126", "Google Chrome";v="126"',
     "Sec-Ch-Ua-Mobile": "?0",
     "Sec-Ch-Ua-Platform": '"Windows"',
     "Sec-Fetch-Dest": "empty",
@@ -30,11 +26,7 @@ export const updateOrder = async (
     "Sec-Fetch-Site": "cross-site",
   };
 
-  const updatePayload = async (
-    updateKey: string,
-    updateValue: string,
-    close = false
-  ) => {
+  const updatePayload = async (updateKey: string, updateValue: string, close = false) => {
     const payload = {
       email: email,
       id: id,
@@ -62,25 +54,16 @@ export const updateOrder = async (
     // Mark order as open
     await updatePayload("order_open", "open");
 
-    // Update patient name if provided
-    if (patientName) {
-      await updatePayload("patient_name", patientName);
+    // Update patient name
+    await updatePayload("patient_name", patientName);
 
-      // Optionally update order search ID if patientName is provided
-      if (orderSearchId) {
-        await updatePayload("order_search_id", orderSearchId + patientName);
-      }
-    }
-
-    // Update order status if provided
-    if (orderStatus) {
-      await updatePayload("record_status", orderStatus);
-    }
+    // Update order search ID
+    await updatePayload("order_search_id", orderSearchId + patientName);
 
     // Mark order as closed using the close endpoint
     await updatePayload("order_open", "close", true);
 
-    console.log("Order updated successfully");
+    console.log("Patient name and order updated successfully");
   } catch (error) {
     console.error("Error updating order:", error);
   }
