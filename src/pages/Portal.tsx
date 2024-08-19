@@ -70,7 +70,7 @@ const Portal: React.FC = () => {
   const handleCopyToClipboard = (id: string) => {
     navigator.clipboard.writeText(id);
     setSelectedId(id); // Set the selected ID when copying
-    console.log(selectedId)
+    console.log(selectedId);
     toast({
       title: "Copied to clipboard",
       status: "success",
@@ -128,11 +128,7 @@ const Portal: React.FC = () => {
           fontSize={"xs"}
         />
 
-        <Button
-          colorScheme="green"
-          fontSize={"xs"}
-          onClick={fetchPortalData}
-        >
+        <Button colorScheme="green" fontSize={"xs"} onClick={fetchPortalData}>
           Validate
         </Button>
       </Flex>
@@ -156,7 +152,13 @@ const Portal: React.FC = () => {
               return (
                 <Tr
                   key={index}
-  color={selectedId === data.id ? "green" : data.patient_name ? "yellow" : "white"} // Change text color when copied
+                  color={
+                    selectedId === data.id
+                      ? "green"
+                      : data.patient_name
+                      ? "yellow"
+                      : "white"
+                  } // Change text color when copied
                 >
                   <Td textAlign="center">{data.pharmacy_account_number}</Td>
                   <Td textAlign="center">
