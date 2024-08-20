@@ -166,10 +166,9 @@ const Portal: React.FC = () => {
                       : data.patient_name
                       ? "yellow"
                       : "white"
-                  } // Change text color when copied
+                  } 
                   key={index}
 
-                  // Change text color when copied
                 >
                   <Td textAlign="center">{data.pharmacy_account_number}</Td>
                   <Td textAlign="center">
@@ -188,8 +187,7 @@ const Portal: React.FC = () => {
                         handleUpdatePatientName(
                           data.email,
                           data.id,
-                          "Print",
-                          // data.order_search_id,
+                          "print",
                           userEmail,
                           data.pharmacy_account_number,
                           data.pharmacy_name
