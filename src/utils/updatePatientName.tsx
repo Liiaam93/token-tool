@@ -65,6 +65,9 @@ export const updatePatientName = async (
             `Attempt ${attempt} failed to update ${updateKey}`,
             responseData
           );
+          if (responseData.error && responseData.error.errorCode === "OrderCannotBeModified") {
+            throw new Error(`Order cannot be modified: ${responseData.error.message}`);
+          }
           throw new Error(`Failed to update ${updateKey}`);
         }
 
