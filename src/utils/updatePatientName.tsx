@@ -88,7 +88,8 @@ export const updatePatientName = async (
     // Introduce a delay before starting the update process
     await new Promise((resolve) => setTimeout(resolve, 300));
 
-    // Mark order as open
+    // Mark order as open (send twice as observed from the source site)
+    await updatePayload("order_open", "open");
     await updatePayload("order_open", "open");
 
     // Update patient name
