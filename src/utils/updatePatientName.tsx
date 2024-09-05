@@ -9,7 +9,7 @@ export const updatePatientName = async (
 ) => {
   const url =
     "https://vfgar9uinc.execute-api.eu-west-2.amazonaws.com/prod/order";
-  const closeUrl = ${url}/close;
+  const closeUrl = `${url}/close`;
 
   const headers = {
     "Content-Type": "application/json",
@@ -49,7 +49,7 @@ export const updatePatientName = async (
     for (let attempt = 1; attempt <= retryCount; attempt++) {
       try {
         console.log(
-          Attempt ${attempt}: Updating ${updateKey} to ${updateValue}
+          `Attempt ${attempt}: Updating ${updateKey} to ${updateValue}`
         );
 
         const response = await fetch(endpoint, {
@@ -62,20 +62,20 @@ export const updatePatientName = async (
 
         if (!response.ok) {
           console.error(
-            Attempt ${attempt} failed to update ${updateKey},
+            `Attempt ${attempt} failed to update ${updateKey}`,
             responseData
           );
-          throw new Error(Failed to update ${updateKey});
+          throw new Error(`Failed to update ${updateKey}`);
         }
 
         console.log(
-          ${updateKey} updated successfully on attempt ${attempt},
+          `${updateKey} updated successfully on attempt ${attempt}`,
           responseData
         );
         return responseData;
       } catch (error) {
         if (attempt < retryCount) {
-          console.warn(Retrying update for ${updateKey}...);
+          console.warn(`Retrying update for ${updateKey}...`);
           await new Promise((resolve) => setTimeout(resolve, 500)); // Wait before retrying
         } else {
           throw error; // Rethrow the error after max retries
@@ -98,7 +98,7 @@ export const updatePatientName = async (
     await new Promise((resolve) => setTimeout(resolve, 300));
 
     // Update order search ID
-    const orderSearchId = ${accountNumber}-${pharmacyName}-${patientName.toLowerCase()};
+    const orderSearchId = `${accountNumber}-${pharmacyName}-${patientName.toLowerCase()}`;
     await updatePayload("order_search_id", orderSearchId);
 
     // Mark order as closed using the close endpoint
