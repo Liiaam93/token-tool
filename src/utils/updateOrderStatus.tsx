@@ -1,11 +1,9 @@
-export const updatePatientName = async (
+export const updateOrderStatus = async (
   token: string,
   email: string,
   id: string,
-  patientName: string,
-  modifiedBy: string,
-  accountNumber: string,
-  pharmacyName: string
+  status: string,
+  modifiedBy: string
 ) => {
   const url =
     "https://vfgar9uinc.execute-api.eu-west-2.amazonaws.com/prod/order";
@@ -52,23 +50,12 @@ export const updatePatientName = async (
   };
 
   try {
-    // Mark order as open
-    await updatePayload("order_open", "open");
+    // Send request twice as mentioned
+    await updatePayload("record_status", status);
+    await updatePayload("record_status", status);
 
-    // Update patient name
-    await updatePayload("patient_name", patientName);
-
-    // Update order search ID
-    await updatePayload(
-      "order_search_id",
-      `${accountNumber}-${pharmacyName}-${patientName.toLowerCase()}`
-    );
-
-    // Mark order as closed
-    await updatePayload("order_open", "close");
-
-    console.log("Patient name and order updated successfully");
+    console.log("Order status updated successfully");
   } catch (error) {
-    console.error("Error updating order:", error);
+    console.error("Error updating order status:", error);
   }
 };

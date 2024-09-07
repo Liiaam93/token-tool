@@ -16,6 +16,7 @@ import {
 } from "@chakra-ui/react";
 import { fetchPortal } from "../utils/fetchPortal";
 import { updatePatientName } from "../utils/updatePatientName";
+import { updateOrderStatus } from "../utils/updateOrderStatus";
 
 export interface PortalType {
   created_by: string;
@@ -121,6 +122,30 @@ const Portal: React.FC = () => {
     }
   };
 
+  const handleUpdateOrderStatus = async (
+    email: string,
+    id: string,
+    status: string
+  ) => {
+    if (token && email && id) {
+      try {
+        await updateOrderStatus(token, email, id, status, userEmail);
+        await new Promise((resolve) => setTimeout(resolve, 500));
+        toast({
+          title: `Order status updated to ${status}`,
+          status: "success",
+          duration: 2000,
+          isClosable: true,
+        });
+        fetchPortalData();
+      } catch (error) {
+        console.error("Failed to update order status:", error);
+      }
+    } else {
+      console.error("Email and ID are required");
+    }
+  };
+
   return (
     <Box bg="gray.800" minHeight="100vh">
       <Flex p={2} maxW="90vw" m="auto" borderRadius="5" color={"white"}>
@@ -144,7 +169,7 @@ const Portal: React.FC = () => {
       <Text textAlign={"center"} color={"orange"}>
         Prints: {printCount}
       </Text>
-      <TableContainer w={"80%"} m="auto">
+      <TableContainer m="auto">
         <Table variant="simple">
           <Thead>
             <Tr>
@@ -152,6 +177,7 @@ const Portal: React.FC = () => {
               <Th textAlign={"center"}>Barcode</Th>
               <Th textAlign={"center"}>Name</Th>
               <Th textAlign={"center"}>Print</Th>
+              <Th textAlign={"center"}>Status</Th>
             </Tr>
           </Thead>
           <Tbody>
@@ -166,9 +192,8 @@ const Portal: React.FC = () => {
                       : data.patient_name
                       ? "yellow"
                       : "white"
-                  } 
+                  }
                   key={index}
-
                 >
                   <Td textAlign="center">{data.pharmacy_account_number}</Td>
                   <Td textAlign="center">
@@ -195,6 +220,31 @@ const Portal: React.FC = () => {
                       }
                     >
                       Set Printed
+                    </Button>
+                  </Td>
+                  <Td textAlign="center">
+                    <Button
+                      onClick={() =>
+                        handleUpdateOrderStatus(
+                          data.email,
+                          data.id,
+                          "return to nhs spine"
+                        )
+                      }
+                    >
+                      RTS
+                    </Button>
+                    <Button
+                      m="2"
+                      onClick={() =>
+                        handleUpdateOrderStatus(
+                          data.email,
+                          data.id,
+                          "request cancelled"
+                        )
+                      }
+                    >
+                      Invalid
                     </Button>
                   </Td>
                 </Tr>
