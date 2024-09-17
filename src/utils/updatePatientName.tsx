@@ -61,9 +61,7 @@ export const updatePatientName = async (
     // Update order search ID
     await updatePayload(
       "order_search_id",
-      `${accountNumber}-${
-        pharmacyName !== "N/A" ? pharmacyName : ""
-      }-${patientName.toLowerCase()}`
+      `${accountNumber.toLowerCase()}-${pharmacyName.toLowerCase()}-${patientName.toLowerCase()}`
     );
 
     // Mark order as closed
