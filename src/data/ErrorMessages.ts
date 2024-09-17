@@ -3,7 +3,7 @@ export const messages = [
     id: 1,
     error: "Token not returned to spine",
     message:
-      "Thank you for your E-mail, \nPlease return the following token(s) to the spine and reply to this email so we can print the token and your order can be placed. \nPASTE_TOKENS_HERE \nMany thanks",
+      "Thank you for your E-mail, \nPlease return the following token(s) to the spine and reply to this email so that we can place your order. \nPASTE_TOKENS_HERE \nMany thanks",
   },
   {
     id: 2,
