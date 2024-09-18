@@ -111,6 +111,11 @@ const Home: React.FC = () => {
             placeholder="Paste barcodes here..."
             value={value}
             onChange={handleInputChange}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                handleClick();
+              }
+            }}
             w="90%"
             h="60vh"
             m="2"
@@ -138,15 +143,17 @@ const Home: React.FC = () => {
               {`Invalid barcode(s) detected - please double check, as this could be a false error `}
             </Box>
           )}
-          <Flex justifyContent="center" mb="4">
-            <Button
-              colorScheme="green"
-              size="sm"
-              onClick={handleAddScriptNumbers}
-            >
-              {showScriptInput ? "Hide Script Numbers" : "Add Script Numbers"}
-            </Button>
-          </Flex>
+          {formattedBarcodes.length > 0 && (
+            <Flex justifyContent="center" mb="4">
+              <Button
+                colorScheme="green"
+                size="sm"
+                onClick={handleAddScriptNumbers}
+              >
+                {showScriptInput ? "Hide Script Numbers" : "Add Script Numbers"}
+              </Button>
+            </Flex>
+          )}
 
           {formattedBarcodes.map((barcodeData, index) => (
             <BarcodeItem

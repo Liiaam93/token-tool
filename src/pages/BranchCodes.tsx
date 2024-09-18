@@ -50,6 +50,11 @@ const SearchPage: React.FC = () => {
             placeholder="Enter ODS Code, Branch Number, or Postcode"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                handleSearch();
+              }
+            }}
             textAlign={"center"}
             w="50%"
             outline={"green"}
@@ -58,6 +63,7 @@ const SearchPage: React.FC = () => {
           <Button colorScheme="green" onClick={handleSearch}>
             Search
           </Button>
+
           {searchResults.length > 0 ? (
             searchResults.map((pharmacy, index) => (
               <Box
