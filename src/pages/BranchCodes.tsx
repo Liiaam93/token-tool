@@ -44,7 +44,9 @@ const SearchPage: React.FC = () => {
         color={"white"}
       >
         <VStack spacing={4} m="auto" w="100%">
-          <Heading size={"sm"}>Pharmacy Search</Heading>
+          <Heading size={"sm"} fontWeight={"400"}>
+            Pharmacy Search
+          </Heading>
           <Input
             color={"white"}
             placeholder="Enter ODS Code, Branch Number, or Postcode"

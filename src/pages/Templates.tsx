@@ -47,7 +47,9 @@ const Templates = () => {
   return (
     <Box bg="gray.800" minHeight="100vh" color="white">
       <VStack spacing={4} maxW="90vw" m="auto" p={4}>
-        <Heading size={"md"}>Email Message Templates</Heading>
+        <Heading fontWeight={"400"} size={"sm"}>
+          Email Message Templates
+        </Heading>
 
         <Flex wrap={"wrap"} justifyContent={"center"}>
           {templates.length > 0 ? (

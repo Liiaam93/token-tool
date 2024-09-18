@@ -20,25 +20,8 @@ import { fetchPortal } from "../utils/fetchPortal";
 import { updatePatientName } from "../utils/updatePatientName";
 import { updateOrderStatus } from "../utils/updateOrderStatus";
 import { CheckIcon, EditIcon } from "@chakra-ui/icons";
+import { PortalType } from "../types/PortalType";
 import ExpandedRow from "../components/ExpandedRow";
-
-export interface PortalType {
-  created_by: string;
-  created_date: number;
-  created_date_string: string;
-  email: string;
-  id: string;
-  modified_time: string;
-  order_open: boolean;
-  order_search_id: string;
-  order_type: string;
-  patient_name: string;
-  pharmacy_account_number: string;
-  pharmacy_name: string;
-  pharmacy_post_code: string;
-  record_status: string;
-  record_type: string;
-}
 
 const Portal: React.FC = () => {
   const [token, setToken] = useState<string>("");
@@ -70,7 +53,7 @@ const Portal: React.FC = () => {
   }, [portalData]);
 
   const handleExpandRow = (id: string) => {
-    setExpandedRow(expandedRow === id ? null : id); // Toggle row expansion
+    setExpandedRow(expandedRow === id ? null : id);
   };
 
   const fetchPortalData = async () => {
@@ -151,6 +134,7 @@ const Portal: React.FC = () => {
           pharmacyName
         );
 
+        await new Promise((resolve) => setTimeout(resolve, 500));
         await updateOrderStatus(token, email, id, status, userEmail);
         await new Promise((resolve) => setTimeout(resolve, 500));
         toast({
@@ -174,7 +158,6 @@ const Portal: React.FC = () => {
         <InputGroup w="50%">
           <Input
             m="auto"
-            // w="70%"
             color={"white"}
             placeholder="Enter access token"
             value={token}
