@@ -17,8 +17,7 @@ import {
   InputRightElement,
 } from "@chakra-ui/react";
 import { fetchPortal } from "../utils/fetchPortal";
-import { updatePatientName } from "../utils/updatePatientName";
-import { updateOrderStatus } from "../utils/updateOrderStatus";
+import { updateOrder } from "../utils/updateOrder";
 import { CheckIcon, EditIcon } from "@chakra-ui/icons";
 import { PortalType } from "../types/PortalType";
 import ExpandedRow from "../components/ExpandedRow";
@@ -84,20 +83,23 @@ const Portal: React.FC = () => {
     patientName: string,
     modifiedBy: string,
     accountNumber: string,
-    pharmacyName: string
+    pharmacyName: string,
+    scriptNumber?: string
   ) => {
     if (token && email && id) {
       try {
-        await updatePatientName(
+        await updateOrder({
           token,
           email,
           id,
-          patientName,
           modifiedBy,
+          patientName,
           accountNumber,
-          pharmacyName
-        );
-        await new Promise((resolve) => setTimeout(resolve, 500));
+          pharmacyName,
+          scriptNumber, // This is optional
+        });
+
+        await new Promise((resolve) => setTimeout(resolve, 500)); // Delay for consistency
         toast({
           title: "Patient Name Updated",
           status: "success",
@@ -109,7 +111,7 @@ const Portal: React.FC = () => {
         console.error("Failed to update patient name:", error);
       }
     } else {
-      console.error("All fields except patient name are required");
+      console.error("All fields except script number are required");
     }
   };
 
@@ -124,19 +126,19 @@ const Portal: React.FC = () => {
   ) => {
     if (token && email && id) {
       try {
-        await updatePatientName(
+        // First update the patient name and other details (status is passed in this time)
+        await updateOrder({
           token,
           email,
           id,
-          patientName,
           modifiedBy,
+          patientName,
           accountNumber,
-          pharmacyName
-        );
+          pharmacyName,
+          status, // Status is passed here
+        });
 
-        await new Promise((resolve) => setTimeout(resolve, 500));
-        await updateOrderStatus(token, email, id, status, userEmail);
-        await new Promise((resolve) => setTimeout(resolve, 500));
+        await new Promise((resolve) => setTimeout(resolve, 500)); // Delay for consistency
         toast({
           title: `Order status updated to ${status}`,
           status: "success",
@@ -278,6 +280,7 @@ const Portal: React.FC = () => {
                       data={data}
                       email={userEmail}
                       updatePatientName={handleUpdatePatientName}
+                      updateOrderStatus={handleUpdateOrderStatus}
                     />
                   )}
                 </>

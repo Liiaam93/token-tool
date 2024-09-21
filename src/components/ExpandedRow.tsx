@@ -4,24 +4,77 @@ import { PortalType } from "../types/PortalType";
 
 interface ExpandedRowProps {
   data: PortalType;
-  updatePatientName: any;
   email: string;
+  updatePatientName: (
+    email: string,
+    id: string,
+    patientName: string,
+    modifiedBy: string,
+    accountNumber: string,
+    pharmacyName: string,
+    scriptNumber?: string
+  ) => Promise<void>;
+  updateOrderStatus: (
+    email: string,
+    id: string,
+    status: string,
+    patientName: string,
+    modifiedBy: string,
+    accountNumber: string,
+    pharmacyName: string
+  ) => Promise<void>;
 }
 
 const ExpandedRow: React.FC<ExpandedRowProps> = ({
   data,
-  updatePatientName,
   email,
+  updatePatientName,
+  updateOrderStatus,
 }) => {
   const [patientName, setPatientName] = useState(data.patient_name);
+  const [scriptNumber, setScriptNumber] = useState<string>("");
+  const date = new Date(data.created_date * 1000);
+
+  const formattedDate = date.toLocaleDateString("en-GB", {
+    day: "2-digit",
+    month: "2-digit",
+  });
+  const formattedTime = date.toLocaleTimeString("en-US", {
+    hour: "numeric",
+    minute: "numeric",
+    hour12: true,
+  });
+
+  const handleCompleteOrder = async (data: PortalType, email: string) => {
+    await updatePatientName(
+      data.email,
+      data.id,
+      patientName,
+      email,
+      data.pharmacy_account_number,
+      data.pharmacy_name,
+      scriptNumber
+    );
+
+    await updateOrderStatus(
+      data.email,
+      data.id,
+      "ordered",
+      patientName,
+      email,
+      data.pharmacy_account_number,
+      data.pharmacy_name
+    );
+  };
 
   return (
     <Tr>
       <Td colSpan={6} bg="gray.700">
         <Flex>
           <VStack color={"white"} m="2">
-            <Text>{data.pharmacy_name}</Text>
-            <Text>{data.created_date_string}</Text>
+            {data.pharmacy_name !== "n/a" && <Text>{data.pharmacy_name}</Text>}
+            <Text>{formattedDate}</Text>
+            <Text>{formattedTime}</Text>
             <Text>{data.email}</Text>
           </VStack>
           <Input
@@ -37,22 +90,14 @@ const ExpandedRow: React.FC<ExpandedRowProps> = ({
             w="20%"
             color={"white"}
             placeholder="Script Number"
-            value={patientName}
-            onChange={(e) => setPatientName(e.target.value)}
+            value={scriptNumber}
+            inputMode="numeric"
+            onChange={(e) => setScriptNumber(e.target.value)}
           />
           <Button
             colorScheme="green"
             m="2"
-            onClick={() =>
-              updatePatientName(
-                data.email,
-                data.id,
-                "print",
-                email,
-                data.pharmacy_account_number,
-                data.pharmacy_name
-              )
-            }
+            onClick={() => handleCompleteOrder(data, email)}
           >
             Ordered
           </Button>
