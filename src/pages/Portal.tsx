@@ -227,6 +227,8 @@ const Portal: React.FC = () => {
                     <Td textAlign="center">{data.patient_name}</Td>
                     <Td textAlign="center">
                       <Button
+                        colorScheme="blue"
+                        size="xs"
                         onClick={() =>
                           handleUpdatePatientName(
                             data.email,
@@ -243,12 +245,15 @@ const Portal: React.FC = () => {
                     </Td>
                     <Td textAlign="center">
                       <Button
+                        colorScheme="red"
+                        size="xs"
+                        m="2"
                         onClick={() =>
                           handleUpdateOrderStatus(
                             data.email,
                             data.id,
                             "return to nhs spine",
-                            "return to spine",
+                            "Please return to the spine and call 0333 8666 977 when done",
                             userEmail,
                             data.pharmacy_account_number,
                             data.pharmacy_name
@@ -258,13 +263,15 @@ const Portal: React.FC = () => {
                         RTS
                       </Button>
                       <Button
+                        colorScheme="red"
+                        size="xs"
                         m="2"
                         onClick={() =>
                           handleUpdateOrderStatus(
                             data.email,
                             data.id,
                             "request cancelled",
-                            "token invalid - please re-submit",
+                            "token invalid - please check and re-submit",
                             userEmail,
                             data.pharmacy_account_number,
                             data.pharmacy_name
@@ -272,6 +279,24 @@ const Portal: React.FC = () => {
                         }
                       >
                         Invalid
+                      </Button>
+                      <Button
+                        colorScheme="red"
+                        size="xs"
+                        m="2"
+                        onClick={() =>
+                          handleUpdateOrderStatus(
+                            data.email,
+                            data.id,
+                            "request cancelled",
+                            "token has been returned to spine - no order placed",
+                            userEmail,
+                            data.pharmacy_account_number,
+                            data.pharmacy_name
+                          )
+                        }
+                      >
+                        Cancelled
                       </Button>
                     </Td>
                   </Tr>
