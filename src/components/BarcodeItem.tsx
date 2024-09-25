@@ -25,7 +25,9 @@ const BarcodeItem: React.FC<BarcodeItemProps> = ({
   const [scriptNumber, setScriptNumber] = useState("");
 
   const copyToClipboard = () => {
-    navigator.clipboard.writeText(barcodeData.barcode);
+    navigator.clipboard.writeText(
+      barcodeData.barcode.replace(/(.{6})(.{6})(.{6})/, "$1-$2-$3")
+    );
     setLastCopiedBarcode(barcodeData.barcode);
   };
 
