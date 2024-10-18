@@ -8,7 +8,7 @@ export const fetchPortal = (token: string) => {
       pageSize: "100",
       page: "1",
     }
-  ).toString()}&recordStatus=return%20to%20nhs%20spine`,
+  ).toString()}&recordStatus=request%submitted`,
     {
       headers: {
         Authorization: token,
