@@ -8,7 +8,7 @@ export const fetchPortal = (token: string) => {
       pageSize: "100",
       page: "1",
     }
-  ).toString()}&recordStatus=request%submitted`,
+  ).toString()}&recordStatus=request%20submitted`,
     {
       headers: {
         Authorization: token,
