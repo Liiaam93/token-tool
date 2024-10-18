@@ -36,7 +36,7 @@ const MessageDisplay: React.FC<DisplayMessageProps> = ({
           .map((token) => token.replace(/(.{6})(.{6})(.{6})/, "$1-$2-$3"))
           .join("\n");
 
-        return `\nPlease return the following token(s) to the spine and reply to this email so that we can print the token(s) and your order can be placed.:\n\n${tokensString}\n`;
+        return `\nPlease return the following token(s) to the spine and reply to this email so that we can print the token(s) and your order can be placed:\n\n${tokensString}\n`;
       }
       return "";
     };
