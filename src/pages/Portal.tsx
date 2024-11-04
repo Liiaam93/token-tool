@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   AlertDialog,
   AlertDialogBody,
@@ -40,8 +40,11 @@ const Portal: React.FC = () => {
     "request%20submitted"
   );
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-
+  const [dialogMessage, setDialogMessage] = useState<React.ReactNode>("");
+  const [dialogAction, setDialogAction] = useState<() => void>(() => {});
   const [userEmail] = useState<string>("liam.burbidge@well.co.uk");
+
+  const cancelRef = useRef(null);
 
   const toast = useToast();
 
@@ -100,7 +103,16 @@ const Portal: React.FC = () => {
       isClosable: true,
     });
   };
+  const handleOpenDialog = (message: React.ReactNode, action: () => void) => {
+    setDialogMessage(message);
+    setDialogAction(() => action);
+    setIsDialogOpen(true);
+  };
 
+  const handleConfirm = () => {
+    dialogAction();
+    setIsDialogOpen(false);
+  };
   const handleUpdatePatientName = async (
     email: string,
     id: string,
@@ -234,140 +246,215 @@ const Portal: React.FC = () => {
         </Select>
       </HStack>
 
-      <TableContainer m="auto">
+      <TableContainer m="auto" maxWidth="100vw" overflowX="auto">
         <Table variant="simple">
           <Thead>
             <Tr>
-              <Th> </Th>
-              <Th textAlign={"center"}>Account</Th>
-              <Th textAlign={"center"}>Barcode</Th>
-              <Th textAlign={"center"}>Name</Th>
-              <Th textAlign={"center"}>Print</Th>
-              <Th textAlign={"center"}>Status</Th>
+              <Th width="50px"> </Th>
+              <Th textAlign="center" width="150px">
+                Account
+              </Th>
+              <Th textAlign="center" width="200px">
+                Barcode
+              </Th>
+              <Th textAlign="center" width="250px">
+                Name
+              </Th>
+              <Th textAlign="center" width="150px">
+                Print
+              </Th>
+              <Th textAlign="center" width="300px">
+                Status
+              </Th>
             </Tr>
           </Thead>
           <Tbody>
-            {portalData.map((data, index) => {
-              return (
-                <>
-                  <Tr
-                    _hover={{ background: "green.800" }}
-                    bg={index % 2 === 0 ? "gray.800" : "blue.800"}
-                    color={
-                      selectedId === data.id
-                        ? "salmon"
-                        : data.patient_name
-                        ? "yellow"
-                        : "white"
-                    }
-                    key={index}
-                  >
-                    <Td>
-                      <EditIcon
-                        _hover={{ cursor: "pointer" }}
-                        onClick={() => handleExpandRow(data.id)}
-                      />
-                    </Td>
-                    <Td textAlign="center">{data.pharmacy_account_number}</Td>
-                    <Td textAlign="center">
-                      <Text
-                        cursor="pointer"
-                        _hover={{ textDecoration: "underline" }}
-                        onClick={() => handleCopyToClipboard(data.id)}
-                      >
-                        {data.id}
-                      </Text>
-                    </Td>
-                    <Td textAlign="center">{data.patient_name}</Td>
-                    <Td textAlign="center">
-                      <Button
-                        colorScheme="blue"
-                        size="xs"
-                        onClick={() =>
-                          handleUpdatePatientName(
-                            data.email,
-                            data.id,
-                            "print",
-                            userEmail,
-                            data.pharmacy_account_number,
-                            data.pharmacy_name
-                          )
-                        }
-                      >
-                        Set Printed
-                      </Button>
-                    </Td>
-                    <Td textAlign="center">
-                      <Button
-                        colorScheme="red"
-                        size="xs"
-                        m="2"
-                        onClick={() =>
-                          handleUpdateOrderStatus(
-                            data.email,
-                            data.id,
-                            "return to nhs spine",
-                            "Please return to the spine and call 0333 8666 977 when done",
-                            userEmail,
-                            data.pharmacy_account_number,
-                            data.pharmacy_name
-                          )
-                        }
-                      >
-                        RTS
-                      </Button>
-                      <Button
-                        colorScheme="red"
-                        size="xs"
-                        m="2"
-                        onClick={() =>
-                          handleUpdateOrderStatus(
-                            data.email,
-                            data.id,
-                            "request cancelled",
-                            "token invalid - please check and re-submit",
-                            userEmail,
-                            data.pharmacy_account_number,
-                            data.pharmacy_name
-                          )
-                        }
-                      >
-                        Invalid
-                      </Button>
-                      <Button
-                        colorScheme="red"
-                        size="xs"
-                        m="2"
-                        onClick={() =>
-                          handleUpdateOrderStatus(
-                            data.email,
-                            data.id,
-                            "request cancelled",
-                            "token has been returned to spine - no order placed",
-                            userEmail,
-                            data.pharmacy_account_number,
-                            data.pharmacy_name
-                          )
-                        }
-                      >
-                        Cancelled
-                      </Button>
-                    </Td>
-                  </Tr>
-                  {expandedRow === data.id && (
-                    <ExpandedRow
-                      data={data}
-                      email={userEmail}
-                      updatePatientName={handleUpdatePatientName}
-                      updateOrderStatus={handleUpdateOrderStatus}
+            {portalData.map((data, index) => (
+              <>
+                <Tr
+                  _hover={{ background: "green.800" }}
+                  bg={index % 2 === 0 ? "gray.800" : "blue.800"}
+                  color={
+                    selectedId === data.id
+                      ? "salmon"
+                      : data.patient_name
+                      ? "yellow"
+                      : "white"
+                  }
+                  key={index}
+                >
+                  <Td width="50px">
+                    <EditIcon
+                      _hover={{ cursor: "pointer" }}
+                      onClick={() => handleExpandRow(data.id)}
                     />
-                  )}
-                </>
-              );
-            })}
+                  </Td>
+                  <Td textAlign="center" width="150px">
+                    {data.pharmacy_account_number}
+                  </Td>
+                  <Td textAlign="center" width="200px">
+                    <Text
+                      cursor="pointer"
+                      _hover={{ textDecoration: "underline" }}
+                      onClick={() => handleCopyToClipboard(data.id)}
+                    >
+                      {data.id}
+                    </Text>
+                  </Td>
+                  <Td
+                    textAlign="center"
+                    width="250px"
+                    whiteSpace="nowrap"
+                    overflow="hidden"
+                    textOverflow="ellipsis"
+                    maxWidth="250px"
+                  >
+                    {data.patient_name}
+                  </Td>
+                  <Td textAlign="center" width="150px">
+                    <Button
+                      colorScheme="blue"
+                      size="xs"
+                      onClick={() =>
+                        handleUpdatePatientName(
+                          data.email,
+                          data.id,
+                          "print",
+                          userEmail,
+                          data.pharmacy_account_number,
+                          data.pharmacy_name
+                        )
+                      }
+                    >
+                      Set Printed
+                    </Button>
+                  </Td>
+                  <Td textAlign="center" width="300px">
+                    <Button
+                      colorScheme="red"
+                      size="xs"
+                      m="2"
+                      onClick={() =>
+                        handleOpenDialog(
+                          <>
+                            <Text>
+                              Mark this order as 'Please return to the spine and
+                              call 0333 8666 977 when done'?
+                            </Text>
+                            <Text>Account: {data.pharmacy_account_number}</Text>
+                            <Text>Barcode: {data.id}</Text>
+                          </>,
+                          () =>
+                            handleUpdateOrderStatus(
+                              data.email,
+                              data.id,
+                              "return to nhs spine",
+                              "Please return to the spine and call 0333 8666 977 when done",
+                              userEmail,
+                              data.pharmacy_account_number,
+                              data.pharmacy_name
+                            )
+                        )
+                      }
+                    >
+                      RTS
+                    </Button>
+                    <Button
+                      colorScheme="red"
+                      size="xs"
+                      m="2"
+                      onClick={() =>
+                        handleOpenDialog(
+                          <>
+                            <Text>
+                              Mark this order as 'token invalid - please
+                              re-submit the correct barcode'?
+                            </Text>
+                            <Text>Account: {data.pharmacy_account_number}</Text>
+                            <Text>Barcode: {data.id}</Text>
+                          </>,
+                          () =>
+                            handleUpdateOrderStatus(
+                              data.email,
+                              data.id,
+                              "request cancelled",
+                              "token invalid - please check and re-submit",
+                              userEmail,
+                              data.pharmacy_account_number,
+                              data.pharmacy_name
+                            )
+                        )
+                      }
+                    >
+                      Invalid
+                    </Button>
+                    <Button
+                      colorScheme="red"
+                      size="xs"
+                      m="2"
+                      onClick={() =>
+                        handleOpenDialog(
+                          <>
+                            <Text>
+                              Mark this order as 'request cancelled - token has
+                              been returned to NHS spine'?
+                            </Text>
+                            <Text>Account: {data.pharmacy_account_number}</Text>
+                            <Text>Barcode: {data.id}</Text>
+                          </>,
+                          () =>
+                            handleUpdateOrderStatus(
+                              data.email,
+                              data.id,
+                              "request cancelled",
+                              "token has been returned to spine - no order placed",
+                              userEmail,
+                              data.pharmacy_account_number,
+                              data.pharmacy_name
+                            )
+                        )
+                      }
+                    >
+                      Cancelled
+                    </Button>
+                  </Td>
+                </Tr>
+                {expandedRow === data.id && (
+                  <ExpandedRow
+                    data={data}
+                    email={userEmail}
+                    updatePatientName={handleUpdatePatientName}
+                    updateOrderStatus={handleUpdateOrderStatus}
+                  />
+                )}
+              </>
+            ))}
           </Tbody>
         </Table>
       </TableContainer>
+
+      <AlertDialog
+        isOpen={isDialogOpen}
+        leastDestructiveRef={cancelRef}
+        onClose={() => setIsDialogOpen(false)}
+      >
+        <AlertDialogOverlay>
+          <AlertDialogContent>
+            <AlertDialogHeader fontSize="lg" fontWeight="bold">
+              Confirm Action
+            </AlertDialogHeader>
+            <AlertDialogBody>{dialogMessage}</AlertDialogBody>
+            <AlertDialogFooter>
+              <Button ref={cancelRef} onClick={() => setIsDialogOpen(false)}>
+                No
+              </Button>
+              <Button colorScheme="red" onClick={handleConfirm} ml={3}>
+                Yes
+              </Button>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialogOverlay>
+      </AlertDialog>
     </Box>
   );
 };
