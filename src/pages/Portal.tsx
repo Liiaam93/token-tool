@@ -1,5 +1,11 @@
 import React, { useEffect, useState } from "react";
 import {
+  AlertDialog,
+  AlertDialogBody,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogContent,
+  AlertDialogOverlay,
   Box,
   Button,
   Flex,
@@ -15,6 +21,8 @@ import {
   useToast,
   InputGroup,
   InputRightElement,
+  Select,
+  HStack,
 } from "@chakra-ui/react";
 import { fetchPortal } from "../utils/fetchPortal";
 import { updateOrder } from "../utils/updateOrder";
@@ -28,6 +36,10 @@ const Portal: React.FC = () => {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [printCount, setPrintCount] = useState<number>(0);
   const [expandedRow, setExpandedRow] = useState<string | null>(null); // New state to track expanded row
+  const [statusFilter, setStatusFilter] = useState<string>(
+    "request%20submitted"
+  );
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const [userEmail] = useState<string>("liam.burbidge@well.co.uk");
 
@@ -51,18 +63,30 @@ const Portal: React.FC = () => {
     });
   }, [portalData]);
 
+  useEffect(() => {
+    fetchPortalData(); // Fetch data when statusFilter changes
+    console.log(statusFilter);
+  }, [statusFilter]);
+
   const handleExpandRow = (id: string) => {
     setExpandedRow(expandedRow === id ? null : id);
   };
 
   const fetchPortalData = async () => {
-    const { data } = await fetchPortal(token);
-    setPortalData(data.items);
-    const filteredData = data.items.filter(
-      (item: PortalType) => item.order_type !== "manual"
-    );
+    try {
+      const { data } = await fetchPortal(token, statusFilter);
+      console.log("Fetched data:", data); // Inspect the response data here
 
-    setPortalData(filteredData);
+      const filteredData = data.items.filter(
+        (item: PortalType) => item.order_type !== "manual"
+      );
+      setPortalData(filteredData);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  };
+  const handleStatusChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    setStatusFilter(encodeURIComponent(event.target.value.trim())); // Added .trim() to avoid accidental spaces
   };
 
   const handleCopyToClipboard = (id: string) => {
@@ -177,9 +201,39 @@ const Portal: React.FC = () => {
           </InputRightElement>
         </InputGroup>
       </Flex>
-      <Text textAlign={"center"} color={"orange"}>
-        Prints: {printCount}
-      </Text>
+      <HStack m="auto" justifyContent="center" w="100%">
+        <Text
+          textAlign="center"
+          color="orange"
+          w="30%"
+          border="solid white 1px"
+          borderRadius="5"
+          height="38px"
+          display="flex" // Set display to flex
+          alignItems="center" // Center content vertically
+          justifyContent="center" // Center content horizontally (optional)
+        >
+          Prints: {printCount}
+        </Text>
+        <Select
+          color="white"
+          w="30%"
+          onChange={handleStatusChange}
+          value={statusFilter.replace(/%20/g, " ")} // Convert back to readable format for display
+          sx={{
+            option: {
+              backgroundColor: "gray.800", // Background color of each option
+              color: "white", // Text color
+            },
+          }}
+        >
+          <option value="request submitted">Request Submitted</option>
+          <option value="return to nhs spine">Return to Spine</option>
+          <option value="request cancelled">Request Cancelled</option>
+          <option value="ordered">Ordered</option>
+        </Select>
+      </HStack>
+
       <TableContainer m="auto">
         <Table variant="simple">
           <Thead>
