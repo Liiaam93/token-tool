@@ -240,9 +240,12 @@ const Portal: React.FC = () => {
           }}
         >
           <option value="request submitted">Request Submitted</option>
-          <option value="return to nhs spine">Return to Spine</option>
-          <option value="request cancelled">Request Cancelled</option>
-          <option value="ordered">Ordered</option>
+          <option value="Please return this token to the Spine">
+            Return to Spine
+          </option>
+          <option value="Order cancelled">Request Cancelled</option>
+          <option value="Order placed">Ordered</option>
+          <option value="">No filter</option>
         </Select>
       </HStack>
 
@@ -348,8 +351,8 @@ const Portal: React.FC = () => {
                             handleUpdateOrderStatus(
                               data.email,
                               data.id,
-                              "return to nhs spine",
-                              "Please return to the spine and call 0333 8666 977 when done",
+                              "Please return this token to the Spine",
+                              "Please return to the spine and update this order when done.",
                               userEmail,
                               data.pharmacy_account_number,
                               data.pharmacy_name
@@ -377,8 +380,8 @@ const Portal: React.FC = () => {
                             handleUpdateOrderStatus(
                               data.email,
                               data.id,
-                              "request cancelled",
-                              "token invalid - please check and re-submit",
+                              "Barcode incorrect - please resend in the comments box below or request to cancel the order",
+                              "Invalid Barcode - Please check and ammend this order",
                               userEmail,
                               data.pharmacy_account_number,
                               data.pharmacy_name
