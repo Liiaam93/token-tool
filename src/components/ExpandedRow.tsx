@@ -59,7 +59,7 @@ const ExpandedRow: React.FC<ExpandedRowProps> = ({
     await updateOrderStatus(
       data.email,
       data.id,
-      "ordered",
+      "Order placed",
       patientName,
       email,
       data.pharmacy_account_number,
