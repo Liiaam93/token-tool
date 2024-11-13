@@ -409,7 +409,7 @@ const Portal: React.FC = () => {
                             handleUpdateOrderStatus(
                               data.email,
                               data.id,
-                              "request cancelled",
+                              "Order cancelled",
                               "token has been returned to spine - no order placed",
                               userEmail,
                               data.pharmacy_account_number,
