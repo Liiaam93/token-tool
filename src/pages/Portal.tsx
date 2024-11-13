@@ -81,8 +81,8 @@ const Portal: React.FC = () => {
       console.log("Fetched data:", data); // Inspect the response data here
 
       const filteredData = data.items.filter(
-        (item: PortalType) => item.order_type !== "manual"
-      );
+      (item: PortalType) => item.order_type === "eps"
+    );
       setPortalData(filteredData);
     } catch (error) {
       console.error("Error fetching data:", error);
