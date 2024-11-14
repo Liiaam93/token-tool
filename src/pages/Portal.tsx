@@ -245,8 +245,9 @@ const Portal: React.FC = () => {
           </option>
           <option value="Order cancelled">Request Cancelled</option>
           <option value="Order placed">Ordered</option>
-          <option value="Request cancelled">Req Canx</option>
-          <option value="">No filter</option>
+          <option value="Item out of stock, do you want to place on back order?">Item OOS</option>
+          <option value="Please call Wardles about this order – 0800 050 1055">Please call wardles</option>
+          <option value="">No Filter</option>
         </Select>
       </HStack>
 
