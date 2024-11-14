@@ -5,7 +5,7 @@ export const fetchPortal = (token: string, statusFilter: string) => {
     `
   https://vfgar9uinc.execute-api.eu-west-2.amazonaws.com/prod/fp/order?${new URLSearchParams(
     {
-      pageSize: "100",
+      pageSize: "200",
       page: "1",
     }
   ).toString()}&recordStatus=${statusFilter}`,
