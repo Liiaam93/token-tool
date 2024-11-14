@@ -78,7 +78,7 @@ const Portal: React.FC = () => {
   const fetchPortalData = async () => {
     try {
       const { data } = await fetchPortal(token, statusFilter);
-      console.log("Fetched data:", data); // Inspect the response data here
+      console.log("Fetched data:", data); 
 
       const filteredData = data.items.filter(
       (item: PortalType) => item.order_type === "eps"
