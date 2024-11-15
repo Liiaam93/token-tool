@@ -1,6 +1,10 @@
 import axios from "axios";
 
-export const fetchPortal = (token: string, statusFilter: string) => {
+export const fetchPortal = (
+  token: string,
+  statusFilter: string,
+  searchQuery: string
+) => {
   let url = `
   https://vfgar9uinc.execute-api.eu-west-2.amazonaws.com/prod/fp/order?${new URLSearchParams(
     {
@@ -11,6 +15,9 @@ export const fetchPortal = (token: string, statusFilter: string) => {
 
   if (statusFilter) {
     url += `&recordStatus=${statusFilter}`;
+  }
+  if (searchQuery) {
+    url += `&searchText=${searchQuery}`;
   }
 
   return axios.get(url, {

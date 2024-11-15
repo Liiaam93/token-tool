@@ -26,7 +26,7 @@ import {
 } from "@chakra-ui/react";
 import { fetchPortal } from "../utils/fetchPortal";
 import { updateOrder } from "../utils/updateOrder";
-import { CheckIcon, EditIcon } from "@chakra-ui/icons";
+import { CheckIcon, EditIcon, SearchIcon } from "@chakra-ui/icons";
 import { PortalType } from "../types/PortalType";
 import ExpandedRow from "../components/ExpandedRow";
 
@@ -39,6 +39,8 @@ const Portal: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState<string>(
     "request%20submitted"
   );
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [dialogMessage, setDialogMessage] = useState<React.ReactNode>("");
   const [dialogAction, setDialogAction] = useState<() => void>(() => {});
@@ -77,8 +79,9 @@ const Portal: React.FC = () => {
   };
 
   const fetchPortalData = async () => {
+    setLoading(true);
     try {
-      const { data } = await fetchPortal(token, statusFilter);
+      const { data } = await fetchPortal(token, statusFilter, searchQuery);
       console.log("Fetched data:", data);
 
       const filteredData = data.items.filter(
@@ -88,6 +91,7 @@ const Portal: React.FC = () => {
     } catch (error) {
       console.error("Error fetching data:", error);
     }
+    setLoading(false);
   };
   const handleStatusChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     setStatusFilter(encodeURIComponent(event.target.value.trim())); // Added .trim() to avoid accidental spaces
@@ -228,6 +232,24 @@ const Portal: React.FC = () => {
         >
           Prints: {printCount}
         </Text>
+        <InputGroup w="50%">
+          <Input
+            color={"white"}
+            placeholder="Search"
+            textAlign={"center"}
+            outline={"green"}
+            fontSize={"xs"}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+
+          <InputRightElement>
+            <SearchIcon
+              color={"white"}
+              _hover={{ color: "green", cursor: "pointer" }}
+              onClick={fetchPortalData}
+            />
+          </InputRightElement>
+        </InputGroup>
         <Select
           key={statusFilter} // Forces re-render on change
           color="white"
@@ -258,7 +280,11 @@ const Portal: React.FC = () => {
           <option value="">No Filter</option>
         </Select>
       </HStack>
-
+      {loading && (
+        <Text textAlign={"center"} color={"white"} margin={"auto"}>
+          Loading...
+        </Text>
+      )}
       <TableContainer m="auto" maxWidth="100vw" overflowX="auto">
         <Table variant="simple">
           <Thead>
