@@ -14,4 +14,5 @@ export interface PortalType {
   pharmacy_post_code: string;
   record_status: string;
   record_type: string;
+  customer_comment: string;
 }

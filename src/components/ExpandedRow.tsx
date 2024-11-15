@@ -78,6 +78,7 @@ const ExpandedRow: React.FC<ExpandedRowProps> = ({
             <Text>{data.email}</Text>
             <Text>{data.order_type}</Text>
             <Text>{data.record_status}</Text>
+            <Text>{data.customer_comment}</Text>
           </VStack>
           <Input
             m="2"

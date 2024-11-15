@@ -43,6 +43,7 @@ const Portal: React.FC = () => {
   const [dialogMessage, setDialogMessage] = useState<React.ReactNode>("");
   const [dialogAction, setDialogAction] = useState<() => void>(() => {});
   const [userEmail] = useState<string>("liam.burbidge@well.co.uk");
+  const displayStatusFilter = statusFilter.replace(/%20/g, " ");
 
   const cancelRef = useRef(null);
 
@@ -78,11 +79,11 @@ const Portal: React.FC = () => {
   const fetchPortalData = async () => {
     try {
       const { data } = await fetchPortal(token, statusFilter);
-      console.log("Fetched data:", data); 
+      console.log("Fetched data:", data);
 
       const filteredData = data.items.filter(
-      (item: PortalType) => item.order_type === "eps"
-    );
+        (item: PortalType) => item.order_type === "eps"
+      );
       setPortalData(filteredData);
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -228,14 +229,20 @@ const Portal: React.FC = () => {
           Prints: {printCount}
         </Text>
         <Select
+          key={statusFilter} // Forces re-render on change
           color="white"
           w="30%"
           onChange={handleStatusChange}
-          value={statusFilter.replace(/%20/g, " ")} // Convert back to readable format for display
+          value={
+            displayStatusFilter ===
+            "Item out of stock, do you want to place on back order?"
+              ? "Item out of stock, do you want to place on back order?"
+              : displayStatusFilter
+          }
           sx={{
             option: {
-              backgroundColor: "gray.800", // Background color of each option
-              color: "white", // Text color
+              backgroundColor: "gray.800",
+              color: "white",
             },
           }}
         >
@@ -245,8 +252,9 @@ const Portal: React.FC = () => {
           </option>
           <option value="Order cancelled">Request Cancelled</option>
           <option value="Order placed">Ordered</option>
-          <option value="Item out of stock, do you want to place on back order?">Item OOS</option>
-          <option value="Please call Wardles about this order – 0800 050 1055">Please call wardles</option>
+          <option value="Item out of stock, do you want to place on back order?">
+            Item Out of stock
+          </option>
           <option value="">No Filter</option>
         </Select>
       </HStack>
@@ -297,6 +305,9 @@ const Portal: React.FC = () => {
                   <Td textAlign="center" width="150px">
                     {data.pharmacy_account_number}
                   </Td>
+                  {data.customer_comment && (
+                    <Text color={"green"}>Comment</Text>
+                  )}
                   <Td textAlign="center" width="200px">
                     <Text
                       cursor="pointer"
