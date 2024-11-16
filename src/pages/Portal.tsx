@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   AlertDialog,
   AlertDialogBody,
@@ -26,7 +26,7 @@ import {
 } from "@chakra-ui/react";
 import { fetchPortal } from "../utils/fetchPortal";
 import { updateOrder } from "../utils/updateOrder";
-import { CheckIcon, EditIcon, SearchIcon } from "@chakra-ui/icons";
+import { CheckIcon, EditIcon, SearchIcon, ChatIcon } from "@chakra-ui/icons";
 import { PortalType } from "../types/PortalType";
 import ExpandedRow from "../components/ExpandedRow";
 
@@ -34,44 +34,43 @@ const Portal: React.FC = () => {
   const [token, setToken] = useState<string>("");
   const [portalData, setPortalData] = useState<PortalType[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [printCount, setPrintCount] = useState<number>(0);
   const [expandedRow, setExpandedRow] = useState<string | null>(null); // New state to track expanded row
-  const [statusFilter, setStatusFilter] = useState<string>(
-    "request%20submitted"
-  );
+  const [statusFilter, setStatusFilter] = useState<string>("Submitted");
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [dialogMessage, setDialogMessage] = useState<React.ReactNode>("");
   const [dialogAction, setDialogAction] = useState<() => void>(() => {});
   const [userEmail] = useState<string>("liam.burbidge@well.co.uk");
-  const displayStatusFilter = statusFilter.replace(/%20/g, " ");
 
   const cancelRef = useRef(null);
 
   const toast = useToast();
 
   useEffect(() => {
+    if (token) fetchPortalData();
+
+    // Set up the interval
     const intervalId = setInterval(() => {
-      fetchPortalData();
+      if (token) fetchPortalData();
     }, 120000);
 
+    // Clear interval on cleanup
     return () => clearInterval(intervalId);
   }, [token]);
 
-  useEffect(() => {
-    setPrintCount(0);
-    portalData.forEach((e) => {
-      if (e.patient_name) {
-        const name = e.patient_name.toLowerCase();
-        if (name === "print") setPrintCount((prev) => prev + 1);
-      }
-    });
+  const printCount = useMemo(() => {
+    return portalData.reduce((count, e) => {
+      const name = e.patient_name?.toLowerCase();
+      return name === "print" ? count + 1 : count;
+    }, 0);
   }, [portalData]);
 
   useEffect(() => {
-    fetchPortalData(); // Fetch data when statusFilter changes
-    console.log(statusFilter);
+    if (token) {
+      fetchPortalData(); // Fetch data when statusFilter changes
+      console.log(statusFilter);
+    }
   }, [statusFilter]);
 
   const handleExpandRow = (id: string) => {
@@ -255,12 +254,7 @@ const Portal: React.FC = () => {
           color="white"
           w="30%"
           onChange={handleStatusChange}
-          value={
-            displayStatusFilter ===
-            "Item out of stock, do you want to place on back order?"
-              ? "Item out of stock, do you want to place on back order?"
-              : displayStatusFilter
-          }
+          value={statusFilter}
           sx={{
             option: {
               backgroundColor: "gray.800",
@@ -268,15 +262,12 @@ const Portal: React.FC = () => {
             },
           }}
         >
-          <option value="request submitted">Request Submitted</option>
-          <option value="Please return this token to the Spine">
-            Return to Spine
-          </option>
-          <option value="Order cancelled">Request Cancelled</option>
-          <option value="Order placed">Ordered</option>
-          <option value="Item out of stock, do you want to place on back order?">
-            Item Out of stock
-          </option>
+          <option value="Submitted">Request Submitted</option>
+          <option value="RTS">Return to Spine</option>
+          <option value="Cancelled">Request Cancelled</option>
+          <option value="Ordered">Ordered</option>
+          <option value="OOS">Item Out of stock</option>
+          <option value="Invalid">Invalid Barcode</option>
           <option value="">No Filter</option>
         </Select>
       </HStack>
@@ -331,9 +322,7 @@ const Portal: React.FC = () => {
                   <Td textAlign="center" width="150px">
                     {data.pharmacy_account_number}
                   </Td>
-                  {data.customer_comment && (
-                    <Text color={"green"}>Comment</Text>
-                  )}
+
                   <Td textAlign="center" width="200px">
                     <Text
                       cursor="pointer"
@@ -351,6 +340,10 @@ const Portal: React.FC = () => {
                     textOverflow="ellipsis"
                     maxWidth="250px"
                   >
+                    {(data.customer_comment || data.customer_record_status) && (
+                      <ChatIcon color={"green"} />
+                    )}
+
                     {data.patient_name}
                   </Td>
                   <Td textAlign="center" width="150px">

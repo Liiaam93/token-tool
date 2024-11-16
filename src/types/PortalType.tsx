@@ -15,4 +15,5 @@ export interface PortalType {
   record_status: string;
   record_type: string;
   customer_comment: string;
+  customer_record_status: string;
 }
