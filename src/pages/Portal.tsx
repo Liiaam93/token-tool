@@ -454,7 +454,7 @@ const Portal: React.FC = () => {
                       Cancelled
                     </Button>
 {/*                        <Td width="100px"> */}
-                    <Text textAlign="center" borderRadius="10" backgroundColor={data.record_status === 'Order placed' ? 'green' : 'orange'} >{data.record_status}</Text>
+                    <Text textAlign="center" borderRadius="10" backgroundColor={data.record_status === 'Order placed' ? 'green' : 'orange'} margin='auto' >{data.record_status}</Text>
 {/*                   </Td> */}
                   </Td>
                 </Tr>
