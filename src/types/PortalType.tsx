@@ -16,4 +16,5 @@ export interface PortalType {
   record_type: string;
   customer_comment: string;
   customer_record_status: string;
+  prescriptionExemptions: string;
 }
