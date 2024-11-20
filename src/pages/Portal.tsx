@@ -319,9 +319,7 @@ const Portal: React.FC = () => {
                       onClick={() => handleExpandRow(data.id)}
                     />
                   </Td>
-                    <Td width="100px">
-                    <Text textAlign="center" borderRadius="10" backgroundColor={data.record_status === 'Order placed' ? 'green' : 'orange'} >{data.record_status}</Text>
-                  </Td>
+                 
                   <Td textAlign="center" width="150px">
                     {data.pharmacy_account_number}
                   </Td>
@@ -455,6 +453,9 @@ const Portal: React.FC = () => {
                     >
                       Cancelled
                     </Button>
+{/*                        <Td width="100px"> */}
+                    <Text textAlign="center" borderRadius="10" backgroundColor={data.record_status === 'Order placed' ? 'green' : 'orange'} >{data.record_status}</Text>
+{/*                   </Td> */}
                   </Td>
                 </Tr>
                 {expandedRow === data.id && (
