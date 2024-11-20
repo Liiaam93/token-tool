@@ -17,4 +17,5 @@ export interface PortalType {
   customer_comment: string;
   customer_record_status: string;
   prescriptionExemptions: string;
+  awards_script_number: string;
 }
