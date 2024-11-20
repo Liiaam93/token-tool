@@ -83,11 +83,10 @@ const Portal: React.FC = () => {
       const { data } = await fetchPortal(token, statusFilter, searchQuery);
       console.log("Fetched data:", data);
 
-      // const filteredData = data.items.filter(
-      //   (item: PortalType) => item.order_type === "eps"
-      // );
-      // setPortalData(filteredData);
-setPortalData(data)
+      const filteredData = data.items.filter(
+        (item: PortalType) => item.order_type === "manual"
+      );
+      setPortalData(filteredData);
     } catch (error) {
       console.error("Error fetching data:", error);
     }
