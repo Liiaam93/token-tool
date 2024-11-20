@@ -453,19 +453,19 @@ const Portal: React.FC = () => {
                     >
                       Cancelled
                     </Button>
-{/*                        <Td width="100px"> */}
-                    <Text color='white'                     
+                    <Text 
+                    color='white'                     
                     overflow="hidden"
                     textOverflow="ellipsis" 
                     maxWidth='400px'
                     textAlign="center" 
                     borderRadius="10" 
-                    padding="2"
+                    paddingHorizontal="2"
+                    fontSize="sm"
                     backgroundColor={data.record_status === 'Order placed' ? 'green' : 'orange'} 
-                    margin='auto' >
+                    margin='auto'>
                       {data.record_status}{data.record_status === 'Order placed' ? ': '+data.awards_script_number : ''}
                     </Text>
-{/*                   </Td> */}
                   </Td>
                 </Tr>
                 {expandedRow === data.id && (
