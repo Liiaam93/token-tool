@@ -460,6 +460,7 @@ const Portal: React.FC = () => {
                     maxWidth='400px'
                     textAlign="center" 
                     borderRadius="10" 
+                    padding="2"
                     backgroundColor={data.record_status === 'Order placed' ? 'green' : 'orange'} 
                     margin='auto' >
                       {data.record_status}{data.record_status === 'Order placed' ? ': '+data.awards_script_number : ''}
