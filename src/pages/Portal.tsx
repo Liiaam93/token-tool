@@ -318,6 +318,7 @@ const Portal: React.FC = () => {
                       _hover={{ cursor: "pointer" }}
                       onClick={() => handleExpandRow(data.id)}
                     />
+                    <Text textAlign="center" width="100px">{data.record_status}</Text>
                   </Td>
                   <Td textAlign="center" width="150px">
                     {data.pharmacy_account_number}
