@@ -84,7 +84,7 @@ const Portal: React.FC = () => {
       console.log("Fetched data:", data);
 
       const filteredData = data.items.filter(
-        (item: PortalType) => item.order_type === "manual"
+        (item: PortalType) => item.order_type === "eps"
       );
       setPortalData(filteredData);
     } catch (error) {
