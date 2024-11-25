@@ -76,15 +76,17 @@ useEffect(() => {
     setExpandedRow(expandedRow === id ? null : id);
   };
 
-  const fetchPortalData = async () => {
+ const fetchPortalData = async () => {
     setLoading(true);
     try {
       const { data } = await fetchPortal(token, statusFilter, searchQuery);
       console.log("Fetched data:", data);
 
+      // Filter based on order type and status filter
       const filteredData = data.items.filter(
-        (item: PortalType) => item.order_type === "eps"
+        (item: PortalType) => item.order_type === orderTypeFilter
       );
+
       setPortalData(filteredData);
     } catch (error) {
       console.error("Error fetching data:", error);
