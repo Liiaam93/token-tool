@@ -41,6 +41,7 @@ const Portal: React.FC = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [dialogMessage, setDialogMessage] = useState<React.ReactNode>("");
   const [dialogAction, setDialogAction] = useState<() => void>(() => {});
+  const [orderTypeFilter, setOrderTypeFilter] = useState<string>("eps"); // Default to 'eps'
   const [userEmail] = useState<string>("liam.burbidge@well.co.uk");
 
   const cancelRef = useRef(null);
@@ -66,12 +67,10 @@ const Portal: React.FC = () => {
     }, 0);
   }, [portalData]);
 
-  useEffect(() => {
-    if (token) {
-      fetchPortalData(); // Fetch data when statusFilter changes
-      console.log(statusFilter);
-    }
-  }, [statusFilter]);
+useEffect(() => {
+  if (token) fetchPortalData();
+}, [token, statusFilter, orderTypeFilter, searchQuery]); // Depend on the new orderTypeFilter
+
 
   const handleExpandRow = (id: string) => {
     setExpandedRow(expandedRow === id ? null : id);
@@ -249,6 +248,25 @@ const Portal: React.FC = () => {
             />
           </InputRightElement>
         </InputGroup>
+        <Select
+  key={orderTypeFilter} // Forces re-render on change
+  color="white"
+  w="30%"
+  onChange={(e) => setOrderTypeFilter(e.target.value)}
+  value={orderTypeFilter}
+  sx={{
+    option: {
+      backgroundColor: "gray.800",
+      color: "white",
+    },
+  }}
+>
+  <option value="eps">EPS</option>
+  <option value="trade">Trade</option>
+  <option value="mtm">MTM</option>
+  <option value="manual">Manual</option>
+</Select>
+
         <Select
           key={statusFilter} // Forces re-render on change
           color="white"
