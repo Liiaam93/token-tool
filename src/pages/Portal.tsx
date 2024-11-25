@@ -58,7 +58,7 @@ const Portal: React.FC = () => {
 
     // Clear interval on cleanup
     return () => clearInterval(intervalId);
-  }, [token]);
+  }, [token, statusFilter]); // Add statusFilter as a dependency
 
   const printCount = useMemo(() => {
     return portalData.reduce((count, e) => {
