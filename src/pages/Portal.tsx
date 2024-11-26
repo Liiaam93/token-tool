@@ -346,7 +346,7 @@ useEffect(() => {
 
                   <Td textAlign="center" width="200px">
                     { data.order_type === 'trade'? 
-                      <Text>{data.totalTradePrice}</Text> : 
+                      <Text>£{data.totalTradePrice}</Text> : 
                     <Text
                       cursor="pointer"
                       _hover={{ textDecoration: "underline" }}
