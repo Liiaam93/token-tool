@@ -345,13 +345,16 @@ useEffect(() => {
                   </Td>
 
                   <Td textAlign="center" width="200px">
+                    { data.order_type === 'trade'? 
+                      <Text>{data.totalTradePrice}</Text> : 
                     <Text
                       cursor="pointer"
                       _hover={{ textDecoration: "underline" }}
                       onClick={() => handleCopyToClipboard(data.id)}
                     >
                       {data.id}
-                    </Text>
+                    </Text> 
+                    }
                   </Td>
                   <Td
                     textAlign="center"
