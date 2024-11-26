@@ -18,4 +18,5 @@ export interface PortalType {
   customer_record_status: string;
   prescriptionExemptions: string;
   awards_script_number: string;
+  totalTradePrice: string;
 }
