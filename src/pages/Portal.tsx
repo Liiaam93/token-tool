@@ -283,6 +283,7 @@ useEffect(() => {
           }}
         >
           <option value="Submitted">Request Submitted</option>
+          <option value="Downloaded">Token Downloaded</option>
           <option value="RTS">Return to Spine</option>
           <option value="Cancelled">Request Cancelled</option>
           <option value="Ordered">Ordered</option>
