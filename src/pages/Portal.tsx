@@ -372,22 +372,23 @@ useEffect(() => {
                     {data.patient_name}
                   </Td>
                   <Td textAlign="center" width="150px">
-                    <Button
-                      colorScheme="blue"
-                      size="xs"
-                      onClick={() =>
-                        handleUpdatePatientName(
-                          data.email,
-                          data.id,
-                          "print",
-                          userEmail,
-                          data.pharmacy_account_number,
-                          data.pharmacy_name
-                        )
-                      }
-                    >
-                      Set Printed
-                    </Button>
+                  <Button
+    colorScheme="blue"
+    size="xs"
+    onClick={() =>
+      handleUpdateOrderStatus(
+        data.email,
+        data.id,
+        "Token Downloaded",  // Set status to "Token Downloaded"
+        data.patient_name,   // You can still pass the patient name if needed, or omit it
+        userEmail,
+        data.pharmacy_account_number,
+        data.pharmacy_name
+      )
+    }
+  >
+    Set Token Downloaded
+  </Button>
                   </Td>
                   <Td textAlign="center" width="300px">
                     <Button
