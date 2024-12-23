@@ -466,7 +466,7 @@ useEffect(() => {
                               data.email,
                               data.id,
                               "Order cancelled",
-                              "duplicate order - already submitted/supplied to ada008",
+                              "request cancelled - token has been returned to NHS spine",
                               userEmail,
                               data.pharmacy_account_number,
                               data.pharmacy_name
