@@ -12,6 +12,7 @@ export const fetchPortal = (
     Submitted: "request submitted",
     Ordered: "Order placed",
     RTS: "Please return this token to the Spine",
+    Downloaded: "Token Downloaded",
     Call: "Please call Wardles about this order – 0800 050 1055",
     Cancelled: "Order cancelled",
   };
