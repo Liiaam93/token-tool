@@ -468,7 +468,7 @@ useEffect(() => {
                               data.email,
                               data.id,
                               "Order cancelled",
-                              "request cancelled - token has been returned to NHS spine",
+                              "no response from customer / token was not returned to spine - no order placed",
                               userEmail,
                               data.pharmacy_account_number,
                               data.pharmacy_name
