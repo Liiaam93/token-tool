@@ -457,8 +457,7 @@ useEffect(() => {
                         handleOpenDialog(
                           <>
                             <Text>
-                              Mark this order as 'request cancelled - token has
-                              been returned to NHS spine'?
+                              Mark this order as 'No response from customer / token was not returned to spine - no order placed'?
                             </Text>
                             <Text>Account: {data.pharmacy_account_number}</Text>
                             <Text>Barcode: {data.id}</Text>
@@ -468,7 +467,7 @@ useEffect(() => {
                               data.email,
                               data.id,
                               "Order cancelled",
-                              "no response from customer / token was not returned to spine - no order placed",
+                              "No response from customer / token was not returned to spine - no order placed",
                               userEmail,
                               data.pharmacy_account_number,
                               data.pharmacy_name
