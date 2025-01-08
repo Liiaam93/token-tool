@@ -399,8 +399,7 @@ useEffect(() => {
                         handleOpenDialog(
                           <>
                             <Text>
-                              Mark this order as 'Please return to the spine and
-                              call 0333 8666 977 when done'?
+                              Mark this order as 'Please return to the spine and update this order when done'?
                             </Text>
                             <Text>Account: {data.pharmacy_account_number}</Text>
                             <Text>Barcode: {data.id}</Text>
@@ -428,8 +427,7 @@ useEffect(() => {
                         handleOpenDialog(
                           <>
                             <Text>
-                              Mark this order as 'token invalid - please
-                              re-submit the correct barcode'?
+                              Mark this order as 'Barcode incorrect - please resend in the comments box below or request to cancel the order'?
                             </Text>
                             <Text>Account: {data.pharmacy_account_number}</Text>
                             <Text>Barcode: {data.id}</Text>
