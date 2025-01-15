@@ -465,7 +465,7 @@ useEffect(() => {
                               data.email,
                               data.id,
                               "Order cancelled",
-                              "No response from customer / token was not returned to spine - no order placed",
+                              "Item is no longer in drug tarriff",
                               userEmail,
                               data.pharmacy_account_number,
                               data.pharmacy_name
