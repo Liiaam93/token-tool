@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Tr, Td, Flex, VStack, Text, Input, Button } from "@chakra-ui/react";
+import { Tr, Td, Flex, VStack, Text, Input, Button, Select } from "@chakra-ui/react";
 import { PortalType } from "../types/PortalType";
 
 interface ExpandedRowProps {
@@ -33,6 +33,8 @@ const ExpandedRow: React.FC<ExpandedRowProps> = ({
 }) => {
   const [patientName, setPatientName] = useState(data.patient_name);
   const [scriptNumber, setScriptNumber] = useState<string>("");
+  const [orderStatus, setOrderStatus] = useState<string>("Order placed");
+
   const date = new Date(data.created_date * 1000);
 
   const formattedDate = date.toLocaleDateString("en-GB", {
@@ -56,15 +58,15 @@ const ExpandedRow: React.FC<ExpandedRowProps> = ({
       scriptNumber
     );
 
-    // await updateOrderStatus(
-    //   data.email,
-    //   data.id,
-    //   "Order placed",
-    //   patientName,
-    //   email,
-    //   data.pharmacy_account_number,
-    //   data.pharmacy_name
-    // );
+    await updateOrderStatus(
+      data.email,
+      data.id,
+      orderStatus, // Dynamically selected order status
+      patientName,
+      email,
+      data.pharmacy_account_number,
+      data.pharmacy_name
+    );
   };
 
   return (
@@ -78,9 +80,8 @@ const ExpandedRow: React.FC<ExpandedRowProps> = ({
             <Text>{data.email}</Text>
             <Text>{data.order_type}</Text>
             <Text>{data.record_status}</Text>
-            <Text color='red'>{data.customer_comment}</Text>
-            <Text color='red'>{data.customer_record_status}</Text>
-
+            <Text color="red">{data.customer_comment}</Text>
+            <Text color="red">{data.customer_record_status}</Text>
           </VStack>
           <Input
             m="2"
@@ -99,11 +100,19 @@ const ExpandedRow: React.FC<ExpandedRowProps> = ({
             inputMode="numeric"
             onChange={(e) => setScriptNumber(e.target.value)}
           />
-          <Button
-            colorScheme="green"
+          <Select
             m="2"
-            onClick={() => handleCompleteOrder(data, email)}
+            w="20%"
+            color="white"
+            placeholder="Select Order Status"
+            value={orderStatus}
+            onChange={(e) => setOrderStatus(e.target.value)}
           >
+            <option value="Order placed">Order placed</option>
+            <option value="Order Cancelled">Cancelled</option>
+            <option value="Token Downloaded">Downloaded</option>
+          </Select>
+          <Button colorScheme="green" m="2" onClick={() => handleCompleteOrder(data, email)}>
             Update Patient Name
           </Button>
         </Flex>
