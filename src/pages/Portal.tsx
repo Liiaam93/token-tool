@@ -465,7 +465,7 @@ useEffect(() => {
                               data.email,
                               data.id,
                               "Order cancelled",
-                              "Item is no longer in drug tarriff",
+                              "Token invalid",
                               userEmail,
                               data.pharmacy_account_number,
                               data.pharmacy_name
