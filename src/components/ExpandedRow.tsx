@@ -56,15 +56,15 @@ const ExpandedRow: React.FC<ExpandedRowProps> = ({
       scriptNumber
     );
 
-    await updateOrderStatus(
-      data.email,
-      data.id,
-      "Order placed",
-      patientName,
-      email,
-      data.pharmacy_account_number,
-      data.pharmacy_name
-    );
+    // await updateOrderStatus(
+    //   data.email,
+    //   data.id,
+    //   "Order placed",
+    //   patientName,
+    //   email,
+    //   data.pharmacy_account_number,
+    //   data.pharmacy_name
+    // );
   };
 
   return (
@@ -104,7 +104,7 @@ const ExpandedRow: React.FC<ExpandedRowProps> = ({
             m="2"
             onClick={() => handleCompleteOrder(data, email)}
           >
-            Ordered
+            Update Patient Name
           </Button>
         </Flex>
       </Td>
