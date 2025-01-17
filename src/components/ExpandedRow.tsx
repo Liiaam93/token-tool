@@ -107,6 +107,12 @@ const ExpandedRow: React.FC<ExpandedRowProps> = ({
             placeholder="Select Order Status"
             value={orderStatus}
             onChange={(e) => setOrderStatus(e.target.value)}
+              sx={{
+    option: {
+      backgroundColor: "gray.800",
+      color: "white",
+    },
+  }}
           >
             <option value="Order placed">Order placed</option>
             <option value="Order Cancelled">Cancelled</option>
