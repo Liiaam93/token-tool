@@ -455,7 +455,7 @@ useEffect(() => {
                         handleOpenDialog(
                           <>
                             <Text>
-                              Mark this order as 'No response from customer / token was not returned to spine - no order placed'?
+                              Mark this order as 'Clinisorb OOS'?
                             </Text>
                             <Text>Account: {data.pharmacy_account_number}</Text>
                             <Text>Barcode: {data.id}</Text>
@@ -465,7 +465,7 @@ useEffect(() => {
                               data.email,
                               data.id,
                               "Order cancelled",
-                              "Token invalid",
+                              "Clinisorb OOS and can't back order - duplicate order already dealth with on 13/1",
                               userEmail,
                               data.pharmacy_account_number,
                               data.pharmacy_name
