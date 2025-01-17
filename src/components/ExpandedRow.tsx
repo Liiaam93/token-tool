@@ -33,7 +33,7 @@ const ExpandedRow: React.FC<ExpandedRowProps> = ({
 }) => {
   const [patientName, setPatientName] = useState(data.patient_name);
   const [scriptNumber, setScriptNumber] = useState<string>("");
-  const [orderStatus, setOrderStatus] = useState<string>("Order placed");
+  const [orderStatus, setOrderStatus] = useState<string>("");
 
   const date = new Date(data.created_date * 1000);
 
@@ -58,6 +58,7 @@ const ExpandedRow: React.FC<ExpandedRowProps> = ({
       scriptNumber
     );
 
+    if(orderStatus){
     await updateOrderStatus(
       data.email,
       data.id,
@@ -67,6 +68,7 @@ const ExpandedRow: React.FC<ExpandedRowProps> = ({
       data.pharmacy_account_number,
       data.pharmacy_name
     );
+    }
   };
 
   return (
