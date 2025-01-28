@@ -60,12 +60,10 @@ const Portal: React.FC = () => {
     return () => clearInterval(intervalId);
   }, [token, statusFilter]); // Add statusFilter as a dependency
 
-  const printCount = useMemo(() => {
-    return portalData.reduce((count, e) => {
-      const name = e.patient_name?.toLowerCase();
-      return name === "print" ? count + 1 : count;
-    }, 0);
-  }, [portalData]);
+const printCount = useMemo(() => {
+  return portalData.length;
+}, [portalData]);
+
 
 useEffect(() => {
   if (token) fetchPortalData();
