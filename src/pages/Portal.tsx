@@ -228,7 +228,7 @@ useEffect(() => {
           alignItems="center" // Center content vertically
           justifyContent="center" // Center content horizontally (optional)
         >
-          Prints: {printCount}
+          Total: {printCount}
         </Text>
         <InputGroup w="50%">
           <Input
