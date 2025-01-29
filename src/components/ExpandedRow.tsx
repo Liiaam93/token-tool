@@ -117,7 +117,7 @@ const ExpandedRow: React.FC<ExpandedRowProps> = ({
   }}
           >
             <option value="Order placed">Order placed</option>
-            <option value="Order Cancelled">Cancelled</option>
+            <option value="Order cancelled">Cancelled</option>
             <option value="Token Downloaded">Downloaded</option>
           </Select>
           <Button colorScheme="green" m="2" onClick={() => handleCompleteOrder(data, email)}>
