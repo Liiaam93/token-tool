@@ -4,9 +4,10 @@ import {
   Flex,
   HStack,
   Link as ChakraLink,
-  Heading,
 } from "@chakra-ui/react";
 import { Link as RouterLink } from "react-router-dom";
+import { motion } from "framer-motion";
+import Typewriter from "typewriter-effect";
 
 const Links = [
   { name: "Home", path: "/" },
@@ -19,10 +20,11 @@ const NavLink = ({ name, path }: { name: string; path: string }) => (
     as={RouterLink}
     to={path}
     px={8}
+    color={"whatsapp.500"}
     pb={2}
     _hover={{
       textDecoration: "none",
-      bg: "green.600",
+      bg: "whatsapp.900",
       transition: "background-color 0.3s",
       border: "solid white 2px",
       borderTopRadius: "md",
@@ -34,15 +36,36 @@ const NavLink = ({ name, path }: { name: string; path: string }) => (
 
 const Navbar: React.FC = () => {
   return (
-    <Box bg="#1A202C" px={4} color={"white"}>
+    <Box bg="#1A202C" px={4} color={"white"} position="relative">
       <Box textAlign="center" mb={2}>
-        <Box
-          display="inline-block"
-          bgGradient="linear(to-r, red.500, orange.400, yellow.300, green.300, teal.300, blue.400, purple.500)"
-          bgClip="text"
+        <motion.div
+          initial={{ scale: 0 }}
+          animate={{ scale: 1 }}
+          transition={{ duration: 0.5 }}
         >
-          <Heading size="sm">Liam's Magical Token Tool</Heading>
-        </Box>
+          <Box display="inline-block">
+            <Typewriter
+              options={{
+                delay: 50,
+                loop: false,
+              }}
+              onInit={(typewriter) => {
+                typewriter
+                  .typeString("Liam's Super Professional Token Tool")
+                  .pauseFor(1000)
+                  .start();
+
+                // Hide cursor after 7 seconds
+                setTimeout(() => {
+                  const cursor = document.querySelector(".Typewriter__cursor") as HTMLElement;
+                  if (cursor) {
+                    cursor.style.display = "none";
+                  }
+                }, 7000);
+              }}
+            />
+          </Box>
+        </motion.div>
       </Box>
       <Flex h={8} alignItems={"center"} justifyContent={"space-between"}>
         <HStack
@@ -57,6 +80,9 @@ const Navbar: React.FC = () => {
             ))}
           </HStack>
         </HStack>
+          <Box opacity={0} position={"absolute"}  right={0}>
+          <NavLink name="P" path="/portal" />
+          </Box>
       </Flex>
     </Box>
   );
