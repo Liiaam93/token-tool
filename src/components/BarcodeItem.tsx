@@ -23,6 +23,7 @@ const BarcodeItem: React.FC<BarcodeItemProps> = ({
 }) => {
   const [copied, setCopied] = useState("");
   const [scriptNumber, setScriptNumber] = useState("");
+  const [isStrikethrough, setIsStrikethrough] = useState(false);
 
   const copyToClipboard = () => {
     navigator.clipboard.writeText(
@@ -33,6 +34,10 @@ const BarcodeItem: React.FC<BarcodeItemProps> = ({
 
   const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     onRTSChange(barcodeData.barcode, e.target.checked);
+  };
+
+  const handleStrikethroughChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setIsStrikethrough(e.target.checked);
   };
 
   const handleScriptNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -77,7 +82,14 @@ const BarcodeItem: React.FC<BarcodeItemProps> = ({
         NHS
       </Button>
 
-      <Text flex="1" ml="10" textAlign="center" fontSize="12" color="white">
+      <Text
+        flex="1"
+        ml="10"
+        textAlign="center"
+        fontSize="12"
+        color="white"
+        textDecoration={isStrikethrough ? "line-through" : "none"}
+      >
         {`${renderBarcode}${!barcodeData.valid ? "\n- Invalid" : ""}`}
       </Text>
 
@@ -91,6 +103,16 @@ const BarcodeItem: React.FC<BarcodeItemProps> = ({
       </Button>
 
       <Checkbox
+        isChecked={isStrikethrough}
+        onChange={handleStrikethroughChange}
+        mr={2}
+        size="sm"
+        colorScheme="gray"
+        color="white"
+      >
+        Done
+      </Checkbox>
+      <Checkbox
         isChecked={isChecked}
         onChange={handleCheckboxChange}
         mr={2}
@@ -100,6 +122,8 @@ const BarcodeItem: React.FC<BarcodeItemProps> = ({
       >
         RTS
       </Checkbox>
+
+
 
       {showScriptInput && (
         <Input
