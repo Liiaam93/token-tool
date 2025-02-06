@@ -30,6 +30,9 @@ const BarcodeItem: React.FC<BarcodeItemProps> = ({
       barcodeData.barcode.replace(/(.{6})(.{6})(.{6})/, "$1-$2-$3")
     );
     setLastCopiedBarcode(barcodeData.barcode);
+    // Mark as copied and toggle strikethrough (done)
+    setCopied("Copied");
+    setIsStrikethrough(true); // Add this line to toggle the 'Done' state
   };
 
   const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -102,16 +105,19 @@ const BarcodeItem: React.FC<BarcodeItemProps> = ({
         {copied ? "Copied" : "Copy"}
       </Button>
 
-      <Checkbox
-        isChecked={isStrikethrough}
-        onChange={handleStrikethroughChange}
-        mr={2}
-        size="sm"
-        colorScheme="gray"
-        color="white"
-      >
-        Done
-      </Checkbox>
+      {!isStrikethrough && (
+        <Checkbox
+          isChecked={isStrikethrough}
+          onChange={handleStrikethroughChange}
+          mr={2}
+          size="sm"
+          colorScheme="gray"
+          color="white"
+        >
+          Done
+        </Checkbox>
+      )}
+
       <Checkbox
         isChecked={isChecked}
         onChange={handleCheckboxChange}
@@ -122,8 +128,6 @@ const BarcodeItem: React.FC<BarcodeItemProps> = ({
       >
         RTS
       </Checkbox>
-
-
 
       {showScriptInput && (
         <Input
