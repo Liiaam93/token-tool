@@ -397,7 +397,7 @@ useEffect(() => {
                         handleOpenDialog(
                           <>
                             <Text>
-                              Mark this order as 'Please return to the spine and update this order when done'?
+                              Mark this order as 'Please RTS and select "token returned" from the drop-down box'?
                             </Text>
                             <Text>Account: {data.pharmacy_account_number}</Text>
                             <Text>Barcode: {data.id}</Text>
@@ -407,7 +407,7 @@ useEffect(() => {
                               data.email,
                               data.id,
                               "Please return this token to the Spine",
-                              "Please return to the spine and update this order when done.",
+                              "Please RTS and select "token returned" from the drop-down box",
                               userEmail,
                               data.pharmacy_account_number,
                               data.pharmacy_name
