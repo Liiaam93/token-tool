@@ -92,20 +92,22 @@ const BarcodeItem: React.FC<BarcodeItemProps> = ({
         fontSize="12"
         color="white"
         textDecoration={isStrikethrough ? "line-through" : "none"}
+        onClick={copyToClipboard}
+
       >
         {`${renderBarcode}${!barcodeData.valid ? "\n- Invalid" : ""}`}
       </Text>
 
-      <Button
+{/*       <Button
         m="5"
         size="xs"
         colorScheme={copied ? "green" : "whiteAlpha"}
         onClick={copyToClipboard}
       >
         {copied ? "Copied" : "Copy"}
-      </Button>
+      </Button> */}
 
-      {!isStrikethrough && (
+{/*       {!isStrikethrough && (
         <Checkbox
           isChecked={isStrikethrough}
           onChange={handleStrikethroughChange}
@@ -117,7 +119,7 @@ const BarcodeItem: React.FC<BarcodeItemProps> = ({
           Done
         </Checkbox>
       )}
-
+ */}
       <Checkbox
         isChecked={isChecked}
         onChange={handleCheckboxChange}
