@@ -286,6 +286,7 @@ useEffect(() => {
           <option value="Cancelled">Request Cancelled</option>
           <option value="Ordered">Ordered</option>
           <option value="OOS">Item Out of stock</option>
+          <option value="Call">Please Call Wardles</option>
           <option value="Invalid">Invalid Barcode</option>
           <option value="">No Filter</option>
         </Select>
@@ -397,7 +398,7 @@ useEffect(() => {
                         handleOpenDialog(
                           <>
                             <Text>
-                              Mark this order as 'Please RTS and select "token returned" from the drop-down box'?
+                              Mark this order as 'Please RTS and select -token returned- from the drop-down box'?
                             </Text>
                             <Text>Account: {data.pharmacy_account_number}</Text>
                             <Text>Barcode: {data.id}</Text>
