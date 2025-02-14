@@ -30,7 +30,7 @@ const BarcodeItem: React.FC<BarcodeItemProps> = ({
       barcodeData.barcode.replace(/(.{6})(.{6})(.{6})/, "$1-$2-$3")
     );
     setLastCopiedBarcode(barcodeData.barcode);
-    Mark as copied and toggle strikethrough (done)
+    // Mark as copied and toggle strikethrough (done)
     setCopied("Copied");
     setIsStrikethrough(true); // Add this line to toggle the 'Done' state
   };
