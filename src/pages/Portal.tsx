@@ -408,7 +408,7 @@ useEffect(() => {
                               data.email,
                               data.id,
                               "Please return this token to the Spine",
-                              "Please RTS and select "token returned" from the drop-down box",
+                              "Please RTS and select -token returned- from the drop-down box",
                               userEmail,
                               data.pharmacy_account_number,
                               data.pharmacy_name
