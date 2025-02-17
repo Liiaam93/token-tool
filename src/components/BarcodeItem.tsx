@@ -54,14 +54,6 @@ const BarcodeItem: React.FC<BarcodeItemProps> = ({
     .replace(/(.{6})(.{6})(.{6})/, "$1-$2-$3");
 
   useEffect(() => {
-    if (lastCopiedBarcode && lastCopiedBarcode !== barcodeData.barcode) {
-      setCopied("");
-    } else if (lastCopiedBarcode === barcodeData.barcode) {
-      setCopied("Copied");
-    }
-  }, [lastCopiedBarcode]);
-
-  useEffect(() => {
   if (lastCopiedBarcode && lastCopiedBarcode !== barcodeData.barcode) {
     setCopied("");
     setIsStrikethrough(false); // Reset strikethrough state when barcodeData changes
