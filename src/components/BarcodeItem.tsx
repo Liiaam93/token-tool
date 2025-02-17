@@ -93,7 +93,7 @@ const BarcodeItem: React.FC<BarcodeItemProps> = ({
         color={copied ? 'green' : 'white'}
         textDecoration={isStrikethrough ? "line-through" : "none"}
         onClick={copyToClipboard}
-
+        cursor="pointer"  
       >
         {`${renderBarcode}${!barcodeData.valid ? "\n- Invalid" : ""}`}
       </Text>
