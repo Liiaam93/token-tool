@@ -61,6 +61,17 @@ const BarcodeItem: React.FC<BarcodeItemProps> = ({
     }
   }, [lastCopiedBarcode]);
 
+  useEffect(() => {
+  if (lastCopiedBarcode && lastCopiedBarcode !== barcodeData.barcode) {
+    setCopied("");
+    setIsStrikethrough(false); // Reset strikethrough state when barcodeData changes
+  } else if (lastCopiedBarcode === barcodeData.barcode) {
+    setCopied("Copied");
+    setIsStrikethrough(true); // Keep strikethrough when the same barcode is copied
+  }
+}, [lastCopiedBarcode, barcodeData]);
+
+
   return (
     <Flex
       m="2"
