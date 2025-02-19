@@ -377,12 +377,13 @@ const formatDate = (dateString) => {
                     textOverflow="ellipsis"
                     maxWidth="250px"
                   >
-                    {(data.customer_comment || data.customer_record_status) && (
-                    <>
-                      <ChatIcon color={"green"} />
-                      <Text>{formatDate(data.modified_time)}</Text>
-                    </>
+{(data.customer_comment || data.customer_record_status) && data.modified_time && (
+  <>
+    <ChatIcon color={"green"} />
+    <Text>{formatDate(data.modified_time)}</Text>
+  </>
 )}
+
 
                     {data.patient_name}
                   </Td>
