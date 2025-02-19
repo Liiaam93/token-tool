@@ -154,6 +154,19 @@ useEffect(() => {
     }
   };
 
+const formatDate = (dateString) => {
+  const [datePart, timePart] = dateString.split(":"); // Split date and time
+  const date = new Date(datePart.replace(/-/g, "/") + " " + timePart); // Fix format issue for Safari
+
+  return new Intl.DateTimeFormat("en-GB", {
+    day: "2-digit",
+    month: "short",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: true,
+  }).format(date).replace(",", ""); // Remove comma
+};
+
   const handleUpdateOrderStatus = async (
     email: string,
     id: string,
@@ -365,8 +378,11 @@ useEffect(() => {
                     maxWidth="250px"
                   >
                     {(data.customer_comment || data.customer_record_status) && (
+                    <>
                       <ChatIcon color={"green"} />
-                    )}
+                      <Text>{formatDate(data.modified_time)}</Text>
+                    </>
+)}
 
                     {data.patient_name}
                   </Td>
