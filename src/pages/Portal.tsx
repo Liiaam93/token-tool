@@ -154,21 +154,6 @@ useEffect(() => {
     }
   };
 
-const formatDate = (dateString: string | undefined): string => {
-    if (!dateString) return "N/A"; // Prevents errors
-
-  const [datePart, timePart] = dateString.split(":"); // Split date and time
-  const date = new Date(datePart.replace(/-/g, "/") + " " + timePart); // Fix format issue for Safari
-
-  return new Intl.DateTimeFormat("en-GB", {
-    day: "2-digit",
-    month: "short",
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: true,
-  }).format(date).replace(",", ""); // Remove comma
-};
-
   const handleUpdateOrderStatus = async (
     email: string,
     id: string,
@@ -382,7 +367,6 @@ const formatDate = (dateString: string | undefined): string => {
 {(data.customer_comment || data.customer_record_status) && data.modified_time && (
   <>
     <ChatIcon color={"green"} />
-    <Text>{formatDate(data.modified_time)}</Text>
   </>
 )}
 
