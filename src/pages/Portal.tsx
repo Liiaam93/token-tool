@@ -154,7 +154,7 @@ useEffect(() => {
     }
   };
 
-const formatDate = (dateString) => {
+const formatDate = (dateString: string | undefined): string => {
   const [datePart, timePart] = dateString.split(":"); // Split date and time
   const date = new Date(datePart.replace(/-/g, "/") + " " + timePart); // Fix format issue for Safari
 
