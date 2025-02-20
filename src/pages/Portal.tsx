@@ -193,6 +193,19 @@ useEffect(() => {
     }
   };
 
+  const formatModifiedDate = (modifiedTime: string) => {
+  const date = new Date(modifiedTime);
+  const options: Intl.DateTimeFormatOptions = {
+    day: '2-digit',
+    month: 'short',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: true,
+  };
+  
+  return new Intl.DateTimeFormat('en-GB', options).format(date).replace(',', ''); // Replace comma with space
+};
+
   return (
     <Box bg="gray.800" minHeight="100vh">
       <Flex p={2} borderRadius="5" color={"white"} justifyContent={"center"}>
@@ -367,6 +380,9 @@ useEffect(() => {
 {(data.customer_comment || data.customer_record_status) && data.modified_time && (
   <>
     <ChatIcon color={"green"} />
+          <Text color="white" ml={2} fontSize="sm">
+        {formatModifiedDate(data.modified_time)}
+      </Text>
   </>
 )}
 
