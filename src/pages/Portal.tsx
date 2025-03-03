@@ -44,7 +44,6 @@ const Portal: React.FC = () => {
   const [orderTypeFilter, setOrderTypeFilter] = useState<string>("eps"); // Default to 'eps'
   const [userEmail] = useState<string>("liam.burbidge@well.co.uk");
   const [startDate, setStartDate] = useState<string>('');
-  const [endDate, setEndDate] = useState<string>('');
  
 
   const cancelRef = useRef(null);
@@ -85,7 +84,7 @@ const printCount = useMemo(() => {
 
 useEffect(() => {
   if (token) fetchPortalData();
-}, [token, statusFilter, orderTypeFilter, searchQuery, startDate, endDate]); // Depend on the new orderTypeFilter
+}, [token, statusFilter, orderTypeFilter, searchQuery, startDate]); // Depend on the new orderTypeFilter
 
 
   const handleExpandRow = (id: string) => {
@@ -95,7 +94,7 @@ useEffect(() => {
  const fetchPortalData = async () => {
     setLoading(true);
     try {
-      const { data } = await fetchPortal(token, statusFilter, searchQuery, startDate, endDate  );
+      const { data } = await fetchPortal(token, statusFilter, searchQuery, startDate  );
       console.log("Fetched data:", data);
 
       // Filter based on order type and status filter
@@ -254,14 +253,6 @@ useEffect(() => {
       type="date"
       placeholder="Start Date"
       onChange={(e) => setStartDate(e.target.value)}
-    />
-  </InputGroup>
-  <InputGroup w="20%">
-    <Input
-      color={"white"}
-      type="date"
-      placeholder="End Date"
-      onChange={(e) => setEndDate(e.target.value)}
     />
   </InputGroup>
 </HStack>

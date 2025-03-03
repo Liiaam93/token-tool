@@ -5,7 +5,6 @@ export const fetchPortal = (
   statusFilter: string,
   searchQuery: string,
   startDate?: string,
-  endDate?: string
 ) => {
   const statusMap: Record<string, string> = {
     OOS: "Item out of stock, do you want to place on back order?",
@@ -21,7 +20,7 @@ export const fetchPortal = (
 
   const status = statusMap[statusFilter] || "";
   const urlParams = new URLSearchParams({
-    pageSize: "300",
+    pageSize: "200",
     page: "1",
   });
 
@@ -34,9 +33,7 @@ export const fetchPortal = (
   if (startDate) {
     urlParams.append("orderDate", startDate); // Append startDate if present
   }
-  if (endDate) {
-    urlParams.append("orderDate", endDate); // Append endDate if present
-  }
+
 
   const url = `https://vfgar9uinc.execute-api.eu-west-2.amazonaws.com/prod/fp/order?${urlParams.toString()}`;
 
