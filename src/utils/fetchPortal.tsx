@@ -59,6 +59,8 @@ export const fetchPortal = async (
       allResults.push(pageData);
     }
   }
-
-  return allResults;  // Return all fetched data
+  const uniqueResults = Array.from(
+    new Map(allResults.map(item => [item.id, item])).values()
+  );
+  return uniqueResults;  // Return all fetched data
 };
