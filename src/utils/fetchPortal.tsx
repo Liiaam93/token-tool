@@ -1,10 +1,10 @@
 import axios from "axios";
 
-export const fetchPortal = (
+export const fetchPortal = async (
   token: string,
   statusFilter: string,
   searchQuery: string,
-  startDate?: string,
+  startDate?: string
 ) => {
   const statusMap: Record<string, string> = {
     OOS: "Item out of stock, do you want to place on back order?",
@@ -20,8 +20,7 @@ export const fetchPortal = (
 
   const status = statusMap[statusFilter] || "";
   const urlParams = new URLSearchParams({
-    pageSize: "200",
-    page: "1",
+    pageSize: "200",  // Page size remains 200
   });
 
   if (status) {
@@ -34,12 +33,32 @@ export const fetchPortal = (
     urlParams.append("orderDate", startDate); // Append startDate if present
   }
 
+  // Helper function to fetch data for a given page
+  const fetchPage = async (page: number) => {
+    const url = `https://vfgar9uinc.execute-api.eu-west-2.amazonaws.com/prod/fp/order?${urlParams.toString()}&page=${page}`;
 
-  const url = `https://vfgar9uinc.execute-api.eu-west-2.amazonaws.com/prod/fp/order?${urlParams.toString()}`;
+    try {
+      const response = await axios.get(url, {
+        headers: {
+          Authorization: token,
+        },
+      });
+      return response.data;
+    } catch (error) {
+      console.error(`Error fetching page ${page}:`, error);
+      return null;
+    }
+  };
 
-  return axios.get(url, {
-    headers: {
-      Authorization: token,
-    },
-  });
+  const allResults = [];
+
+  // Loop through pages 1 to 3 and fetch them sequentially
+  for (let page = 1; page <= 3; page++) {
+    const pageData = await fetchPage(page);
+    if (pageData) {
+      allResults.push(pageData);
+    }
+  }
+
+  return allResults;  // Return all fetched data
 };

@@ -48,6 +48,27 @@ const Portal: React.FC = () => {
 
   const cancelRef = useRef(null);
 
+  const statusFilterRef = useRef(statusFilter);
+  const orderTypeFilterRef = useRef(orderTypeFilter);
+  const searchQueryRef = useRef(searchQuery);
+  const startDateRef = useRef(startDate);
+
+  useEffect(() => {
+    statusFilterRef.current = statusFilter;
+  }, [statusFilter]);
+
+  useEffect(() => {
+    orderTypeFilterRef.current = orderTypeFilter;
+  }, [orderTypeFilter]);
+
+  useEffect(() => {
+    searchQueryRef.current = searchQuery;
+  }, [searchQuery]);
+
+  useEffect(() => {
+    startDateRef.current = startDate;
+  }, [startDate]);
+
 
   const formatDate = (date: any) => {
     const newDate = new Date(date * 1000);
@@ -68,14 +89,12 @@ const Portal: React.FC = () => {
   useEffect(() => {
     if (token) fetchPortalData();
 
-    // Set up the interval
     const intervalId = setInterval(() => {
-      if (token) fetchPortalData();
-    }, 120000);
+      if (token) fetchPortalData(); // Use refs for filters
+    }, 120000); // 2-minute interval
 
-    // Clear interval on cleanup
     return () => clearInterval(intervalId);
-  }, [token, statusFilter]); // Add statusFilter as a dependency
+  }, [token]); // Only depend on token, refs handle filters
 
 const printCount = useMemo(() => {
   return portalData.length;
@@ -91,23 +110,27 @@ useEffect(() => {
     setExpandedRow(expandedRow === id ? null : id);
   };
 
- const fetchPortalData = async () => {
+  const fetchPortalData = async () => {
     setLoading(true);
     try {
-      const { data } = await fetchPortal(token, statusFilter, searchQuery, startDate  );
-      console.log("Fetched data:", data);
-
-      // Filter based on order type and status filter
-      const filteredData = data.items.filter(
-        (item: PortalType) => item.order_type === orderTypeFilter
+      const allResults = await fetchPortal(
+        token,
+        statusFilterRef.current,
+        searchQueryRef.current,
+        startDateRef.current
       );
-
+      const flattenedData = allResults.flatMap(pageData => pageData.items || []);
+      const filteredData = flattenedData.filter(
+        (item: PortalType) => item.order_type === orderTypeFilterRef.current
+      );
       setPortalData(filteredData);
     } catch (error) {
       console.error("Error fetching data:", error);
     }
     setLoading(false);
   };
+  
+  
   const handleStatusChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     setStatusFilter(encodeURIComponent(event.target.value.trim())); // Added .trim() to avoid accidental spaces
   };
