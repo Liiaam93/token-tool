@@ -21,7 +21,7 @@ export const fetchPortal = (
 
   const status = statusMap[statusFilter] || "";
   const urlParams = new URLSearchParams({
-    pageSize: "200",
+    pageSize: "300",
     page: "1",
   });
 
