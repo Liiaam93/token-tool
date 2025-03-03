@@ -43,9 +43,27 @@ const Portal: React.FC = () => {
   const [dialogAction, setDialogAction] = useState<() => void>(() => {});
   const [orderTypeFilter, setOrderTypeFilter] = useState<string>("eps"); // Default to 'eps'
   const [userEmail] = useState<string>("liam.burbidge@well.co.uk");
+  const [startDate, setStartDate] = useState<string>('');
+  const [endDate, setEndDate] = useState<string>('');
+ 
 
   const cancelRef = useRef(null);
 
+
+  const formatDate = (date: any) => {
+    const newDate = new Date(date * 1000);
+
+    const formattedDate = newDate.toLocaleDateString("en-GB", {
+      day: "2-digit",
+      month: "2-digit",
+    });
+    const formattedTime = newDate.toLocaleTimeString("en-US", {
+      hour: "numeric",
+      minute: "numeric",
+      hour12: true,
+    });
+    return formattedDate + ' ' + formattedTime
+  }
   const toast = useToast();
 
   useEffect(() => {
@@ -67,7 +85,7 @@ const printCount = useMemo(() => {
 
 useEffect(() => {
   if (token) fetchPortalData();
-}, [token, statusFilter, orderTypeFilter, searchQuery]); // Depend on the new orderTypeFilter
+}, [token, statusFilter, orderTypeFilter, searchQuery, startDate, endDate]); // Depend on the new orderTypeFilter
 
 
   const handleExpandRow = (id: string) => {
@@ -77,7 +95,7 @@ useEffect(() => {
  const fetchPortalData = async () => {
     setLoading(true);
     try {
-      const { data } = await fetchPortal(token, statusFilter, searchQuery);
+      const { data } = await fetchPortal(token, statusFilter, searchQuery, startDate, endDate  );
       console.log("Fetched data:", data);
 
       // Filter based on order type and status filter
@@ -230,6 +248,24 @@ useEffect(() => {
         </InputGroup>
       </Flex>
       <HStack m="auto" justifyContent="center" w="100%">
+  <InputGroup w="20%" m='10px'>
+    <Input
+      color={"white"}
+      type="date"
+      placeholder="Start Date"
+      onChange={(e) => setStartDate(e.target.value)}
+    />
+  </InputGroup>
+  <InputGroup w="20%">
+    <Input
+      color={"white"}
+      type="date"
+      placeholder="End Date"
+      onChange={(e) => setEndDate(e.target.value)}
+    />
+  </InputGroup>
+</HStack>
+      <HStack m="auto" justifyContent="center" w="100%">
         <Text
           textAlign="center"
           color="orange"
@@ -313,8 +349,9 @@ useEffect(() => {
         <Table variant="simple">
           <Thead>
             <Tr>
-              <Th width="50px"> </Th>
-              <Th textAlign="center" width="150px">
+            <Th width="50px"> </Th>
+            <Th width='50px'> Date </Th>
+            <Th textAlign="center" width="150px">
                 Account
               </Th>
               <Th textAlign="center" width="200px">
@@ -351,6 +388,9 @@ useEffect(() => {
                       _hover={{ cursor: "pointer" }}
                       onClick={() => handleExpandRow(data.id)}
                     />
+                  </Td>
+                  <Td>
+                    {formatDate(data.created_date)}
                   </Td>
                  
                   <Td textAlign="center" width="150px">
