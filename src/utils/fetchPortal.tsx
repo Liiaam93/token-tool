@@ -53,7 +53,7 @@ export const fetchPortal = async (
   const allResults = [];
 
   // Loop through pages 1 to 3 and fetch them sequentially
-  for (let page = 1; page <= 3; page++) {
+  for (let page = 1; page <= 1; page++) {
     const pageData = await fetchPage(page);
     if (pageData) {
       allResults.push(pageData);

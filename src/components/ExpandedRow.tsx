@@ -73,7 +73,7 @@ const ExpandedRow: React.FC<ExpandedRowProps> = ({
 
   return (
     <Tr>
-      <Td colSpan={6} bg="gray.700">
+      <Td colSpan={7} bg="gray.700">
         <Flex>
           <VStack color={"white"} m="2">
             {data.pharmacy_name !== "n/a" && <Text>{data.pharmacy_name}</Text>}
