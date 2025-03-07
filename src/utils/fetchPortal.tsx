@@ -1,4 +1,14 @@
+
 import axios from "axios";
+
+interface LastEvaluatedKey {
+  created_date?: {N: number} 
+  order_id: {S: string}
+  record_status: {S: string}
+  email: {S: string}
+  modified_time?: {S: string}
+}
+
 
 export const fetchPortal = async (
   token: string,
@@ -45,22 +55,63 @@ export const fetchPortal = async (
       });
       return response.data;
     } catch (error) {
-      console.error(`Error fetching page ${page}:`, error);
+      console.error(`Error fetching page ${page}:, error`);
       return null;
     }
   };
 
   const allResults = [];
 
-  // Loop through pages 1 to 3 and fetch them sequentially
-  for (let page = 1; page <= 1; page++) {
-    const pageData = await fetchPage(page);
-    if (pageData) {
-      allResults.push(pageData);
+  // Fetch the first page
+  const firstPageData = await fetchPage(1);
+  if (firstPageData) {
+    allResults.push(firstPageData);
+  
+    // Check if there is a lastEvaluatedKey
+    const lastEvaluatedKey: LastEvaluatedKey = firstPageData.lastEvaluatedKey;
+    if (lastEvaluatedKey) {
+      // Convert lastEvaluatedKey to query params for page 2
+      const lastEvaluatedParams = new URLSearchParams();
+      Object.entries(lastEvaluatedKey).forEach(([key, value]) => {
+        if (typeof value === "object" && value !== null) {
+          if (key === "modified_time" && "S" in value && value.S !== undefined) {
+            lastEvaluatedParams.append(`lastEvaluatedKey.${key}.S`, value.S);
+          } else if (key === "created_date" && "N" in value && value.N !== undefined) {
+            lastEvaluatedParams.append(`lastEvaluatedKey.${key}.N`, value.N as string);
+          } else if ("S" in value) {
+            lastEvaluatedParams.append(`lastEvaluatedKey.${key}.S`, value.S.replace(' ', '%20'));
+
+          }
+        }
+      });
+      
+      
+      
+      
+  
+      // Fetch the second page using lastEvaluatedKey
+      const secondPageUrl = `https://vfgar9uinc.execute-api.eu-west-2.amazonaws.com/prod/fp/order?pageSize=200&${lastEvaluatedParams.toString().replace('+', '%20')}`;
+      try {
+        const secondPageResponse = await axios.get(secondPageUrl, {
+          headers: {
+            Authorization: token,
+          },
+        });
+  
+        if (secondPageResponse.data) {
+          allResults.push(secondPageResponse.data);
+        }
+      } catch (error) {
+        console.error("Error fetching second page:", error);
+      }
     }
   }
-  const uniqueResults = Array.from(
-    new Map(allResults.map(item => [item.id, item])).values()
-  );
-  return uniqueResults;  // Return all fetched data
+  
+  const flattenedResults = allResults.flatMap(pageData => pageData.items || []);
+
+
+  const data = [{items: flattenedResults}]
+  console.log(flattenedResults)
+  return data;
+  
 };
