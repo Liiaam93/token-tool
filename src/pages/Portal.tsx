@@ -57,22 +57,32 @@ const Portal: React.FC = () => {
   const fetchPortalData = useCallback(async () => {
     setLoading(true);
     try {
-      const allResults = await fetchPortal(
-        token,
-        statusFilter,
-        searchQuery,
-        startDate
-      );
+      const allResults = await fetchPortal(token, statusFilter, searchQuery, startDate);
       const flattenedData = allResults.flatMap(pageData => pageData.items || []);
-      const filteredData = flattenedData.filter(
+  
+      // Remove duplicates based on id.S
+      const seen = new Set();
+      const uniqueData = flattenedData.filter((item: PortalType) => {
+        if (seen.has(item.id)) {
+          return false; // Skip this item since it's a duplicate
+        } else {
+          seen.add(item.id); // Add the id to the Set to track it
+          return true; // Keep this item
+        }
+      });
+  
+      // Apply additional filtering if needed (like filtering based on `orderTypeFilter`)
+      const filteredData = uniqueData.filter(
         (item: PortalType) => item.order_type === orderTypeFilter
       );
-      setPortalData(filteredData);
+  
+      setPortalData(filteredData); // Set the filtered and unique data
     } catch (error) {
       console.error("Error fetching data:", error);
     }
     setLoading(false);
   }, [token, statusFilter, searchQuery, startDate, orderTypeFilter]);
+  
 
   useEffect(() => {
     statusFilterRef.current = statusFilter;
