@@ -132,6 +132,14 @@ const printCount = useMemo(() => {
 }, [portalData]);
 
 
+const totalTradePrice = useMemo(() => {
+  if (orderTypeFilter === "trade") {
+    return parseFloat(portalData.reduce((sum, data) => sum + Number(data.totalTradePrice || 0), 0).toFixed(3));
+  }
+  return null;
+}, [portalData, orderTypeFilter]);
+
+
 useEffect(() => {
   fetchPortalData();
 }, [fetchPortalData]);
@@ -258,8 +266,8 @@ useEffect(() => {
 
   return (
     <Box bg="gray.800" minHeight="100vh">
-      <Flex p={2} borderRadius="5" color={"white"} justifyContent={"center"}>
-        <InputGroup w="50%">
+     { token ? '' :    <Flex p={2} borderRadius="5" color={"white"} justifyContent={"center"}>
+    <InputGroup w="50%">
           <Input
             m="auto"
             color={"white"}
@@ -278,9 +286,25 @@ useEffect(() => {
             />
           </InputRightElement>
         </InputGroup>
-      </Flex>
+      </Flex>}
       <HStack m="auto" justifyContent="center" w="100%">
-  <InputGroup w="20%" m='10px'>
+      <Text
+          textAlign="center"
+          color="orange"
+          w="30%"
+          border="solid white 1px"
+          borderRadius="5"
+          height="38px"
+          display="flex" 
+          alignItems="center" 
+          justifyContent="center"
+        >
+          Total: {printCount} {orderTypeFilter === 'trade' ? 'Trade: £' + totalTradePrice : ''}
+        </Text>
+ 
+</HStack>
+      <HStack m="auto" justifyContent="center" w="100%">
+      <InputGroup w="20%" m='10px'>
     <Input
       color={"white"}
       type="date"
@@ -288,21 +312,6 @@ useEffect(() => {
       onChange={(e) => setStartDate(e.target.value)}
     />
   </InputGroup>
-</HStack>
-      <HStack m="auto" justifyContent="center" w="100%">
-        <Text
-          textAlign="center"
-          color="orange"
-          w="30%"
-          border="solid white 1px"
-          borderRadius="5"
-          height="38px"
-          display="flex" // Set display to flex
-          alignItems="center" // Center content vertically
-          justifyContent="center" // Center content horizontally (optional)
-        >
-          Total: {printCount}
-        </Text>
         <InputGroup w="50%">
           <Input
             color={"white"}
@@ -322,7 +331,7 @@ useEffect(() => {
           </InputRightElement>
         </InputGroup>
         <Select
-  key={orderTypeFilter} // Forces re-render on change
+  key={orderTypeFilter}
   color="white"
   w="30%"
   onChange={(e) => setOrderTypeFilter(e.target.value)}
@@ -341,7 +350,7 @@ useEffect(() => {
 </Select>
 
         <Select
-          key={statusFilter} // Forces re-render on change
+          key={statusFilter}
           color="white"
           w="30%"
           onChange={handleStatusChange}
@@ -394,7 +403,7 @@ useEffect(() => {
               </Th>
             </Tr>
           </Thead>
-          <Tbody>
+          <Tbody >
             {portalData.map((data, index) => (
               <>
                 <Tr
