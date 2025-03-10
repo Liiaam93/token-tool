@@ -24,6 +24,8 @@ export const fetchPortal = async (
     Downloaded: "Token Downloaded",
     Call: "Please call Wardles about this order – 0800 050 1055",
     Cancelled: "Order cancelled",
+    Comments: "Comments Added",
+    Stop: "Account is on stop please call our accounts department on 0161 259 9282",
   };
 
   const status = statusMap[statusFilter] || "";

@@ -360,6 +360,8 @@ useEffect(() => {
           <option value="Ordered">Ordered</option>
           <option value="OOS">Item Out of stock</option>
           <option value="Call">Please Call Wardles</option>
+          <option value="Comments">Comments Added</option>
+          <option value="Stop">Account on stop</option>
           <option value="Invalid">Invalid Barcode</option>
           <option value="">No Filter</option>
         </Select>
