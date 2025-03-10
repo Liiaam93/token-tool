@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   AlertDialog,
   AlertDialogBody,
@@ -53,6 +53,37 @@ const Portal: React.FC = () => {
   const searchQueryRef = useRef(searchQuery);
   const startDateRef = useRef(startDate);
 
+  
+  const fetchPortalData = useCallback(async () => {
+    setLoading(true);
+    try {
+      const allResults = await fetchPortal(token, statusFilter, searchQuery, startDate);
+      const flattenedData = allResults.flatMap(pageData => pageData.items || []);
+  
+      // Remove duplicates based on id.S
+      const seen = new Set();
+      const uniqueData = flattenedData.filter((item: PortalType) => {
+        if (seen.has(item.id)) {
+          return false; // Skip this item since it's a duplicate
+        } else {
+          seen.add(item.id); // Add the id to the Set to track it
+          return true; // Keep this item
+        }
+      });
+  
+      // Apply additional filtering if needed (like filtering based on `orderTypeFilter`)
+      const filteredData = uniqueData.filter(
+        (item: PortalType) => item.order_type === orderTypeFilter
+      );
+  
+      setPortalData(filteredData); // Set the filtered and unique data
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+    setLoading(false);
+  }, [token, statusFilter, searchQuery, startDate, orderTypeFilter]);
+  
+
   useEffect(() => {
     statusFilterRef.current = statusFilter;
   }, [statusFilter]);
@@ -70,7 +101,7 @@ const Portal: React.FC = () => {
   }, [startDate]);
 
 
-  const formatDate = (date: any) => {
+  const formatDate = (date: number) => {
     const newDate = new Date(date * 1000);
 
     const formattedDate = newDate.toLocaleDateString("en-GB", {
@@ -94,7 +125,7 @@ const Portal: React.FC = () => {
     }, 120000); // 2-minute interval
 
     return () => clearInterval(intervalId);
-  }, [token]); // Only depend on token, refs handle filters
+  }, [token, fetchPortalData]); // Only depend on token, refs handle filters
 
 const printCount = useMemo(() => {
   return portalData.length;
@@ -102,34 +133,13 @@ const printCount = useMemo(() => {
 
 
 useEffect(() => {
-  if (token) fetchPortalData();
-}, [token, statusFilter, orderTypeFilter, searchQuery, startDate]); // Depend on the new orderTypeFilter
+  fetchPortalData();
+}, [fetchPortalData]);
 
 
   const handleExpandRow = (id: string) => {
     setExpandedRow(expandedRow === id ? null : id);
   };
-
-  const fetchPortalData = async () => {
-    setLoading(true);
-    try {
-      const allResults = await fetchPortal(
-        token,
-        statusFilterRef.current,
-        searchQueryRef.current,
-        startDateRef.current
-      );
-      const flattenedData = allResults.flatMap(pageData => pageData.items || []);
-      const filteredData = flattenedData.filter(
-        (item: PortalType) => item.order_type === orderTypeFilterRef.current
-      );
-      setPortalData(filteredData);
-    } catch (error) {
-      console.error("Error fetching data:", error);
-    }
-    setLoading(false);
-  };
-  
   
   const handleStatusChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     setStatusFilter(encodeURIComponent(event.target.value.trim())); // Added .trim() to avoid accidental spaces

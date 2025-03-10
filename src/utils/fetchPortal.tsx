@@ -1,5 +1,13 @@
 import axios from "axios";
 
+interface LastEvaluatedKey {
+  id: { S: string };
+  email: { S: string };
+  record_status: { S: string };
+  created_date?: { N: number };
+  modified_time?: { S: string };
+}
+
 export const fetchPortal = async (
   token: string,
   statusFilter: string,
@@ -20,7 +28,7 @@ export const fetchPortal = async (
 
   const status = statusMap[statusFilter] || "";
   const urlParams = new URLSearchParams({
-    pageSize: "200",  // Page size remains 200
+    pageSize: "200",
   });
 
   if (status) {
@@ -30,13 +38,31 @@ export const fetchPortal = async (
     urlParams.append("searchText", searchQuery);
   }
   if (startDate) {
-    urlParams.append("orderDate", startDate); // Append startDate if present
+    urlParams.append("orderDate", startDate);
   }
 
-  // Helper function to fetch data for a given page
-  const fetchPage = async (page: number) => {
-    const url = `https://vfgar9uinc.execute-api.eu-west-2.amazonaws.com/prod/fp/order?${urlParams.toString()}&page=${page}`;
+  const fetchPage = async (page: number, lastEvaluatedKey?: LastEvaluatedKey) => {
+    const params = new URLSearchParams(urlParams.toString());
+    if (lastEvaluatedKey) {
+      const lastEvaluatedParams = new URLSearchParams();
+      Object.entries(lastEvaluatedKey).forEach(([key, value]) => {
+        if (typeof value === "object" && value !== null) {
+          if ("N" in value) {
+            lastEvaluatedParams.append(`lastEvaluatedKey.${key}.N`, value.N as string);
+          } else if ("S" in value) {
+            lastEvaluatedParams.append(`lastEvaluatedKey.${key}.S`, value.S);
+          }
+        }
+      });
+      
+      // Manually append each key-value pair from lastEvaluatedParams
+      lastEvaluatedParams.forEach((value, key) => {
+        params.append(key, value);
+      });
+    }
 
+    const url = `https://vfgar9uinc.execute-api.eu-west-2.amazonaws.com/prod/fp/order?${params.toString().replace('+', '%20')}`;
+    
     try {
       const response = await axios.get(url, {
         headers: {
@@ -52,15 +78,35 @@ export const fetchPortal = async (
 
   const allResults = [];
 
-  // Loop through pages 1 to 3 and fetch them sequentially
-  for (let page = 1; page <= 1; page++) {
-    const pageData = await fetchPage(page);
-    if (pageData) {
-      allResults.push(pageData);
+  // Fetch first page
+  const firstPageData = await fetchPage(1);
+  if (firstPageData) {
+    allResults.push(firstPageData);
+
+    let lastEvaluatedKey: LastEvaluatedKey = firstPageData.lastEvaluatedKey;
+
+    // Fetch second page if lastEvaluatedKey exists
+    if (lastEvaluatedKey) {
+      const secondPageData = await fetchPage(2, lastEvaluatedKey);
+      if (secondPageData) {
+        allResults.push(secondPageData);
+
+        lastEvaluatedKey = secondPageData.lastEvaluatedKey;
+
+        // Fetch third page if lastEvaluatedKey exists
+        if (lastEvaluatedKey) {
+          const thirdPageData = await fetchPage(3, lastEvaluatedKey);
+          if (thirdPageData) {
+            allResults.push(thirdPageData);
+          }
+        }
+      }
     }
   }
-  const uniqueResults = Array.from(
-    new Map(allResults.map(item => [item.id, item])).values()
-  );
-  return uniqueResults;  // Return all fetched data
+
+  const flattenedResults = allResults.flatMap((pageData) => pageData.items || []);
+
+  const data = [{ items: flattenedResults }];
+  console.log(flattenedResults);
+  return data;
 };
