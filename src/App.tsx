@@ -4,6 +4,7 @@ import Home from "./pages/Home";
 import BranchCodes from "./pages/BranchCodes";
 import Templates from "./pages/Templates";
 import Portal from "./pages/Portal";
+import Reports from "./pages/Reports";
 
 const App: React.FC = () => {
   return (
@@ -12,6 +13,7 @@ const App: React.FC = () => {
       <Route path="/branch-codes" element={<BranchCodes />} />
       <Route path="/templates" element={<Templates />} />
       <Route path="/portal" element={<Portal />} />
+      <Route path="/reports" element={<Reports />} />
     </Routes>
   );
 };

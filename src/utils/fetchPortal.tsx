@@ -56,7 +56,7 @@ export const fetchPortal = async (
           }
         }
       });
-      
+
       // Manually append each key-value pair from lastEvaluatedParams
       lastEvaluatedParams.forEach((value, key) => {
         params.append(key, value);
@@ -64,7 +64,7 @@ export const fetchPortal = async (
     }
 
     const url = `https://vfgar9uinc.execute-api.eu-west-2.amazonaws.com/prod/fp/order?${params.toString().replace('+', '%20')}`;
-    
+
     try {
       const response = await axios.get(url, {
         headers: {
