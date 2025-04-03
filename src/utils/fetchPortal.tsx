@@ -109,6 +109,5 @@ export const fetchPortal = async (
   const flattenedResults = allResults.flatMap((pageData) => pageData.items || []);
 
   const data = [{ items: flattenedResults }];
-  console.log(flattenedResults);
   return data;
 };
