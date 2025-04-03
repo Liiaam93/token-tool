@@ -172,12 +172,13 @@ const Reports: React.FC = () => {
         </Select>
       </Flex>
 
-      {loading ? (
+      {loading && (
          <Flex justify="center" align="center" flexDir={'column'} mt='10'>
          <Spinner size="xl" color="green.500" />
          <Text color={'white'}>Loading</Text>
        </Flex>
-      ) : (
+      ) } 
+      { token &&
         <Box color="white">
            <Table variant="simple" color="white" mt={5} w='50%' m='auto'>
           <Thead>
@@ -196,7 +197,7 @@ const Reports: React.FC = () => {
           </Table>
          {tradePrice > 0 && <Text marginTop={10} textAlign={'center'}>£{tradePrice.toFixed(2)}</Text>}
         </Box>
-      )}
+      }
     </Box>
   );
 };

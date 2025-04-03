@@ -13,6 +13,8 @@ const Links = [
   { name: "Home", path: "/" },
   { name: "Branch Codes", path: "/branch-codes" },
   { name: "Templates", path: "/templates" },
+  { name: "Portal", path: "/portal" },
+  { name: "Report", path: "/reports" },
 ];
 
 const NavLink = ({ name, path }: { name: string; path: string }) => (
@@ -20,11 +22,11 @@ const NavLink = ({ name, path }: { name: string; path: string }) => (
     as={RouterLink}
     to={path}
     px={8}
-    color={"whatsapp.500"}
+    color={"whatsapp.200"}
     pb={2}
     _hover={{
       textDecoration: "none",
-      bg: "whatsapp.900",
+      bg: "whatsapp.800",
       transition: "background-color 0.3s",
       border: "solid white 2px",
       borderTopRadius: "md",
@@ -36,7 +38,7 @@ const NavLink = ({ name, path }: { name: string; path: string }) => (
 
 const Navbar: React.FC = () => {
   return (
-    <Box bg="#1A202C" px={4} color={"white"} position="relative">
+    <Box bg="#1A202C" px={4} color={"white"} position="relative" fontFamily={'jura'}>
       <Box textAlign="center" mb={2}>
         <motion.div
           initial={{ scale: 0 }}
@@ -80,9 +82,6 @@ const Navbar: React.FC = () => {
             ))}
           </HStack>
         </HStack>
-          <Box opacity={0} position={"absolute"}  right={0}>
-          <NavLink name="P" path="/portal" />
-          </Box>
       </Flex>
     </Box>
   );
