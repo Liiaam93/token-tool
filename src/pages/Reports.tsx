@@ -9,7 +9,8 @@ const Reports: React.FC = () => {
   const [startDate, setStartDate] = useState('');
   const [orderTypeFilter, setOrderTypeFilter] = useState('eps');
   const [reportCount, setReportCount] = useState<any>({}); // State for report count as an object
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [tradePrice, setTradePrice] = useState(0)
 
   const statusFilters = [
     'OOS',
@@ -44,6 +45,8 @@ const Reports: React.FC = () => {
       total: 0, // This will be the sum of all counts
     };
   
+    let totalTradePrice = 0; // Initialize a variable to accumulate the trade price
+  
     for (const status of statusFilters) {
       console.log(`Fetching data for status: ${status}`);
   
@@ -62,6 +65,13 @@ const Reports: React.FC = () => {
       );
   
       console.log(`Filtered down to ${filteredData.length} items matching order type: ${orderTypeFilter}`);
+  
+      // If the orderType is 'trade', sum up the totalTradePrice of the ordered items
+      if (orderTypeFilter === 'trade') {
+        totalTradePrice += filteredData
+          .filter((item: PortalType) => item.record_status === 'Order placed') // Only sum 'Ordered' statuses
+          .reduce((sum, data) => sum + (Number(data.totalTradePrice) || 0), 0);
+      }
   
       // Count the occurrences of each status
       switch (status.toLowerCase()) {
@@ -101,9 +111,14 @@ const Reports: React.FC = () => {
     counts.total = Object.values(counts).reduce((acc, curr) => acc + curr, 0);
   
     setReportCount(counts); // Set the result to the state
+  
+    // After the loop finishes, set the final trade price
+    setTradePrice(parseFloat(totalTradePrice.toFixed(3))); // You can format it here if you need to
+  
     console.log(counts);
     setLoading(false);
   };
+  
   
 
   return (
@@ -174,11 +189,12 @@ const Reports: React.FC = () => {
           <Tbody>
           {Object.entries(reportCount).map(([key, value]) => (
             <Tr key={key}>
-       <Td>{`${key.toLocaleUpperCase()}`}</Td>     
-       <Td>{`${value}`}</Td>     
+       <Td color={key === 'ordered' ? 'whatsapp.200' : ''}>{`${key.toLocaleUpperCase().replace('-',' ')}`}</Td>     
+       <Td color={key === 'ordered' ? 'whatsapp.200' : ''}>{`${value}`}</Td>     
        </Tr>
       ))}</Tbody>
           </Table>
+         {tradePrice > 0 && <Text marginTop={10} textAlign={'center'}>£{tradePrice.toFixed(2)}</Text>}
         </Box>
       )}
     </Box>

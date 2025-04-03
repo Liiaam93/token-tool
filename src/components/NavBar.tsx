@@ -43,10 +43,10 @@ const Navbar: React.FC = () => {
           animate={{ scale: 1 }}
           transition={{ duration: 0.5 }}
         >
-          <Box display="inline-block">
+          <Box display="inline-block" fontFamily={'jura'}>
             <Typewriter
               options={{
-                delay: 50,
+                delay: 30,
                 loop: false,
               }}
               onInit={(typewriter) => {
@@ -61,7 +61,7 @@ const Navbar: React.FC = () => {
                   if (cursor) {
                     cursor.style.display = "none";
                   }
-                }, 7000);
+                }, 5000);
               }}
             />
           </Box>
