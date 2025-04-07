@@ -78,8 +78,7 @@ const Home: React.FC = () => {
         ({ barcode }) =>
           `${barcode
             .toUpperCase()
-            .replace(/(.{6})(.{6})(.{6})/, "$1-$2-$3")} - (REF: ${
-            scriptNumbers[barcode] || ""
+            .replace(/(.{6})(.{6})(.{6})/, "$1-$2-$3")} - (REF: ${scriptNumbers[barcode] || ""
           })`
       )
       .join("\n");
@@ -97,7 +96,7 @@ const Home: React.FC = () => {
   };
 
   return (
-    <Box bg="gray.800" minHeight="100vh">
+    <Box bg="gray.800" minHeight="100vh" fontFamily={'gruppo'}>
       <Flex
         p={2}
         maxW="90vw"
@@ -177,8 +176,7 @@ const Home: React.FC = () => {
                     ({ barcode }) =>
                       `${barcode
                         .toUpperCase()
-                        .replace(/(.{6})(.{6})(.{6})/, "$1-$2-$3")} - ${
-                        scriptNumbers[barcode] || "still with ordering team"
+                        .replace(/(.{6})(.{6})(.{6})/, "$1-$2-$3")} - ${scriptNumbers[barcode] || "still with ordering team"
                       }`
                   )
                   .join("\n")}
