@@ -1,6 +1,6 @@
 import { InputGroup, Input, InputRightElement, Flex, Select, Text, Box, Table, Thead, Tbody, Tr, Th, Td, Spinner, Progress, Button, Center } from "@chakra-ui/react";
 import { CheckIcon } from "@chakra-ui/icons";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { fetchPortal } from "../utils/fetchPortal";
 import { PortalType } from "../types/PortalType";
 
@@ -34,8 +34,17 @@ const Reports: React.FC = () => {
     { value: 'manual', label: 'Manual' }
   ];
 
+
+    useEffect(() => {
+      const storedToken = localStorage.getItem('bearerToken');
+      if (storedToken) {
+        setToken(storedToken);
+      }
+    }, []);
+    
   // Function to generate the report and return data in the desired format
   const generateReport = async () => {
+    if (!token) return; // Return early if no token
     setLoading(true);
     setProgress(0); // Reset progress to 0 when starting
     const counts: { [key: string]: number } = {

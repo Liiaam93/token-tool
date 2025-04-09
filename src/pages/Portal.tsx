@@ -66,7 +66,15 @@ const Portal: React.FC = () => {
   const searchQueryRef = useRef(searchQuery);
   const startDateRef = useRef(startDate);
 
+  useEffect(() => {
+    const storedToken = localStorage.getItem('bearerToken');
+    if (storedToken) {
+      setToken(storedToken);
+    }
+  }, []);
+
   const fetchPortalData = useCallback(async () => {
+    if (!token) return; // Return early if no token
     setLoading(true);
     try {
       const allResults = await fetchPortal(
