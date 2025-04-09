@@ -12,12 +12,10 @@ import {
   FormControl,
   FormLabel,
   Input,
-  useDisclosure,
   Text,
   useToast,
 } from "@chakra-ui/react";
 
-import { login } from "../utils/loginPortal"; // Import the login function
 
 interface LoginModalProps {
   isOpen: boolean;
