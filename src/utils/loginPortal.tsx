@@ -54,6 +54,7 @@ export const login = async (email: string, password: string) => {
       localStorage.setItem('bearerToken', bearerToken);
 
       console.log(bearerToken)
+      // const await axios.get
       return bearerToken;
     } else {
       // Log the error message for debugging

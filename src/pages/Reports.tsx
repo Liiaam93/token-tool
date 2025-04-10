@@ -35,13 +35,13 @@ const Reports: React.FC = () => {
   ];
 
 
-    useEffect(() => {
-      const storedToken = localStorage.getItem('bearerToken');
-      if (storedToken) {
-        setToken(storedToken);
-      }
-    }, []);
-    
+  useEffect(() => {
+    const storedToken = localStorage.getItem('bearerToken');
+    if (storedToken) {
+      setToken(storedToken);
+    }
+  }, []);
+
   // Function to generate the report and return data in the desired format
   const generateReport = async () => {
     if (!token) return; // Return early if no token
@@ -222,7 +222,7 @@ const Reports: React.FC = () => {
           <Text color="white" mt={2}>{progress}%</Text>
         </Flex>
       )}
-      {token.length > 20 &&
+      {Object.keys(reportCount).length > 0 && (
         <Box color="white">
           <Table variant="simple" color="white" mt={5} w='50%' m='auto'>
             <Thead>
@@ -254,7 +254,7 @@ const Reports: React.FC = () => {
           </Center>
 
         </Box>
-
+      )
       }
 
     </Box>
