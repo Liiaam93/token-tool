@@ -34,7 +34,6 @@ import {
 import { fetchPortal } from "../utils/fetchPortal";
 import { updateOrder } from "../utils/updateOrder";
 import {
-  CheckIcon,
   EditIcon,
   SearchIcon,
   ChatIcon,
@@ -54,7 +53,7 @@ const Portal: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [dialogMessage, setDialogMessage] = useState<React.ReactNode>("");
-  const [dialogAction, setDialogAction] = useState<() => void>(() => {});
+  const [dialogAction, setDialogAction] = useState<() => void>(() => { });
   const [orderTypeFilter, setOrderTypeFilter] = useState<string>("eps"); // Default to 'eps'
   const [userEmail] = useState<string>("liam.burbidge@well.co.uk");
   const [startDate, setStartDate] = useState<string>("");
@@ -290,32 +289,14 @@ const Portal: React.FC = () => {
   };
 
   return (
-    <Box bg="gray.800" minHeight="100vh">
+    <Box bg="gray.800" minHeight="100vh" mt='-2'>
       <Flex p={2} borderRadius="5" color={"white"} justifyContent={"center"}>
-        <InputGroup w={token ? "20%" : "65%"} marginX="2">
-          <Input
-            color={"white"}
-            placeholder="Enter access token"
-            value={token}
-            onChange={(e) => setToken(e.target.value)}
-            textAlign={"center"}
-            outline={"green"}
-            fontSize={"xs"}
-          />
-
-          <InputRightElement>
-            <CheckIcon
-              _hover={{ color: "green", cursor: "pointer" }}
-              onClick={fetchPortalData}
-            />
-          </InputRightElement>
-        </InputGroup>
         <Text
-          marginX="2"
+          marginTop="0"
           textAlign="center"
           color="orange"
-          w="30%"
-          border="solid white 1px"
+          w="60%"
+          border="solid white 2px"
           borderRadius="5"
           height="38px"
           display="flex"
@@ -335,12 +316,7 @@ const Portal: React.FC = () => {
             type="date"
             placeholder="Start Date"
             onChange={(e) => setStartDate(e.target.value)}
-            sx={{
-              "&::-webkit-calendar-picker-indicator": {
-                opacity: 0, // Hides default calendar icon
-                pointerEvents: "none",
-              },
-            }}
+
           />
           <InputRightElement>
             <IconButton
@@ -453,8 +429,8 @@ const Portal: React.FC = () => {
                     selectedId === data.id
                       ? "salmon"
                       : data.patient_name
-                      ? "yellow"
-                      : "white"
+                        ? "yellow"
+                        : "white"
                   }
                   key={index}
                 >

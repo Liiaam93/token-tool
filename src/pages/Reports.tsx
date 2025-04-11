@@ -1,5 +1,4 @@
-import { InputGroup, Input, InputRightElement, Flex, Select, Text, Box, Table, Thead, Tbody, Tr, Th, Td, Spinner, Progress, Button, Center } from "@chakra-ui/react";
-import { CheckIcon } from "@chakra-ui/icons";
+import { InputGroup, Input, Flex, Select, Text, Box, Table, Thead, Tbody, Tr, Th, Td, Spinner, Progress, Button, Center } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import { fetchPortal } from "../utils/fetchPortal";
 import { PortalType } from "../types/PortalType";
@@ -164,39 +163,28 @@ const Reports: React.FC = () => {
 
 
   return (
-    <Box bg="gray.800" minHeight="100vh" fontFamily={'jura'}>
-      <Flex direction="row" align="center" color='white' w='60%' m='auto'>
-        <InputGroup w="50%">
-          <Input
-            m="auto"
-            color="white"
-            placeholder="Enter access token"
-            value={token}
-            onChange={(e) => setToken(e.target.value)}
-            textAlign="center"
-            outline="green"
-            fontSize="xs"
-          />
-          <InputRightElement>
-            <CheckIcon
-              _hover={{ color: "green", cursor: "pointer" }}
-              onClick={generateReport}
-            />
-          </InputRightElement>
-        </InputGroup>
+    <Box bg="gray.800" minHeight="100vh">
+      <Flex direction="row" align="center" color='white' m='auto' w='60%'>
 
-        <InputGroup w="20%" m="10px">
+        <InputGroup w="20%">
           <Input
             color="white"
             type="date"
             placeholder="Start Date"
             onChange={(e) => setStartDate(e.target.value)}
+            sx={{
+              "&::-webkit-calendar-picker-indicator": {
+                opacity: 0, // Hides default calendar icon
+                pointerEvents: "none",
+              },
+            }}
           />
         </InputGroup>
 
         <Select
+          m='2'
           color="white"
-          w="30%"
+          w="50%"
           value={orderTypeFilter}
           onChange={(e) => setOrderTypeFilter(e.target.value)}
           sx={{
@@ -212,52 +200,56 @@ const Reports: React.FC = () => {
             </option>
           ))}
         </Select>
+        <Button colorScheme="teal" onClick={generateReport}>Generate Report</Button>
       </Flex>
 
-      {loading && (
-        <Flex justify="center" align="center" flexDir={'column'} mt='10'>
-          <Spinner size="xl" color="green.500" />
-          <Text color={'white'}>Loading</Text>
-          <Progress value={progress} size="xs" width="50%" colorScheme="green" mt="4" />
-          <Text color="white" mt={2}>{progress}%</Text>
-        </Flex>
-      )}
-      {Object.keys(reportCount).length > 0 && (
-        <Box color="white">
-          <Table variant="simple" color="white" mt={5} w='50%' m='auto'>
-            <Thead>
-              <Tr >
-                <Th color={'yellow'}>Status</Th>
-                <Th color={'yellow'}>Count</Th>
-              </Tr>
-            </Thead>
-            <Tbody>
-              {Object.entries(reportCount).map(([key, value]) => (
-                <Tr key={key}>
-                  <Td color={key === 'ordered' ? 'whatsapp.200' : ''}>  {`${key.toLocaleUpperCase().replace(/[-_]/g, ' ')}`}
-                  </Td>
-                  <Td color={key === 'ordered' ? 'whatsapp.200' : ''}>{`${value}`}</Td>
+      {
+        loading && (
+          <Flex justify="center" align="center" flexDir={'column'} mt='10'>
+            <Spinner size="xl" color="green.500" />
+            <Text color={'white'}>Loading</Text>
+            <Progress value={progress} size="xs" width="50%" colorScheme="green" mt="4" />
+            <Text color="white" mt={2}>{progress}%</Text>
+          </Flex>
+        )
+      }
+      {
+        Object.keys(reportCount).length > 0 && (
+          <Box color="white">
+            <Table variant="simple" color="white" mt={5} w='50%' m='auto'>
+              <Thead>
+                <Tr >
+                  <Th color={'yellow'}>Status</Th>
+                  <Th color={'yellow'}>Count</Th>
                 </Tr>
-              ))}</Tbody>
-          </Table>
-          {tradePrice > 0 && <Text marginTop={10} textAlign={'center'}>£{tradePrice.toFixed(2)}</Text>}
-          <Center>
-            <Button
-              m="auto"
-              alignSelf="center"
-              colorScheme="green"
-              mt={5}
-              onClick={generateExcelCopy}
-            >
-              Copy to Excel
-            </Button>
-          </Center>
+              </Thead>
+              <Tbody>
+                {Object.entries(reportCount).map(([key, value]) => (
+                  <Tr key={key}>
+                    <Td color={key === 'ordered' ? 'whatsapp.200' : ''}>  {`${key.toLocaleUpperCase().replace(/[-_]/g, ' ')}`}
+                    </Td>
+                    <Td color={key === 'ordered' ? 'whatsapp.200' : ''}>{`${value}`}</Td>
+                  </Tr>
+                ))}</Tbody>
+            </Table>
+            {tradePrice > 0 && <Text marginTop={10} textAlign={'center'}>£{tradePrice.toFixed(2)}</Text>}
+            <Center>
+              <Button
+                m="auto"
+                alignSelf="center"
+                colorScheme="green"
+                mt={5}
+                onClick={generateExcelCopy}
+              >
+                Copy to Excel
+              </Button>
+            </Center>
 
-        </Box>
-      )
+          </Box>
+        )
       }
 
-    </Box>
+    </Box >
   );
 };
 

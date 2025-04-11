@@ -96,7 +96,7 @@ const Home: React.FC = () => {
   };
 
   return (
-    <Box bg="gray.800" minHeight="100vh">
+    <Box bg="gray.800" minHeight="100vh" >
       <Flex
         p={2}
         maxW="90vw"
