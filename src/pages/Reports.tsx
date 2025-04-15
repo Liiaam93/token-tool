@@ -10,10 +10,9 @@ const Reports: React.FC = () => {
   const [orderTypeFilter, setOrderTypeFilter] = useState('eps');
   const [reportCount, setReportCount] = useState<any>({}); // State for report count as an object
   const [loading, setLoading] = useState(false);
-  const [tradePrice, setTradePrice] = useState(0)
+  const [tradePrice, setTradePrice] = useState(0);
   const [progress, setProgress] = useState(0); // State to track progress percentage
-    const inputRef = useRef<HTMLInputElement | null>(null); // Explicitly typed ref
-  
+  const inputRef = useRef<HTMLInputElement | null>(null); // Explicitly typed ref
 
   const statusFilters = [
     'OOS',
@@ -34,7 +33,6 @@ const Reports: React.FC = () => {
     { value: 'mtm', label: 'MTM' },
     { value: 'manual', label: 'Manual' }
   ];
-
 
   useEffect(() => {
     const storedToken = localStorage.getItem('bearerToken');
@@ -99,7 +97,9 @@ const Reports: React.FC = () => {
           counts.callbacks += filteredData.length; // Adding OOS to callbacks
           break;
         case 'rts':
-          counts.cannot_download_token += filteredData.length; // Adding RTS to cannot_download_token
+          if (orderTypeFilter === 'eps' || orderTypeFilter === 'mtm') {
+            counts.cannot_download_token += filteredData.length; // Adding RTS to cannot_download_token
+          }
           break;
         case 'call':
           counts.callbacks += filteredData.length; // Adding Call to callbacks
@@ -108,7 +108,9 @@ const Reports: React.FC = () => {
           counts.callbacks += filteredData.length; // Adding Call to callbacks
           break;
         case 'invalid':
-          counts.cannot_download_token += filteredData.length; // Adding Invalid to cannot_download_token
+          if (orderTypeFilter === 'eps' || orderTypeFilter === 'mtm') {
+            counts.cannot_download_token += filteredData.length; // Adding Invalid to cannot_download_token
+          }
           break;
         case 'submitted':
           // Ensure you're adding the correct number of "submitted" items to `not_ordered`
@@ -119,13 +121,18 @@ const Reports: React.FC = () => {
             counts[status.toLowerCase()] = filteredData.length;
           }
       }
+
       const newProgress = Math.round(((i + 1) / statusFilters.length) * 100);
       setProgress(newProgress);
-
     }
 
     // Calculate total count
     counts.total = Object.values(counts).reduce((acc, curr) => acc + curr, 0);
+
+    // If the orderTypeFilter isn't 'eps' or 'mtm', omit the 'cannot_download_token' field
+    if (orderTypeFilter !== 'eps' && orderTypeFilter !== 'mtm') {
+      delete counts.cannot_download_token;
+    }
 
     setReportCount(counts); // Set the result to the state
 
@@ -135,6 +142,7 @@ const Reports: React.FC = () => {
     console.log(counts);
     setLoading(false);
   };
+
   const generateExcelCopy = () => {
     // Create a header with the orderTypeFilter as a merged header
     const headers = [`${orderTypeFilter.toUpperCase()}`]; // This will simulate a merged header
@@ -161,31 +169,26 @@ const Reports: React.FC = () => {
     alert("Data copied to clipboard! You can now paste it into Excel.");
   };
 
-
-
-
   return (
     <Box bg="gray.800" minHeight="100vh">
       <Flex direction="row" align="center" color='white' m='auto' w='60%' border={'solid white 2px'} borderRadius={'10'} justifyContent={'center'}>
-
         <InputGroup w="20%">
           <Input
-          ref={inputRef}
+            ref={inputRef}
             color="white"
             type="date"
             placeholder="Start Date"
             onChange={(e) => setStartDate(e.target.value)}
-         
           />
-            <InputRightElement>
-                      <IconButton
-                        aria-label="Open calendar"
-                        icon={<CalendarIcon color="white" />}
-                        size="sm"
-                        variant="ghost"
-                        onClick={() => inputRef.current?.showPicker()} // Opens the native date picker
-                      />
-                    </InputRightElement>
+          <InputRightElement>
+            <IconButton
+              aria-label="Open calendar"
+              icon={<CalendarIcon color="white" />}
+              size="sm"
+              variant="ghost"
+              onClick={() => inputRef.current?.showPicker()} // Opens the native date picker
+            />
+          </InputRightElement>
         </InputGroup>
 
         <Select
@@ -237,7 +240,8 @@ const Reports: React.FC = () => {
                     </Td>
                     <Td color={key === 'ordered' ? 'whatsapp.200' : ''}>{`${value}`}</Td>
                   </Tr>
-                ))}</Tbody>
+                ))}
+              </Tbody>
             </Table>
             {tradePrice > 0 && <Text marginTop={10} textAlign={'center'}>£{tradePrice.toFixed(2)}</Text>}
             <Center>
@@ -251,12 +255,10 @@ const Reports: React.FC = () => {
                 Copy to Excel
               </Button>
             </Center>
-
           </Box>
         )
       }
-
-    </Box >
+    </Box>
   );
 };
 
