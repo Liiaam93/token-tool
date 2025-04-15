@@ -1,7 +1,8 @@
-import { InputGroup, Input, Flex, Select, Text, Box, Table, Thead, Tbody, Tr, Th, Td, Spinner, Progress, Button, Center } from "@chakra-ui/react";
-import { useEffect, useState } from "react";
+import { InputGroup, Input, Flex, Select, Text, Box, Table, Thead, Tbody, Tr, Th, Td, Spinner, Progress, Button, Center, InputRightElement, IconButton } from "@chakra-ui/react";
+import { useEffect, useRef, useState } from "react";
 import { fetchPortal } from "../utils/fetchPortal";
 import { PortalType } from "../types/PortalType";
+import { CalendarIcon } from "@chakra-ui/icons";
 
 const Reports: React.FC = () => {
   const [token, setToken] = useState('');
@@ -11,7 +12,8 @@ const Reports: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [tradePrice, setTradePrice] = useState(0)
   const [progress, setProgress] = useState(0); // State to track progress percentage
-
+    const inputRef = useRef<HTMLInputElement | null>(null); // Explicitly typed ref
+  
 
   const statusFilters = [
     'OOS',
@@ -164,21 +166,26 @@ const Reports: React.FC = () => {
 
   return (
     <Box bg="gray.800" minHeight="100vh">
-      <Flex direction="row" align="center" color='white' m='auto' w='60%'>
+      <Flex direction="row" align="center" color='white' m='auto' w='60%' border={'solid white 2px'} borderRadius={'10'} justifyContent={'center'}>
 
         <InputGroup w="20%">
           <Input
+          ref={inputRef}
             color="white"
             type="date"
             placeholder="Start Date"
             onChange={(e) => setStartDate(e.target.value)}
-            sx={{
-              "&::-webkit-calendar-picker-indicator": {
-                opacity: 0, // Hides default calendar icon
-                pointerEvents: "none",
-              },
-            }}
+         
           />
+            <InputRightElement>
+                      <IconButton
+                        aria-label="Open calendar"
+                        icon={<CalendarIcon color="white" />}
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => inputRef.current?.showPicker()} // Opens the native date picker
+                      />
+                    </InputRightElement>
         </InputGroup>
 
         <Select

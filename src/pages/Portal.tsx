@@ -206,6 +206,7 @@ const Portal: React.FC = () => {
     pharmacyName: string,
     scriptNumber?: string
   ) => {
+    setExpandedRow(null)
     if (token && email && id) {
       try {
         await updateOrder({
@@ -244,6 +245,7 @@ const Portal: React.FC = () => {
     accountNumber: string,
     pharmacyName: string
   ) => {
+    setExpandedRow(null)
     if (token && email && id) {
       try {
         await updateOrder({
@@ -398,23 +400,23 @@ const Portal: React.FC = () => {
       )}
       <TableContainer m="auto" maxWidth="100vw" overflowX="auto">
         <Table size="sm" variant="simple">
-          <Thead>
+          <Thead >
             <Tr>
               <Th width="50px"> </Th>
-              <Th width="50px"> Date </Th>
-              <Th textAlign="center" width="150px">
+              <Th width="50px" color={'white'}> Date </Th>
+              <Th textAlign="center" width="150px" color={'white'}>
                 Account
               </Th>
-              <Th textAlign="center" width="200px">
+              <Th textAlign="center" width="200px" color={'white'}>
                 Barcode
               </Th>
-              <Th textAlign="center" width="250px">
+              <Th textAlign="center" width="250px" color={'white'}>
                 Name
               </Th>
-              <Th textAlign="center" width="150px">
+              <Th textAlign="center" width="150px" color={'white'}>
                 Print
               </Th>
-              <Th textAlign="center" width="300px">
+              <Th textAlign="center" width="300px" color={'white'}>
                 Status
               </Th>
             </Tr>

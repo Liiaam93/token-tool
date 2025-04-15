@@ -14,6 +14,8 @@ import {
   Input,
   Text,
   useToast,
+  Spinner,
+  Flex
 } from "@chakra-ui/react";
 
 
@@ -28,9 +30,11 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onLogin }) => 
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null); // Error state to show login errors
   const toast = useToast(); // Chakra Toast for notifications
+  const [loading, setLoading] = useState(false)
 
   const handleSubmit = async () => {
     try {
+      setLoading(true)
       // Call the login function passed from the parent
       await onLogin(email, password); // Call onLogin from the parent (Navbar)
 
@@ -44,6 +48,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onLogin }) => 
 
       setEmail("");
       setPassword("");
+      setLoading(false)
     } catch (err: any) {
       // Handle any errors from the login process
       setError("Login failed. Please try again.");
@@ -64,6 +69,16 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onLogin }) => 
         <ModalHeader>Login</ModalHeader>
         <ModalCloseButton />
         <ModalBody>
+            {
+                  loading && (
+                    <Flex justify="center" align="center" flexDir={'column'} mt='10'>
+                      <Spinner size="xl" color="green.500" />
+                      <Text color={'white'}>Loading</Text>
+                     
+                    </Flex>
+                  )
+                }
+                
           {error && <Text color="red.500">{error}</Text>} {/* Display error message */}
           <FormControl isRequired>
             <FormLabel htmlFor="email">Email</FormLabel>
