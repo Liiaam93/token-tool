@@ -179,6 +179,13 @@ const Reports: React.FC = () => {
             type="date"
             placeholder="Start Date"
             onChange={(e) => setStartDate(e.target.value)}
+            sx={{
+              '::-webkit-calendar-picker-indicator': {
+                opacity: 0,
+                display: 'none',
+                WebkitAppearance: 'none',
+              },
+            }}
           />
           <InputRightElement>
             <IconButton

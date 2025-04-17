@@ -318,6 +318,13 @@ const Portal: React.FC = () => {
             type="date"
             placeholder="Start Date"
             onChange={(e) => setStartDate(e.target.value)}
+            sx={{
+              '::-webkit-calendar-picker-indicator': {
+                opacity: 0,
+                display: 'none',
+                WebkitAppearance: 'none',
+              },
+            }}
 
           />
           <InputRightElement>
@@ -327,6 +334,7 @@ const Portal: React.FC = () => {
               size="sm"
               variant="ghost"
               onClick={() => inputRef.current?.showPicker()} // Opens the native date picker
+             
             />
           </InputRightElement>
         </InputGroup>
