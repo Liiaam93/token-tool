@@ -26,6 +26,7 @@ import {
   Td,
   TableContainer,
   useToast,
+  Spinner,
   InputGroup,
   InputRightElement,
   Select,
@@ -311,9 +312,25 @@ const Portal: React.FC = () => {
         </Select>
       </HStack>
       {loading && (
-        <Text textAlign={"center"} color={"white"} margin={"auto"}>
-          Loading...
-        </Text>
+        <Box
+          position="fixed"
+          backgroundColor="white"
+          top="50%"
+          left="50%"
+          transform="translate(-50%, -50%)"
+          p={6}
+          borderRadius="md"
+          boxShadow="lg"
+          display="flex"
+          alignItems="center"
+          justifyContent="center"
+          zIndex={9999}
+          flexDir={'column'}
+        >
+          <Spinner size="xl" color="green.500" />
+          <Text m='5' mb='0'>Loading...</Text>
+        </Box>
+
       )}
       <TableContainer m="auto" maxWidth="100vw" overflowX="auto">
         <Table size="sm" variant="simple">
