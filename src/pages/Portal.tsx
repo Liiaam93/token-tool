@@ -31,150 +31,118 @@ import {
   Select,
   HStack,
 } from "@chakra-ui/react";
-import { fetchPortal } from "../utils/fetchPortal";
-import { updateOrder } from "../utils/updateOrder";
 import {
   EditIcon,
   SearchIcon,
   ChatIcon,
   CalendarIcon,
 } from "@chakra-ui/icons";
+import { fetchPortal } from "../utils/fetchPortal";
+import { updateOrder } from "../utils/updateOrder";
 import { PortalType } from "../types/PortalType";
 import ExpandedRow from "../components/ExpandedRow";
 
 const Portal: React.FC = () => {
-  const inputRef = useRef<HTMLInputElement | null>(null); // Explicitly typed ref
-  const [token, setToken] = useState<string>("");
+  const inputRef = useRef<HTMLInputElement>(null);
+  const cancelRef = useRef(null);
+
+  const [token, setToken] = useState("");
   const [portalData, setPortalData] = useState<PortalType[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [expandedRow, setExpandedRow] = useState<string | null>(null); // New state to track expanded row
-  const [statusFilter, setStatusFilter] = useState<string>("Submitted");
-  const [searchQuery, setSearchQuery] = useState<string>("");
-  const [loading, setLoading] = useState<boolean>(false);
+  const [expandedRow, setExpandedRow] = useState<string | null>(null);
+  const [statusFilter, setStatusFilter] = useState("Submitted");
+  const [orderTypeFilter, setOrderTypeFilter] = useState("eps");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [startDate, setStartDate] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [dialogMessage, setDialogMessage] = useState<React.ReactNode>("");
   const [dialogAction, setDialogAction] = useState<() => void>(() => { });
-  const [orderTypeFilter, setOrderTypeFilter] = useState<string>("eps"); // Default to 'eps'
-  const [userEmail] = useState<string>("liam.burbidge@well.co.uk");
-  const [startDate, setStartDate] = useState<string>("");
-
-  const cancelRef = useRef(null);
+  const [loading, setLoading] = useState(false);
+  const [secondsUntilRefresh, setSecondsUntilRefresh] = useState(120);
+  const [userEmail, setUserEmail] = useState('')
+  // const userEmail = "liam.burbidge@well.co.uk";
+  const toast = useToast();
 
   const statusFilterRef = useRef(statusFilter);
   const orderTypeFilterRef = useRef(orderTypeFilter);
   const searchQueryRef = useRef(searchQuery);
   const startDateRef = useRef(startDate);
 
+  useEffect(() => { statusFilterRef.current = statusFilter }, [statusFilter]);
+  useEffect(() => { orderTypeFilterRef.current = orderTypeFilter }, [orderTypeFilter]);
+  useEffect(() => { searchQueryRef.current = searchQuery }, [searchQuery]);
+  useEffect(() => { startDateRef.current = startDate }, [startDate]);
+
   useEffect(() => {
-    const storedToken = localStorage.getItem('bearerToken');
-    if (storedToken) {
-      setToken(storedToken);
-    }
+    const storedToken = localStorage.getItem("bearerToken");
+    if (storedToken) setToken(storedToken);
+    const storedEmail = localStorage.getItem('PortalEmail');
+    if (storedEmail) setUserEmail(storedEmail)
   }, []);
 
   const fetchPortalData = useCallback(async () => {
-    if (!token) return; // Return early if no token
+    if (!token) return;
     setLoading(true);
     try {
-      const allResults = await fetchPortal(
-        token,
-        statusFilter,
-        searchQuery,
-        startDate
-      );
-      const flattenedData = allResults.flatMap(
-        (pageData) => pageData.items || []
-      );
-
-      // Remove duplicates based on id.S
+      const results = await fetchPortal(token, statusFilter, searchQueryRef.current, startDate);
+      const items = results.flatMap((page) => page.items || []);
       const seen = new Set();
-      const uniqueData = flattenedData.filter((item: PortalType) => {
-        if (seen.has(item.id)) {
-          return false; // Skip this item since it's a duplicate
-        } else {
-          seen.add(item.id); // Add the id to the Set to track it
-          return true; // Keep this item
-        }
-      });
-
-      const filteredData = uniqueData.filter(
-        (item: PortalType) => item.order_type === orderTypeFilter
-      );
-
-      setPortalData(filteredData);
+      const unique = items.filter((item) => !seen.has(item.id) && seen.add(item.id));
+      const filtered = unique.filter((item) => item.order_type === orderTypeFilter);
+      setPortalData(filtered);
     } catch (error) {
       console.error("Error fetching data:", error);
     }
     setLoading(false);
-  }, [token, statusFilter, searchQuery, startDate, orderTypeFilter]);
-
-  useEffect(() => {
-    statusFilterRef.current = statusFilter;
-  }, [statusFilter]);
-
-  useEffect(() => {
-    orderTypeFilterRef.current = orderTypeFilter;
-  }, [orderTypeFilter]);
-
-  useEffect(() => {
-    searchQueryRef.current = searchQuery;
-  }, [searchQuery]);
-
-  useEffect(() => {
-    startDateRef.current = startDate;
-  }, [startDate]);
-
-  const formatDate = (date: number) => {
-    const newDate = new Date(date * 1000);
-
-    const formattedDate = newDate.toLocaleDateString("en-GB", {
-      day: "2-digit",
-      month: "2-digit",
-    });
-    const formattedTime = newDate.toLocaleTimeString("en-US", {
-      hour: "numeric",
-      minute: "numeric",
-      hour12: true,
-    });
-    return formattedDate + " " + formattedTime;
-  };
-  const toast = useToast();
-
-  useEffect(() => {
-    if (token) fetchPortalData();
-
-    const intervalId = setInterval(() => {
-      if (token) fetchPortalData(); // Use refs for filters
-    }, 120000); // 2-minute interval
-
-    return () => clearInterval(intervalId);
-  }, [token, fetchPortalData]); // Only depend on token, refs handle filters
-
-  const printCount = useMemo(() => {
-    return portalData.length;
-  }, [portalData]);
-
-  const totalTradePrice = useMemo(() => {
-    if (orderTypeFilter === "trade") {
-      return parseFloat(
-        portalData
-          .reduce((sum, data) => sum + Number(data.totalTradePrice || 0), 0)
-          .toFixed(3)
-      );
-    }
-    return null;
-  }, [portalData, orderTypeFilter]);
+  }, [token, statusFilter, startDate, orderTypeFilter]);
 
   useEffect(() => {
     fetchPortalData();
   }, [fetchPortalData]);
 
-  const handleExpandRow = (id: string) => {
-    setExpandedRow(expandedRow === id ? null : id);
+  // Auto-refresh every 2 minutes
+  useEffect(() => {
+    if (!token) return;
+    const intervalId = setInterval(fetchPortalData, 120000);
+    return () => clearInterval(intervalId);
+  }, [token, fetchPortalData]);
+
+  // Countdown timer
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setSecondsUntilRefresh((s) => (s <= 1 ? 120 : s - 1));
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const printCount = portalData.length;
+
+  const totalTradePrice = useMemo(() => {
+    if (orderTypeFilter !== "trade") return null;
+    const sum = portalData.reduce((acc, item) => acc + Number(item.totalTradePrice || 0), 0);
+    return parseFloat(sum.toFixed(2));
+  }, [portalData, orderTypeFilter]);
+
+  const formatDate = (timestamp: number) => {
+    const d = new Date(timestamp * 1000);
+    const date = d.toLocaleDateString("en-GB", { day: "2-digit", month: "2-digit" });
+    const time = d.toLocaleTimeString("en-US", { hour: "numeric", minute: "numeric", hour12: true });
+    return `${date} ${time}`;
   };
 
-  const handleStatusChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    setStatusFilter(encodeURIComponent(event.target.value.trim())); // Added .trim() to avoid accidental spaces
+  const formatModifiedDate = (modified: string) => {
+    const d = new Date(modified);
+    return new Intl.DateTimeFormat("en-GB", {
+      day: "2-digit",
+      month: "short",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
+    }).format(d).replace(",", "");
+  };
+
+  const handleExpandRow = (id: string) => {
+    setExpandedRow((prev) => (prev === id ? null : id));
   };
 
   const handleCopyToClipboard = (id: string) => {
@@ -187,6 +155,7 @@ const Portal: React.FC = () => {
       isClosable: true,
     });
   };
+
   const handleOpenDialog = (message: React.ReactNode, action: () => void) => {
     setDialogMessage(message);
     setDialogAction(() => action);
@@ -197,97 +166,27 @@ const Portal: React.FC = () => {
     dialogAction();
     setIsDialogOpen(false);
   };
-  const handleUpdatePatientName = async (
-    email: string,
-    id: string,
-    patientName: string,
-    modifiedBy: string,
-    accountNumber: string,
-    pharmacyName: string,
-    scriptNumber?: string
-  ) => {
-    setExpandedRow(null)
-    if (token && email && id) {
-      try {
-        await updateOrder({
-          token,
-          email,
-          id,
-          modifiedBy,
-          patientName,
-          accountNumber,
-          pharmacyName,
-          scriptNumber,
-        });
 
-        await new Promise((resolve) => setTimeout(resolve, 500));
-        toast({
-          title: "Patient Name Updated",
-          status: "success",
-          duration: 2000,
-          isClosable: true,
-        });
-        fetchPortalData();
-      } catch (error) {
-        console.error("Failed to update patient name:", error);
-      }
-    } else {
-      console.error("All fields except script number are required");
+  const handleUpdateOrder = async (data: any, overrides: any) => {
+    if (!token || !data.email || !data.id) return;
+    setExpandedRow(null);
+    try {
+      await updateOrder({ ...data, token, ...overrides });
+      await new Promise((res) => setTimeout(res, 500));
+      toast({
+        title: overrides.patientName ? "Patient Name Updated" : `Order status updated to ${overrides.status}`,
+        status: "success",
+        duration: 2000,
+        isClosable: true,
+      });
+      fetchPortalData();
+    } catch (err) {
+      console.error("Failed to update order:", err);
     }
   };
 
-  const handleUpdateOrderStatus = async (
-    email: string,
-    id: string,
-    status: string,
-    patientName: string,
-    modifiedBy: string,
-    accountNumber: string,
-    pharmacyName: string
-  ) => {
-    setExpandedRow(null)
-    if (token && email && id) {
-      try {
-        await updateOrder({
-          token,
-          email,
-          id,
-          modifiedBy,
-          patientName,
-          accountNumber,
-          pharmacyName,
-          status,
-        });
-
-        await new Promise((resolve) => setTimeout(resolve, 500));
-        toast({
-          title: `Order status updated to ${status}`,
-          status: "success",
-          duration: 2000,
-          isClosable: true,
-        });
-        fetchPortalData();
-      } catch (error) {
-        console.error("Failed to update order status:", error);
-      }
-    } else {
-      console.error("Email and ID are required");
-    }
-  };
-
-  const formatModifiedDate = (modifiedTime: string) => {
-    const date = new Date(modifiedTime);
-    const options: Intl.DateTimeFormatOptions = {
-      day: "2-digit",
-      month: "short",
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: true,
-    };
-
-    return new Intl.DateTimeFormat("en-GB", options)
-      .format(date)
-      .replace(",", "");
+  const handleStatusChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setStatusFilter(e.target.value);
   };
 
   return (
@@ -309,6 +208,10 @@ const Portal: React.FC = () => {
           {orderTypeFilter === "trade" ? "Trade: £" + totalTradePrice : ""}
         </Text>
       </Flex>
+      <Text color="gray.300" fontSize="sm" textAlign="center" mt={1}>
+        Auto-refreshing in {secondsUntilRefresh} seconds
+      </Text>
+
 
       <HStack m="auto" justifyContent="center" w="100%">
         <InputGroup w="20%" m="10px">
@@ -333,8 +236,8 @@ const Portal: React.FC = () => {
               icon={<CalendarIcon color="white" />}
               size="sm"
               variant="ghost"
-              onClick={() => inputRef.current?.showPicker()} // Opens the native date picker
-             
+              onClick={() => inputRef.current?.showPicker()}
+
             />
           </InputRightElement>
         </InputGroup>
@@ -345,7 +248,13 @@ const Portal: React.FC = () => {
             textAlign={"center"}
             outline={"green"}
             fontSize={"xs"}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={(e) => setSearchQuery(e.target.value)}  // Update searchQuery state on input change
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {  // Check if the Enter key is pressed
+                e.preventDefault();  // Prevent the default Enter behavior (like form submission)
+                fetchPortalData();  // Trigger the fetch (same as clicking search button)
+              }
+            }}
           />
 
           <InputRightElement>
@@ -494,19 +403,18 @@ const Portal: React.FC = () => {
                       colorScheme="blue"
                       size="xs"
                       onClick={() =>
-                        handleUpdateOrderStatus(
-                          data.email,
-                          data.id,
-                          "Token Downloaded",
-                          data.patient_name,
-                          userEmail,
-                          data.pharmacy_account_number,
-                          data.pharmacy_name
-                        )
+                        handleUpdateOrder(data, {
+                          status: "Token Downloaded",
+                          patientName: data.patient_name,
+                          modifiedBy: userEmail,
+                          accountNumber: data.pharmacy_account_number,
+                          pharmacyName: data.pharmacy_name,
+                        })
                       }
                     >
                       Set Token Downloaded
                     </Button>
+
                   </Td>
                   <Td textAlign="center" width="300px">
                     <Button
@@ -516,23 +424,18 @@ const Portal: React.FC = () => {
                       onClick={() =>
                         handleOpenDialog(
                           <>
-                            <Text>
-                              Mark this order as 'Please RTS and select -token
-                              returned- from the drop-down box'?
-                            </Text>
+                            <Text>Mark this order as 'Please RTS and select -token returned- from the drop-down box'?</Text>
                             <Text>Account: {data.pharmacy_account_number}</Text>
                             <Text>Barcode: {data.id}</Text>
                           </>,
                           () =>
-                            handleUpdateOrderStatus(
-                              data.email,
-                              data.id,
-                              "Please return this token to the Spine",
-                              "Please RTS and select -token returned- from the drop-down box",
-                              userEmail,
-                              data.pharmacy_account_number,
-                              data.pharmacy_name
-                            )
+                            handleUpdateOrder(data, {
+                              status: "Please return this token to the Spine",
+                              patientName: "Please RTS and select -token returned- from the drop-down box",
+                              modifiedBy: userEmail,
+                              accountNumber: data.pharmacy_account_number,
+                              pharmacyName: data.pharmacy_name,
+                            })
                         )
                       }
                     >
@@ -554,15 +457,13 @@ const Portal: React.FC = () => {
                             <Text>Barcode: {data.id}</Text>
                           </>,
                           () =>
-                            handleUpdateOrderStatus(
-                              data.email,
-                              data.id,
-                              "Barcode incorrect - please resend in the comments box below or request to cancel the order",
-                              "Invalid Barcode - Please check and ammend this order",
-                              userEmail,
-                              data.pharmacy_account_number,
-                              data.pharmacy_name
-                            )
+                            handleUpdateOrder(data, {
+                              status: "Barcode incorrect - please resend in the comments box below or request to cancel the order",
+                              patientName: "Invalid Barcode - Please check and ammend this order",
+                              modifiedBy: userEmail,
+                              accountNumber: data.pharmacy_account_number,
+                              pharmacyName: data.pharmacy_name,
+                            })
                         )
                       }
                     >
@@ -580,15 +481,14 @@ const Portal: React.FC = () => {
                             <Text>Barcode: {data.id}</Text>
                           </>,
                           () =>
-                            handleUpdateOrderStatus(
-                              data.email,
-                              data.id,
-                              "Order cancelled",
-                              data.patient_name,
-                              userEmail,
-                              data.pharmacy_account_number,
-                              data.pharmacy_name
-                            )
+
+                            handleUpdateOrder(data, {
+                              status: "Order cancelled",
+                              patientName: data.patient_name,
+                              modifiedBy: userEmail,
+                              accountNumber: data.pharmacy_account_number,
+                              pharmacyName: data.pharmacy_name,
+                            })
                         )
                       }
                     >
@@ -622,8 +522,7 @@ const Portal: React.FC = () => {
                   <ExpandedRow
                     data={data}
                     email={userEmail}
-                    updatePatientName={handleUpdatePatientName}
-                    updateOrderStatus={handleUpdateOrderStatus}
+                    updateOrder={handleUpdateOrder}
                   />
                 )}
               </>

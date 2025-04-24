@@ -75,6 +75,7 @@ export const login = async (email: string, password: string) => {
 
       console.log(userResponse)
       localStorage.setItem('PortalUser', userResponse.data.userDetails.first_name);
+      localStorage.setItem('PortalEmail', userResponse.data.userDetails.email);
 
       return bearerToken;
     } else {

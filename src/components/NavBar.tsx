@@ -3,8 +3,9 @@ import { Box, Flex, HStack, Link as ChakraLink, Button } from "@chakra-ui/react"
 import { Link as RouterLink } from "react-router-dom";
 import { motion } from "framer-motion";
 import Typewriter from "typewriter-effect";
-import LoginModal from "./LoginModal"; // Import the LoginModal component
+import LoginModal from "./LoginModal";
 import { login } from "../utils/loginPortal";
+import { useNavigate } from "react-router-dom";
 
 const Links = [
   { name: "Home", path: "/" },
@@ -35,46 +36,45 @@ const NavLink = ({ name, path }: { name: string; path: string }) => (
 
 const Navbar: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [token, setToken] = useState<string | null>(localStorage.getItem("bearerToken")); // Initialize state from localStorage
-  const [userFirstName, setUserFirstName] = useState<string | null>(localStorage.getItem("PortalUser")); // Fetch first name from localStorage
+  const [token, setToken] = useState<string | null>(localStorage.getItem("bearerToken"));
+  const [userFirstName, setUserFirstName] = useState<string | null>(localStorage.getItem("PortalUser"));
 
-  // Open and close the modal
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
 
-  // Update the useEffect to listen for changes in userFirstName
+  const navigate = useNavigate();
+
   useEffect(() => {
     const storedToken = localStorage.getItem("bearerToken");
     setToken(storedToken);
 
     const storedFirstName = localStorage.getItem("PortalUser");
     setUserFirstName(storedFirstName);
-  }, []); // This should still run only once when the component mounts
+  }, []);
 
 
-  // Handle Login (triggered by LoginModal)
   const handleLogin = async (email: string, password: string) => {
     console.log("Logging in with", email, password);
 
-    // Simulating a successful login and generating a token
-    const generatedToken = await login(email, password); // Replace with actual logic from your API
-    localStorage.setItem("bearerToken", generatedToken); // Store token in localStorage
+    const generatedToken = await login(email, password);
+    localStorage.setItem("bearerToken", generatedToken);
 
-    // Update token state and force re-render immediately
     setToken(generatedToken);
 
-    // Fetch the user's first name and store it in localStorage
     const firstName = localStorage.getItem("PortalUser");
     setUserFirstName(firstName);
 
-    closeModal(); // Close the modal after login
+    closeModal();
   };
 
   const handleLogout = () => {
-    localStorage.removeItem("bearerToken"); // Remove token from localStorage
-    localStorage.removeItem("PortalUser"); // Remove the user's first name from localStorage
-    setToken(null); // Update state to null
-    setUserFirstName(null); // Update first name state to null
+    localStorage.removeItem("bearerToken");
+    localStorage.removeItem("PortalUser");
+    localStorage.removeItem("PortalEmail");
+    setToken(null);
+    setUserFirstName(null);
+    navigate("/");
+
   };
 
   return (
@@ -118,24 +118,18 @@ const Navbar: React.FC = () => {
           </HStack>
         </HStack>
 
-        {/* Login/Logout Button */}
         {token ? (
           <Box textAlign="center">
-
             <Button mb='10' colorScheme="red" onClick={handleLogout}>
               Logout
             </Button>
-
           </Box>
         ) : (
           <Button mb="10" colorScheme="teal" onClick={openModal}>
             Login
           </Button>
-
         )}
       </Flex>
-
-      {/* Login Modal */}
       <LoginModal isOpen={isModalOpen} onClose={closeModal} onLogin={handleLogin} />
     </Box>
   );

@@ -5,31 +5,23 @@ import { PortalType } from "../types/PortalType";
 interface ExpandedRowProps {
   data: PortalType;
   email: string;
-  updatePatientName: (
-    email: string,
-    id: string,
-    patientName: string,
-    modifiedBy: string,
-    accountNumber: string,
-    pharmacyName: string,
-    scriptNumber?: string
-  ) => Promise<void>;
-  updateOrderStatus: (
-    email: string,
-    id: string,
-    status: string,
-    patientName: string,
-    modifiedBy: string,
-    accountNumber: string,
-    pharmacyName: string
-  ) => Promise<void>;
+  updateOrder: (data: any, overrides: any) => Promise<void>
+
 }
 
+
+type OrderOverrides = {
+  patientName: string;
+  scriptNumber: string;
+  modifiedBy: string;
+  accountNumber: string;
+  pharmacyName: string;
+  status?: string;
+};
 const ExpandedRow: React.FC<ExpandedRowProps> = ({
   data,
   email,
-  updatePatientName,
-  updateOrderStatus,
+  updateOrder,
 }) => {
   const [patientName, setPatientName] = useState(data.patient_name);
   const [scriptNumber, setScriptNumber] = useState<string>("");
@@ -47,29 +39,19 @@ const ExpandedRow: React.FC<ExpandedRowProps> = ({
     hour12: true,
   });
 
-  const handleCompleteOrder = async (data: PortalType, email: string) => {
-    await updatePatientName(
-      data.email,
-      data.id,
+  const handleCompleteOrder = async () => {
+    const overrides: OrderOverrides = {
       patientName,
-      email,
-      data.pharmacy_account_number,
-      data.pharmacy_name,
-      scriptNumber
-    );
-
-    if(orderStatus){
-    await updateOrderStatus(
-      data.email,
-      data.id,
-      orderStatus, // Dynamically selected order status
-      patientName,
-      email,
-      data.pharmacy_account_number,
-      data.pharmacy_name
-    );
+      scriptNumber,
+      modifiedBy: email,
+      accountNumber: data.pharmacy_account_number,
+      pharmacyName: data.pharmacy_name,
+      ...(orderStatus ? { status: orderStatus } : {}),
     }
+
+    await updateOrder(data, overrides);
   };
+
 
   return (
     <Tr>
@@ -109,18 +91,18 @@ const ExpandedRow: React.FC<ExpandedRowProps> = ({
             placeholder="Select Order Status"
             value={orderStatus}
             onChange={(e) => setOrderStatus(e.target.value)}
-              sx={{
-    option: {
-      backgroundColor: "gray.800",
-      color: "white",
-    },
-  }}
+            sx={{
+              option: {
+                backgroundColor: "gray.800",
+                color: "white",
+              },
+            }}
           >
             <option value="Order placed">Order placed</option>
             <option value="Order cancelled">Cancelled</option>
             <option value="Token Downloaded">Downloaded</option>
           </Select>
-          <Button colorScheme="green" m="2" onClick={() => handleCompleteOrder(data, email)}>
+          <Button colorScheme="green" m="2" onClick={handleCompleteOrder}>
             Update Patient Name
           </Button>
         </Flex>
