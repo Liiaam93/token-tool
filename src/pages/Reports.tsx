@@ -1,4 +1,7 @@
-import { InputGroup, Input, Flex, Select, Text, Box, Table, Thead, Tbody, Tr, Th, Td, Spinner, Progress, Button, Center, InputRightElement, IconButton } from "@chakra-ui/react";
+import {
+  InputGroup, Input, Flex, Select, Text, Box, Table, Thead, Tbody, Tr, Th, Td,
+  Spinner, Progress, Button, Center, InputRightElement, IconButton
+} from "@chakra-ui/react";
 import { useEffect, useRef, useState } from "react";
 import { fetchPortal } from "../utils/fetchPortal";
 import { PortalType } from "../types/PortalType";
@@ -8,23 +11,15 @@ const Reports: React.FC = () => {
   const [token, setToken] = useState('');
   const [startDate, setStartDate] = useState('');
   const [orderTypeFilter, setOrderTypeFilter] = useState('eps');
-  const [reportCount, setReportCount] = useState<any>({}); // State for report count as an object
+  const [reportCount, setReportCount] = useState<any>({});
   const [loading, setLoading] = useState(false);
   const [tradePrice, setTradePrice] = useState(0);
-  const [progress, setProgress] = useState(0); // State to track progress percentage
-  const inputRef = useRef<HTMLInputElement | null>(null); // Explicitly typed ref
+  const [progress, setProgress] = useState(0);
+  const inputRef = useRef<HTMLInputElement | null>(null);
 
   const statusFilters = [
-    'OOS',
-    'Invalid',
-    'Submitted',
-    'Ordered',
-    'RTS',
-    'Downloaded',
-    'Call',
-    'Cancelled',
-    'Comments',
-    'Stop',
+    'OOS', 'Invalid', 'Submitted', 'Ordered', 'RTS',
+    'Downloaded', 'Call', 'Cancelled', 'Comments', 'Stop',
   ];
 
   const orderTypeOptions = [
@@ -36,129 +31,125 @@ const Reports: React.FC = () => {
 
   useEffect(() => {
     const storedToken = localStorage.getItem('bearerToken');
-    if (storedToken) {
-      setToken(storedToken);
-    }
+    if (storedToken) setToken(storedToken);
   }, []);
 
-  // Function to generate the report and return data in the desired format
+  // ✅ Helper to check if it's a "Well" account
+  const isWellAccount = (item: PortalType): boolean => {
+    const keywords = ['NCC', 'UCP', 'PCT', 'WIL'];
+    const accountMatch = keywords.some(keyword => item.pharmacy_account_number?.toUpperCase().includes(keyword));
+    const nameMatch = item.pharmacy_name?.toLowerCase().includes('well');
+    return accountMatch && nameMatch;
+  };
+
   const generateReport = async () => {
-    if (!token) return; // Return early if no token
+    if (!token) return;
     setLoading(true);
-    setProgress(0); // Reset progress to 0 when starting
+    setProgress(0);
+
     const counts: { [key: string]: number } = {
-      ordered: 0,
-      cancelled: 0,
-      callbacks: 0, // This will combine OOS and Call
-      cannot_download_token: 0, // This will combine Invalid and RTS
-      not_ordered: 0,
-      total: 0, // This will be the sum of all counts
+      ordered: 0, cancelled: 0, callbacks: 0,
+      cannot_download_token: 0, not_ordered: 0, total: 0
     };
 
-    let totalTradePrice = 0; // Initialize a variable to accumulate the trade price
+    const wellAccountCounts: { [key: string]: number } = {
+      ordered: 0, cancelled: 0, callbacks: 0,
+      cannot_download_token: 0, not_ordered: 0, total: 0
+    };
+
+    let totalTradePrice = 0;
 
     for (let i = 0; i < statusFilters.length; i++) {
       const status = statusFilters[i];
-
-      console.log(`Fetching data for status: ${status}`);
-
       const allResults = await fetchPortal(token, status, '', startDate);
       const flattenedData = allResults.flatMap(pageData => pageData.items || []);
-
       const uniqueData = flattenedData.filter((item: PortalType, index, self) =>
         self.findIndex(i => i.id === item.id) === index
       );
-
-      // Log the fetched data to check what you are getting for each status
-      console.log(`Fetched ${uniqueData.length} unique items for status: ${status}`);
-
       const filteredData = uniqueData.filter(
         (item: PortalType) => item.order_type === orderTypeFilter
       );
 
-      console.log(`Filtered down to ${filteredData.length} items matching order type: ${orderTypeFilter}`);
-
-      // If the orderType is 'trade', sum up the totalTradePrice of the ordered items
       if (orderTypeFilter === 'trade') {
         totalTradePrice += filteredData
-          .filter((item: PortalType) => item.record_status === 'Order placed') // Only sum 'Ordered' statuses
+          .filter((item: PortalType) => item.record_status === 'Order placed')
           .reduce((sum, data) => sum + (Number(data.totalTradePrice) || 0), 0);
       }
 
-      // Count the occurrences of each status
+      const wellFiltered = filteredData.filter(isWellAccount);
+
       switch (status.toLowerCase()) {
         case 'ordered':
           counts.ordered = filteredData.length;
+          wellAccountCounts.ordered = wellFiltered.length;
           break;
         case 'cancelled':
           counts.cancelled = filteredData.length;
+          wellAccountCounts.cancelled = wellFiltered.length;
           break;
         case 'oos':
-          counts.callbacks += filteredData.length; // Adding OOS to callbacks
+          counts.callbacks += filteredData.length;
+          wellAccountCounts.callbacks += wellFiltered.length;
           break;
         case 'rts':
           if (orderTypeFilter === 'eps' || orderTypeFilter === 'mtm') {
-            counts.cannot_download_token += filteredData.length; // Adding RTS to cannot_download_token
+            counts.cannot_download_token += filteredData.length;
+            wellAccountCounts.cannot_download_token += wellFiltered.length;
           }
           break;
         case 'call':
-          counts.callbacks += filteredData.length; // Adding Call to callbacks
-          break;
-        case 'Comments':
-          counts.callbacks += filteredData.length; // Adding Call to callbacks
+        case 'comments':
+          counts.callbacks += filteredData.length;
+          wellAccountCounts.callbacks += wellFiltered.length;
           break;
         case 'invalid':
           if (orderTypeFilter === 'eps' || orderTypeFilter === 'mtm') {
-            counts.cannot_download_token += filteredData.length; // Adding Invalid to cannot_download_token
+            counts.cannot_download_token += filteredData.length;
+            wellAccountCounts.cannot_download_token += wellFiltered.length;
           }
           break;
         case 'submitted':
-          // Ensure you're adding the correct number of "submitted" items to `not_ordered`
           counts.not_ordered += filteredData.length;
+          wellAccountCounts.not_ordered += wellFiltered.length;
           break;
         default:
           if (status.toLowerCase() in counts) {
             counts[status.toLowerCase()] = filteredData.length;
+            wellAccountCounts[status.toLowerCase()] = wellFiltered.length;
           }
       }
 
-      const newProgress = Math.round(((i + 1) / statusFilters.length) * 100);
-      setProgress(newProgress);
+      setProgress(Math.round(((i + 1) / statusFilters.length) * 100));
     }
 
-    // Calculate total count
     counts.total = Object.values(counts).reduce((acc, curr) => acc + curr, 0);
+    wellAccountCounts.total = Object.values(wellAccountCounts).reduce((acc, curr) => acc + curr, 0);
 
-    // If the orderTypeFilter isn't 'eps' or 'mtm', omit the 'cannot_download_token' field
     if (orderTypeFilter !== 'eps' && orderTypeFilter !== 'mtm') {
       delete counts.cannot_download_token;
+      delete wellAccountCounts.cannot_download_token;
     }
 
-    setReportCount(counts); // Set the result to the state
-
-    // After the loop finishes, set the final trade price
-    setTradePrice(parseFloat(totalTradePrice.toFixed(3))); // You can format it here if you need to
-
-    console.log(counts);
+    setReportCount({ ...counts, __well__: wellAccountCounts });
+    setTradePrice(parseFloat(totalTradePrice.toFixed(3)));
     setLoading(false);
   };
 
   const generateExcelCopy = () => {
-    // Create a header with the orderTypeFilter as a merged header
-    const headers = [`${orderTypeFilter.toUpperCase()}`]; // This will simulate a merged header
+    const counts = { ...reportCount };
+    const wellCounts = counts.__well__;
+    delete counts.__well__;
 
-    // Map the report data into rows for the table
-    const rows = Object.entries(reportCount).map(([key, value]) => [
-      key.toLocaleUpperCase().replace(/[-_]/g, ' '),
-      value,
-    ]);
+    const headers = [`${orderTypeFilter.toUpperCase()}`];
+    const rows = Object.entries(counts).map(([key, value]) => {
+      const wellValue = wellCounts?.[key];
+      return [
+        key.toLocaleUpperCase().replace(/[-_]/g, ' '),
+        wellValue ? `${value} (${wellValue})` : value
+      ];
+    });
 
-    // Combine headers and rows for the final data
-    const data = [headers, ...rows] // Added secondaryHeaders for 'Status' and 'Count'
-      .map(row => row.join("\t")) // Join each row's columns with tab
-      .join("\n"); // Join rows with newlines
-
-    // Create a temporary textarea element to copy the data to the clipboard
+    const data = [headers, ...rows].map(row => row.join("\t")).join("\n");
     const textarea = document.createElement('textarea');
     textarea.value = data;
     document.body.appendChild(textarea);
@@ -193,7 +184,7 @@ const Reports: React.FC = () => {
               icon={<CalendarIcon color="white" />}
               size="sm"
               variant="ghost"
-              onClick={() => inputRef.current?.showPicker()} // Opens the native date picker
+              onClick={() => inputRef.current?.showPicker()}
             />
           </InputRightElement>
         </InputGroup>
@@ -220,51 +211,61 @@ const Reports: React.FC = () => {
         <Button colorScheme="teal" onClick={generateReport}>Generate Report</Button>
       </Flex>
 
-      {
-        loading && (
-          <Flex justify="center" align="center" flexDir={'column'} mt='10'>
-            <Spinner size="xl" color="green.500" />
-            <Text color={'white'}>Loading</Text>
-            <Progress value={progress} size="xs" width="50%" colorScheme="green" mt="4" />
-            <Text color="white" mt={2}>{progress}%</Text>
-          </Flex>
-        )
-      }
-      {
-        Object.keys(reportCount).length > 0 && (
-          <Box color="white">
-            <Table variant="simple" color="white" mt={5} w='50%' m='auto'>
-              <Thead>
-                <Tr >
-                  <Th color={'yellow'}>Status</Th>
-                  <Th color={'yellow'}>Count</Th>
-                </Tr>
-              </Thead>
-              <Tbody>
-                {Object.entries(reportCount).map(([key, value]) => (
+      {loading && (
+        <Flex justify="center" align="center" flexDir={'column'} mt='10'>
+          <Spinner size="xl" color="green.500" />
+          <Text color={'white'}>Loading</Text>
+          <Progress value={progress} size="xs" width="50%" colorScheme="green" mt="4" />
+          <Text color="white" mt={2}>{progress}%</Text>
+        </Flex>
+      )}
+
+      {Object.keys(reportCount).length > 0 && (
+        <Box color="white">
+          <Table variant="simple" color="white" mt={5} w='50%' m='auto'>
+            <Thead>
+              <Tr>
+                <Th color={'yellow'}>Status</Th>
+                <Th color={'yellow'}>Count</Th>
+              </Tr>
+            </Thead>
+            <Tbody>
+              {Object.entries(reportCount).map(([key, value]) => {
+                if (key === "__well__") return null; // skip internal well data
+                const wellValue = reportCount.__well__?.[key];
+                return (
                   <Tr key={key}>
-                    <Td color={key === 'ordered' ? 'whatsapp.200' : ''}>  {`${key.toLocaleUpperCase().replace(/[-_]/g, ' ')}`}
+                    <Td color={key === 'ordered' ? 'whatsapp.200' : ''}>
+                      {key.toLocaleUpperCase().replace(/[-_]/g, ' ')}
                     </Td>
-                    <Td color={key === 'ordered' ? 'whatsapp.200' : ''}>{`${value}`}</Td>
+                    <Td color={key === 'ordered' ? 'whatsapp.200' : ''}>
+                      {String(value)}{Number(wellValue) > 0 ? ` (${wellValue})` : ''}
+                    </Td>
                   </Tr>
-                ))}
-              </Tbody>
-            </Table>
-            {tradePrice > 0 && <Text marginTop={10} textAlign={'center'}>£{tradePrice.toFixed(2)}</Text>}
-            <Center>
-              <Button
-                m="auto"
-                alignSelf="center"
-                colorScheme="green"
-                mt={5}
-                onClick={generateExcelCopy}
-              >
-                Copy to Excel
-              </Button>
-            </Center>
-          </Box>
-        )
-      }
+                );
+              })}
+            </Tbody>
+          </Table>
+
+          {tradePrice > 0 && (
+            <Text marginTop={10} textAlign={'center'}>
+              £{tradePrice.toFixed(2)}
+            </Text>
+          )}
+
+          <Center>
+            <Button
+              m="auto"
+              alignSelf="center"
+              colorScheme="green"
+              mt={5}
+              onClick={generateExcelCopy}
+            >
+              Copy to Excel
+            </Button>
+          </Center>
+        </Box>
+      )}
     </Box>
   );
 };
