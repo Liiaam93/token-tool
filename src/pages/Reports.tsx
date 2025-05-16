@@ -1,6 +1,6 @@
 import {
   InputGroup, Input, Flex, Select, Text, Box, Table, Thead, Tbody, Tr, Th, Td,
-  Spinner, Progress, Button, Center, InputRightElement, IconButton
+  Spinner, Progress, Button, Center, InputRightElement, IconButton, useToast
 } from "@chakra-ui/react";
 import { useEffect, useRef, useState } from "react";
 import { fetchPortal } from "../utils/fetchPortal";
@@ -15,7 +15,10 @@ const Reports: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [tradePrice, setTradePrice] = useState(0);
   const [progress, setProgress] = useState(0);
+  const [wellAccountBreakdown, setWellAccountBreakdown] = useState<{ [key: string]: number }>({});
   const inputRef = useRef<HTMLInputElement | null>(null);
+  const toast = useToast();
+
 
   const statusFilters = [
     'OOS', 'Invalid', 'Submitted', 'Ordered', 'RTS',
@@ -34,10 +37,9 @@ const Reports: React.FC = () => {
     if (storedToken) setToken(storedToken);
   }, []);
 
-  // ✅ Helper to check if it's a "Well" account
   const isWellAccount = (item: PortalType): boolean => {
     const keywords = ['NCC', 'UCP', 'PCT', 'WIL'];
-    const accountMatch = keywords.some(keyword => item.pharmacy_account_number?.toUpperCase().includes(keyword));
+    const accountMatch = keywords.some(keyword => item.pharmacy_account_number?.toUpperCase().startsWith(keyword));
     const nameMatch = item.pharmacy_name?.toLowerCase().includes('well');
     return accountMatch && nameMatch;
   };
@@ -57,6 +59,7 @@ const Reports: React.FC = () => {
       cannot_download_token: 0, not_ordered: 0, total: 0
     };
 
+    const wellAccountList: { [key: string]: number } = {};
     let totalTradePrice = 0;
 
     for (let i = 0; i < statusFilters.length; i++) {
@@ -77,6 +80,18 @@ const Reports: React.FC = () => {
       }
 
       const wellFiltered = filteredData.filter(isWellAccount);
+
+      // Count individual Well accounts
+      for (const item of wellFiltered) {
+        const accountNumber = item.pharmacy_account_number?.toUpperCase();
+        if (!accountNumber) continue;
+
+        if (!wellAccountList[accountNumber]) {
+          wellAccountList[accountNumber] = 1;
+        } else {
+          wellAccountList[accountNumber]++;
+        }
+      }
 
       switch (status.toLowerCase()) {
         case 'ordered':
@@ -132,6 +147,7 @@ const Reports: React.FC = () => {
 
     setReportCount({ ...counts, __well__: wellAccountCounts });
     setTradePrice(parseFloat(totalTradePrice.toFixed(3)));
+    setWellAccountBreakdown(wellAccountList);
     setLoading(false);
   };
 
@@ -159,6 +175,31 @@ const Reports: React.FC = () => {
 
     alert("Data copied to clipboard! You can now paste it into Excel.");
   };
+
+const copyWellAccountBreakdown = () => {
+  if (!wellAccountBreakdown || Object.keys(wellAccountBreakdown).length === 0) return;
+
+  const headers = ["Account", "Count"];
+  const rows = Object.entries(wellAccountBreakdown).map(([account, count]) => [account, count]);
+
+  const data = [headers, ...rows].map(row => row.join("\t")).join("\n");
+  const textarea = document.createElement("textarea");
+  textarea.value = data;
+  document.body.appendChild(textarea);
+  textarea.select();
+  document.execCommand("copy");
+  document.body.removeChild(textarea);
+
+  toast({
+    title: "Copied!",
+    description: "Well Account Breakdown copied to clipboard.",
+    status: "success",
+    duration: 3000,
+    isClosable: true,
+    position: "bottom",
+  });
+};
+
 
   return (
     <Box bg="gray.800" minHeight="100vh">
@@ -231,7 +272,7 @@ const Reports: React.FC = () => {
             </Thead>
             <Tbody>
               {Object.entries(reportCount).map(([key, value]) => {
-                if (key === "__well__") return null; // skip internal well data
+                if (key === "__well__") return null;
                 const wellValue = reportCount.__well__?.[key];
                 return (
                   <Tr key={key}>
@@ -264,6 +305,37 @@ const Reports: React.FC = () => {
               Copy to Excel
             </Button>
           </Center>
+
+          {Object.keys(wellAccountBreakdown).length > 0 && (
+            <Box mt={10} color="white">
+              <Text fontSize="xl" textAlign="center" color="yellow.300">Well Account Breakdown</Text>
+              <Table variant="simple" color="white" mt={2} w='30%' m='auto'>
+                <Thead>
+                  <Tr>
+                    <Th color="yellow">Account</Th>
+                    <Th color="yellow">Count</Th>
+                  </Tr>
+                </Thead>
+                <Tbody>
+                  {Object.entries(wellAccountBreakdown).map(([account, count]) => (
+                    <Tr key={account}>
+                      <Td>{account}</Td>
+                      <Td>{count}</Td>
+                    </Tr>
+                  ))}
+                </Tbody>
+              </Table>
+                <Center>
+      <Button
+        colorScheme="green"
+        mt={4}
+        onClick={copyWellAccountBreakdown}
+      >
+        Copy Well Account Data
+      </Button>
+    </Center>
+            </Box>
+          )}
         </Box>
       )}
     </Box>
