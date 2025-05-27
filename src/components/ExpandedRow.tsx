@@ -103,7 +103,7 @@ const ExpandedRow: React.FC<ExpandedRowProps> = ({
             <option value="Token Downloaded">Downloaded</option>
           </Select>
           <Button colorScheme="green" m="2" onClick={handleCompleteOrder}>
-            Update Patient Name
+            Update
           </Button>
         </Flex>
       </Td>
