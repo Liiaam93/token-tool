@@ -100,6 +100,15 @@ export const fetchPortal = async (
           const thirdPageData = await fetchPage(3, lastEvaluatedKey);
           if (thirdPageData) {
             allResults.push(thirdPageData);
+
+          lastEvaluatedKey = thirdPageData.lastEvaluatedKey;
+          
+            if(lastEvaluatedKey) {
+              const fourthPageData = await fetchPage(4, lastEvaluatedKey);
+              if(fourthPageData){
+                allResults.push(fourthPageData)
+              }
+            }
           }
         }
       }
