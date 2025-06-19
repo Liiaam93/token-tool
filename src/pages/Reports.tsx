@@ -151,38 +151,42 @@ const Reports: React.FC = () => {
     setLoading(false);
   };
 
-  const generateExcelCopy = () => {
-    const counts = { ...reportCount };
-    const wellCounts = counts.__well__;
-    delete counts.__well__;
+const generateExcelCopy = () => {
+  const counts = { ...reportCount };
+  const wellCounts = counts.__well__;
+  delete counts.__well__;
 
-    const headers = [`${orderTypeFilter.toUpperCase()}`];
-    const rows = Object.entries(counts).map(([key, value]) => {
-      const wellValue = wellCounts?.[key];
-      return [
-        key.toLocaleUpperCase().replace(/[-_]/g, ' '),
-        wellValue ? `${value} (${wellValue})` : value
-      ];
-    });
+  const rows = Object.entries(counts).map(([key, value]) => {
+    const wellValue = wellCounts?.[key];
+    return [
+      key.toLocaleUpperCase().replace(/[-_]/g, ' '),
+      wellValue ? `${value} (${wellValue})` : value
+    ];
+  });
 
-    const data = [headers, ...rows].map(row => row.join("\t")).join("\n");
-    const textarea = document.createElement('textarea');
-    textarea.value = data;
-    document.body.appendChild(textarea);
-    textarea.select();
-    document.execCommand('copy');
-    document.body.removeChild(textarea);
+  const data = rows.map(row => row.join("\t")).join("\n");
+  const textarea = document.createElement('textarea');
+  textarea.value = data;
+  document.body.appendChild(textarea);
+  textarea.select();
+  document.execCommand('copy');
+  document.body.removeChild(textarea);
 
-    alert("Data copied to clipboard! You can now paste it into Excel.");
-  };
+  toast({
+    title: "Copied!",
+    status: "success",
+    duration: 2000,
+    isClosable: true,
+    position: "bottom",
+  });};
+
 
 const copyWellAccountBreakdown = () => {
   if (!wellAccountBreakdown || Object.keys(wellAccountBreakdown).length === 0) return;
 
-  const headers = ["Account", "Count"];
   const rows = Object.entries(wellAccountBreakdown).map(([account, count]) => [account, count]);
 
-  const data = [headers, ...rows].map(row => row.join("\t")).join("\n");
+  const data = rows.map(row => row.join("\t")).join("\n");
   const textarea = document.createElement("textarea");
   textarea.value = data;
   document.body.appendChild(textarea);
@@ -192,13 +196,13 @@ const copyWellAccountBreakdown = () => {
 
   toast({
     title: "Copied!",
-    description: "Well Account Breakdown copied to clipboard.",
     status: "success",
-    duration: 3000,
+    duration: 2000,
     isClosable: true,
     position: "bottom",
   });
 };
+
 
 
   return (

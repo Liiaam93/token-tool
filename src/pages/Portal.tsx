@@ -61,6 +61,9 @@ const Portal: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [secondsUntilRefresh, setSecondsUntilRefresh] = useState(120);
   const [userEmail, setUserEmail] = useState('')
+  const [sortField, setSortField] = useState<"date" | "account" | null>(null);
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
+
   // const userEmail = "liam.burbidge@well.co.uk";
   const toast = useToast();
 
@@ -190,6 +193,37 @@ const Portal: React.FC = () => {
     setStatusFilter(e.target.value);
   };
 
+  const handleSort = (field: "date" | "account") => {
+  if (sortField === field) {
+    setSortDirection((prev) => (prev === "asc" ? "desc" : "asc"));
+  } else {
+    setSortField(field);
+    setSortDirection("asc");
+  }
+};
+
+const sortedData = useMemo(() => {
+  const data = [...portalData];
+  if (sortField === "date") {
+    data.sort((a, b) => {
+      const aDate = a.created_date;
+      const bDate = b.created_date;
+      return sortDirection === "asc" ? aDate - bDate : bDate - aDate;
+    });
+  } else if (sortField === "account") {
+    data.sort((a, b) => {
+      const aAcc = a.pharmacy_account_number || "";
+      const bAcc = b.pharmacy_account_number || "";
+      return sortDirection === "asc"
+        ? aAcc.localeCompare(bAcc)
+        : bAcc.localeCompare(aAcc);
+    });
+  }
+  return data;
+}, [portalData, sortField, sortDirection]);
+
+
+
   return (
     <Box bg="gray.800" minHeight="100vh" mt='-2'>
       <Flex p={2} borderRadius="5" color={"white"} justifyContent={"center"}>
@@ -209,9 +243,9 @@ const Portal: React.FC = () => {
           {orderTypeFilter === "trade" ? "Trade: £" + totalTradePrice : ""}
         </Text>
       </Flex>
-      <Text color="gray.300" fontSize="sm" textAlign="center" mt={1}>
+      {/* <Text color="gray.300" fontSize="sm" textAlign="center" mt={1}>
         Auto-refreshing in {secondsUntilRefresh} seconds
-      </Text>
+      </Text> */}
 
 
       <HStack m="auto" justifyContent="center" w="100%">
@@ -337,10 +371,13 @@ const Portal: React.FC = () => {
           <Thead >
             <Tr>
               <Th width="50px"> </Th>
-              <Th width="50px" color={'white'}> Date </Th>
-              <Th textAlign="center" width="150px" color={'white'}>
-                Account
-              </Th>
+             <Th width="50px" color={'white'} cursor="pointer" onClick={() => handleSort("date")}>
+  Date {sortField === "date" ? (sortDirection === "asc" ? "↑" : "↓") : ""}
+</Th>
+<Th textAlign="center" width="150px" color={'white'} cursor="pointer" onClick={() => handleSort("account")}>
+  Account {sortField === "account" ? (sortDirection === "asc" ? "↑" : "↓") : ""}
+</Th>
+
               <Th textAlign="center" width="200px" color={'white'}>
                 Barcode
               </Th>
@@ -356,7 +393,7 @@ const Portal: React.FC = () => {
             </Tr>
           </Thead>
           <Tbody>
-            {portalData.map((data, index) => (
+            {sortedData.map((data, index) => (
               <>
                 <Tr
                   _hover={{ background: "green.800" }}
