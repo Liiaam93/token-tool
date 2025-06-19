@@ -59,7 +59,7 @@ const Portal: React.FC = () => {
   const [dialogMessage, setDialogMessage] = useState<React.ReactNode>("");
   const [dialogAction, setDialogAction] = useState<() => void>(() => { });
   const [loading, setLoading] = useState(false);
-  const [secondsUntilRefresh, setSecondsUntilRefresh] = useState(120);
+  // const [secondsUntilRefresh, setSecondsUntilRefresh] = useState(120);
   const [userEmail, setUserEmail] = useState('')
   const [sortField, setSortField] = useState<"date" | "account" | null>(null);
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
@@ -112,12 +112,12 @@ const Portal: React.FC = () => {
   }, [token, fetchPortalData]);
 
   // Countdown timer
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setSecondsUntilRefresh((s) => (s <= 1 ? 120 : s - 1));
-    }, 1000);
-    return () => clearInterval(timer);
-  }, []);
+  // useEffect(() => {
+  //   const timer = setInterval(() => {
+  //     setSecondsUntilRefresh((s) => (s <= 1 ? 120 : s - 1));
+  //   }, 1000);
+  //   return () => clearInterval(timer);
+  // }, []);
 
   const printCount = portalData.length;
 
