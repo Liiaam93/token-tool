@@ -17,6 +17,7 @@ type OrderOverrides = {
   accountNumber: string;
   pharmacyName: string;
   status?: string;
+  comment?: string;
 };
 const ExpandedRow: React.FC<ExpandedRowProps> = ({
   data,
@@ -26,18 +27,7 @@ const ExpandedRow: React.FC<ExpandedRowProps> = ({
   const [patientName, setPatientName] = useState(data.patient_name);
   const [scriptNumber, setScriptNumber] = useState<string>("");
   const [orderStatus, setOrderStatus] = useState<string>("");
-
-  const date = new Date(data.created_date * 1000);
-
-  const formattedDate = date.toLocaleDateString("en-GB", {
-    day: "2-digit",
-    month: "2-digit",
-  });
-  const formattedTime = date.toLocaleTimeString("en-US", {
-    hour: "numeric",
-    minute: "numeric",
-    hour12: true,
-  });
+  const [comment, setComment] = useState<string>('')
 
   const handleCompleteOrder = async () => {
     const overrides: OrderOverrides = {
@@ -47,6 +37,7 @@ const ExpandedRow: React.FC<ExpandedRowProps> = ({
       accountNumber: data.pharmacy_account_number,
       pharmacyName: data.pharmacy_name,
       ...(orderStatus ? { status: orderStatus } : {}),
+      comment
     }
 
     await updateOrder(data, overrides);
@@ -59,17 +50,13 @@ const ExpandedRow: React.FC<ExpandedRowProps> = ({
         <Flex>
           <VStack color={"white"} m="2">
             {data.pharmacy_name !== "n/a" && <Text>{data.pharmacy_name}</Text>}
-            <Text>{formattedDate}</Text>
-            <Text>{formattedTime}</Text>
             <Text>{data.email}</Text>
-            <Text>{data.order_type}</Text>
-            <Text>{data.record_status}</Text>
             <Text color="red">{data.customer_comment}</Text>
             <Text color="red">{data.customer_record_status}</Text>
           </VStack>
           <Input
             m="2"
-            w="40%"
+            w="20%"
             color={"white"}
             placeholder="Patient Name"
             value={patientName}
@@ -77,7 +64,7 @@ const ExpandedRow: React.FC<ExpandedRowProps> = ({
           />
           <Input
             m="2"
-            w="20%"
+            w="10%"
             color={"white"}
             placeholder="Script Number"
             value={scriptNumber}
@@ -86,7 +73,7 @@ const ExpandedRow: React.FC<ExpandedRowProps> = ({
           />
           <Select
             m="2"
-            w="20%"
+            w="15%"
             color="white"
             placeholder="Select Order Status"
             value={orderStatus}
@@ -103,10 +90,20 @@ const ExpandedRow: React.FC<ExpandedRowProps> = ({
             <option value="Token Downloaded">Downloaded</option>
             <option value="Please call Wardles about this order – 0800 050 1055">Please call Wardles</option>
           </Select>
+          <Input
+            m='2'
+            w="30%"
+            color={"white"}
+            placeholder="Comment (optional)"
+            value={comment}
+            onChange={(e) => setComment(e.target.value)}
+        />
           <Button colorScheme="green" m="2" onClick={handleCompleteOrder}>
             Update
           </Button>
         </Flex>
+        
+
       </Td>
     </Tr>
   );
