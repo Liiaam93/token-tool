@@ -48,15 +48,22 @@ const ExpandedRow: React.FC<ExpandedRowProps> = ({
     <Tr>
       <Td colSpan={7} bg="gray.700">
         <Flex>
-          <VStack color={"white"} m="2">
+          <VStack   color={"white"}
+                m="2"
+                maxW="15%" // Adjust width as needed
+                align="start" // Align items to the left
+                spacing={1} >
             {data.pharmacy_name !== "n/a" && <Text>{data.pharmacy_name}</Text>}
             <Text>{data.email}</Text>
-            <Text color="red">{data.customer_comment}</Text>
-            <Text color="red">{data.customer_record_status}</Text>
+            <Text color="yellow" whiteSpace="normal" textAlign="left" >{data.staff_comment && 'Staff comment: '}</Text>
+            <Text color="red" whiteSpace="normal" textAlign="left" >{data.staff_comment}</Text>
+            <Text color="yellow" whiteSpace="normal" textAlign="left" >{data.customer_comment && 'Customner comment: '}</Text> 
+            <Text color="red" whiteSpace="normal" textAlign="left">{data.customer_comment && 'Customer reply: '}{data.customer_comment}</Text>
+            <Text color="yellow">{data.customer_record_status}</Text>
           </VStack>
           <Input
             m="2"
-            w="20%"
+            width="20%"
             color={"white"}
             placeholder="Patient Name"
             value={patientName}
@@ -97,12 +104,12 @@ const ExpandedRow: React.FC<ExpandedRowProps> = ({
             placeholder="Comment (optional)"
             value={comment}
             onChange={(e) => setComment(e.target.value)}
-        />
+          />
           <Button colorScheme="green" m="2" onClick={handleCompleteOrder}>
             Update
           </Button>
         </Flex>
-        
+
 
       </Td>
     </Tr>

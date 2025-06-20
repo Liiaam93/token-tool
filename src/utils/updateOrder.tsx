@@ -88,12 +88,12 @@ export const updateOrder = async ({
       if (scriptNumber) {
         await updatePayload("awards_script_number", scriptNumber);
       }
-          
+
     }
 
-      if (comment) {
-        await updatePayload("staff_comment", comment);
-      }
+    if (comment) {
+      await updatePayload("staff_comment", comment);
+    }
 
     // Update status if provided
     if (status) {
