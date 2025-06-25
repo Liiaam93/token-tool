@@ -69,6 +69,7 @@ export const updateOrder = async ({
 
   try {
     // Handle order open/close status if provided
+    await updatePayload("order_open", "close");
 
     await updatePayload("order_open", "open");
 
