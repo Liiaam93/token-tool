@@ -9,6 +9,7 @@ type UpdateOrderParams = {
   scriptNumber?: string;
   status?: string;
   comment?: string;
+  orderDate?: string;
 };
 
 export const updateOrder = async ({
@@ -21,7 +22,8 @@ export const updateOrder = async ({
   pharmacyName,
   scriptNumber,
   status,
-  comment
+  comment,
+  orderDate
 }: UpdateOrderParams) => {
   const url =
     "https://vfgar9uinc.execute-api.eu-west-2.amazonaws.com/prod/order";
@@ -94,6 +96,10 @@ export const updateOrder = async ({
 
     if (comment) {
       await updatePayload("staff_comment", comment);
+    }
+
+    if (orderDate) {
+      await updatePayload("order_delivery_date", orderDate)
     }
 
     // Update status if provided

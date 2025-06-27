@@ -20,6 +20,7 @@ type OrderOverrides = {
   pharmacyName: string;
   status?: string;
   comment?: string;
+  orderDate?: string;
 };
 
 const ExpandedRow: React.FC<ExpandedRowProps> = ({
@@ -31,8 +32,29 @@ const ExpandedRow: React.FC<ExpandedRowProps> = ({
   const [scriptNumber, setScriptNumber] = useState<string>("");
   const [orderStatus, setOrderStatus] = useState<string>("");
   const [comment, setComment] = useState<string>("");
+  const [orderDate, setOrderDate] = useState<string>('')
 
   const handleCompleteOrder = async () => {
+    let orderDateIso: string | undefined = undefined;
+
+    if (orderDate) {
+      // Combine selected date with current time to get full ISO string
+      const now = new Date();
+      const [year, month, day] = orderDate.split('-').map(Number);
+
+      const fullDate = new Date(Date.UTC(
+        year,
+        month - 1,
+        day,
+        now.getUTCHours(),
+        now.getUTCMinutes(),
+        now.getUTCSeconds(),
+        now.getUTCMilliseconds()
+      ));
+
+      orderDateIso = fullDate.toISOString(); // ✅ Matches required format
+    }
+
     const overrides: OrderOverrides = {
       patientName,
       scriptNumber,
@@ -40,10 +62,13 @@ const ExpandedRow: React.FC<ExpandedRowProps> = ({
       accountNumber: data.pharmacy_account_number,
       pharmacyName: data.pharmacy_name,
       ...(orderStatus ? { status: orderStatus } : {}),
-      comment
+      comment,
+      ...(orderDateIso ? { orderDate: orderDateIso } : {}),
     };
+
     await updateOrder(data, overrides);
   };
+
 
   return (
     <Tr>
@@ -154,16 +179,24 @@ const ExpandedRow: React.FC<ExpandedRowProps> = ({
                 Update
               </Button>
             </Flex>
+            <Flex flex={1} >
+              <Textarea
+                width="530px"
+                height='165px'
+                placeholder="Comment (optional)"
+                value={comment}
+                onChange={(e) => setComment(e.target.value)}
+              />
 
-            <Textarea
-              width="530px"
-              height='165px'
-              placeholder="Comment (optional)"
-              value={comment}
-              onChange={(e) => setComment(e.target.value)}
-            />
+              <Input
+                w="300px"
+                type="date"
+                marginX="4"
+                value={orderDate}
+                onChange={(e) => setOrderDate(e.target.value)}
+              />
 
-
+            </Flex>
           </VStack>
         </Flex>
       </Td>
