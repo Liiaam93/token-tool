@@ -1,3 +1,12 @@
+interface OrderItem {
+  quantity: number,
+  singles: string,
+  productId: string,
+  customisation: string,
+  productName: string,
+  vmpId: string
+}
+
 export interface PortalType {
   created_by: string;
   created_date: number;
@@ -19,5 +28,7 @@ export interface PortalType {
   prescriptionExemptions: string;
   awards_script_number: string;
   totalTradePrice: string;
-  staff_comment: string
+  staff_comment: string;
+  order_items: OrderItem[];
+  out_of_stock_item: string;
 }
