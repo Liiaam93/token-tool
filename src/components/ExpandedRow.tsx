@@ -171,6 +171,7 @@ const ExpandedRow: React.FC<ExpandedRowProps> = ({
                 <option value="Order placed">Order placed</option>
                 <option value="Order cancelled">Cancelled</option>
                 <option value="Token Downloaded">Downloaded</option>
+                <option value="Comments Added">Comments Added</option>
                 <option value="Please call Wardles about this order – 0800 050 1055">
                   Please call Wardles
                 </option>
