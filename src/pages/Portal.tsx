@@ -268,7 +268,6 @@ const Portal: React.FC = () => {
             ref={inputRef}
             color="white"
             type="date"
-            placeholder="Start Date"
             onChange={(e) => setStartDate(e.target.value)}
             sx={{
               '::-webkit-calendar-picker-indicator': {

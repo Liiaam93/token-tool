@@ -10,6 +10,7 @@ type UpdateOrderParams = {
   status?: string;
   comment?: string;
   orderDate?: string;
+  oosItem?: string;
 };
 
 export const updateOrder = async ({
@@ -23,7 +24,8 @@ export const updateOrder = async ({
   scriptNumber,
   status,
   comment,
-  orderDate
+  orderDate,
+  oosItem
 }: UpdateOrderParams) => {
   const url =
     "https://vfgar9uinc.execute-api.eu-west-2.amazonaws.com/prod/order";
@@ -102,6 +104,9 @@ export const updateOrder = async ({
       await updatePayload("order_delivery_date", orderDate)
     }
 
+    if (oosItem) {
+      await updatePayload("out_of_stock_item", oosItem)
+    }
     // Update status if provided
     if (status) {
       // Send request twice as needed

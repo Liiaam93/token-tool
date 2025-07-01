@@ -1,10 +1,15 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import {
   Tr, Td, Flex, VStack, Text, Input,
   Button, Select, Box, Link,
-  Textarea
+  Textarea,
+  InputGroup,
+  InputRightElement,
+  IconButton,
+  Divider
 } from "@chakra-ui/react";
 import { PortalType } from "../types/PortalType";
+import { CalendarIcon } from "@chakra-ui/icons";
 
 interface ExpandedRowProps {
   data: PortalType;
@@ -21,6 +26,7 @@ type OrderOverrides = {
   status?: string;
   comment?: string;
   orderDate?: string;
+  oosItem?: string;
 };
 
 const ExpandedRow: React.FC<ExpandedRowProps> = ({
@@ -32,7 +38,11 @@ const ExpandedRow: React.FC<ExpandedRowProps> = ({
   const [scriptNumber, setScriptNumber] = useState<string>("");
   const [orderStatus, setOrderStatus] = useState<string>("");
   const [comment, setComment] = useState<string>("");
+  const [oosItem, setOosItem] = useState<string>("");
   const [orderDate, setOrderDate] = useState<string>('')
+
+  const inputRef = useRef<HTMLInputElement>(null);
+
 
   const handleCompleteOrder = async () => {
     let orderDateIso: string | undefined = undefined;
@@ -64,6 +74,7 @@ const ExpandedRow: React.FC<ExpandedRowProps> = ({
       ...(orderStatus ? { status: orderStatus } : {}),
       comment,
       ...(orderDateIso ? { orderDate: orderDateIso } : {}),
+      oosItem
     };
 
     await updateOrder(data, overrides);
@@ -73,51 +84,44 @@ const ExpandedRow: React.FC<ExpandedRowProps> = ({
   return (
     <Tr>
       <Td colSpan={7} bg="gray.700">
-        <Flex align="start" wrap="wrap" p={4}>
-          {/* Info Box */}
+        <Flex p={4} align="start" wrap="nowrap" gap={6}>
+          {/* Left: Info Section */}
           <VStack
-            color="white"
-            width="20%"
+            width="30%"
             align="start"
-            spacing={3}
-            mr={4}
+            spacing={4}
+            color="white"
+            bg="gray.600"
+            p={4}
+            borderRadius="md"
           >
-            <Box border="1px solid white" borderRadius="md" p={3} w="100%" bg="gray.600">
-              {data.pharmacy_name !== "n/a" && (
-                <Text fontStyle="italic" fontWeight="semibold">
-                  {data.pharmacy_name}
-                </Text>
-              )}
-              <Text mt={2}>
-                <Link
-                  href={`mailto:${data.email}`}
-                  color="blue.300"
-                  textDecoration="underline"
-                  isExternal
-                >
-                  {data.email}
-                </Link>
-              </Text>
-              <Text mt={4} whiteSpace={'normal'}>{data.prescriptionExemptions}</Text>
-            </Box>
+            {data.pharmacy_name !== "n/a" && (
+              <Text fontWeight="semibold" fontStyle="italic">{data.pharmacy_name}</Text>
+            )}
+            <Link href={`mailto:${data.email}`} color="blue.300" isExternal>
+              {data.email}
+            </Link>
+            <Text whiteSpace="normal">{data.prescriptionExemptions}</Text>
 
             {data.staff_comment && (
-              <Text color="yellow.300">Staff comment:</Text>
-            )}
-            {data.staff_comment && (
-              <Text color="red.300" fontStyle="italic" whiteSpace={'normal'}>{data.staff_comment}</Text>
+              <>
+                <Text color="yellow.300">Staff comment:</Text>
+                <Text color="red.300" fontStyle="italic" whiteSpace="normal">
+                  {data.staff_comment}
+                </Text>
+              </>
             )}
 
             {data.out_of_stock_item && (
               <Text color="red.200">
-                OOS: <Text as="span" fontWeight="semibold" whiteSpace={'normal'}>{data.out_of_stock_item}</Text>
+                OOS: <Text as="span" fontWeight="semibold">{data.out_of_stock_item}</Text>
               </Text>
             )}
 
             {data.customer_comment && (
               <>
                 <Text color="yellow.300">Customer comment:</Text>
-                <Text color="red.300" fontStyle="italic" whiteSpace={'normal'}>
+                <Text color="red.300" fontStyle="italic" whiteSpace="normal">
                   Customer reply: {data.customer_comment}
                 </Text>
               </>
@@ -126,82 +130,112 @@ const ExpandedRow: React.FC<ExpandedRowProps> = ({
             <Text color="yellow.200">{data.customer_record_status}</Text>
 
             {data.order_items?.length > 0 && (
-              <Box p={2} border="1px solid white" borderRadius="md" w="100%" bg="gray.600">
-                <Text fontWeight="bold" mb={2}>Items:</Text>
+              <Box border="1px solid white" borderRadius="md" p={3} w="100%">
+                <Text mb='5'>Items:</Text>
                 {data.order_items.map((o, idx) => (
-                  <Text key={idx} whiteSpace={'normal'} marginTop={2}>
-                    {o.productName} x {o.quantity}
-                    {o.customisation ? ` - ${o.customisation}` : ''}
-                  </Text>
+                  <>
+                    <Text key={idx} whiteSpace="normal">{o.productName}</Text>
+                    <Text fontSize={12}>  - {o.quantity}  {o.singles} </Text>
+                    <Text fontSize={12} fontStyle={'italic'}>{o.customisation && `  - ${o.customisation}`}</Text>
+                    <Divider m={2} />
+                  </>
                 ))}
               </Box>
             )}
           </VStack>
 
-          {/* Editable Fields */}
-          <VStack align="start" spacing={2} flex="1" color="white" minW="50%">
-            <Flex wrap="wrap" gap={4} width="100%">
-              <Input
-                flex="1"
-                minW="180px"
-                placeholder="Patient Name"
-                value={patientName}
-                onChange={(e) => setPatientName(e.target.value)}
-              />
-              <Input
-                flex="0 1 300px"
-                placeholder="Script Number"
-                value={scriptNumber}
-                inputMode="numeric"
-                onChange={(e) => setScriptNumber(e.target.value)}
-              />
-              <Select
-                flex="1"
-                minW="220px"
-                placeholder="Select Order Status"
-                value={orderStatus}
-                onChange={(e) => setOrderStatus(e.target.value)}
-                sx={{
-                  option: {
-                    backgroundColor: "gray.800",
-                    color: "white",
-                  },
-                }}
-              >
-                <option value="Order placed">Order placed</option>
-                <option value="Order cancelled">Cancelled</option>
-                <option value="Token Downloaded">Downloaded</option>
-                <option value="Comments Added">Comments Added</option>
-                <option value="Please call Wardles about this order – 0800 050 1055">
-                  Please call Wardles
-                </option>
-              </Select>
-              <Button colorScheme="green" onClick={handleCompleteOrder}>
-                Update
-              </Button>
-            </Flex>
-            <Flex flex={1} >
-              <Textarea
-                width="530px"
-                height='165px'
-                placeholder="Comment (optional)"
-                value={comment}
-                onChange={(e) => setComment(e.target.value)}
-              />
+          {/* Right: Editable Fields */}
+          <Box width="70%" color="white">
+            <VStack align="start" spacing={4}>
+              <Flex wrap="wrap" gap={4} width="100%">
+                <Input
+                  flex="2"
+                  placeholder="Patient Name"
+                  value={patientName}
+                  onChange={(e) => setPatientName(e.target.value)}
+                />
+                <Input
+                  flex="1"
+                  placeholder="Script Number"
+                  value={scriptNumber}
+                  inputMode="numeric"
+                  onChange={(e) => setScriptNumber(e.target.value)}
+                />
 
-              <Input
-                w="300px"
-                type="date"
-                marginX="4"
-                value={orderDate}
-                onChange={(e) => setOrderDate(e.target.value)}
-              />
+                <Button colorScheme="green" onClick={handleCompleteOrder}>
+                  Update
+                </Button>
+              </Flex>
 
-            </Flex>
-          </VStack>
+              <Flex gap={4} width="100%">
+                <Select
+                  flex="1"
+                  placeholder="Select Order Status"
+                  value={orderStatus}
+                  onChange={(e) => setOrderStatus(e.target.value)}
+                  sx={{ option: { backgroundColor: "gray.800", color: "white" } }}
+                >
+                  <option value="Order placed">Order placed</option>
+                  <option value="Order cancelled">Cancelled</option>
+                  <option value="Token Downloaded">Downloaded</option>
+                  <option value="Comments Added">Comments Added</option>
+                  <option value="Please call Wardles about this order – 0800 050 1055">Please call Wardles</option>
+                  <option value="Item out of stock, do you want to place on back order?">Item OOS</option>
+                </Select>
+
+                <InputGroup flex='1'>
+
+                  <Input
+                    ref={inputRef}
+                    type="date"
+                    onChange={(e) => setOrderDate(e.target.value)}
+                    flex="1"
+                    sx={{
+                      '::-webkit-calendar-picker-indicator': {
+                        opacity: 0,
+                        display: 'none',
+                        WebkitAppearance: 'none',
+                      },
+                    }}
+                  />
+
+                  <InputRightElement>
+                    <IconButton
+                      aria-label="Open calendar"
+                      icon={<CalendarIcon color="white" />}
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => inputRef.current?.showPicker()}
+
+                    />
+                  </InputRightElement>
+                </InputGroup>
+
+              </Flex>
+
+              {/* Optional Fields */}
+              <Flex gap={4} width="100%" flexWrap="wrap">
+                <Textarea
+                  flex="1"
+                  placeholder="Comment (optional)"
+                  value={comment}
+                  onChange={(e) => setComment(e.target.value)}
+                  minH="100px"
+                />
+                <Textarea
+                  flex="1"
+                  placeholder="Out of stock item (optional)"
+                  value={oosItem}
+                  onChange={(e) => setOosItem(e.target.value)}
+                  minH="100px"
+                />
+              </Flex>
+            </VStack>
+          </Box>
         </Flex>
       </Td>
     </Tr>
+
   );
 };
 
