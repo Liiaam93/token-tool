@@ -61,7 +61,7 @@ const Portal: React.FC = () => {
   const [loading, setLoading] = useState(false);
   // const [secondsUntilRefresh, setSecondsUntilRefresh] = useState(120);
   const [userEmail, setUserEmail] = useState('')
-  const [sortField, setSortField] = useState<"date" | "account" | null>(null);
+  const [sortField, setSortField] = useState<"date" | "account" | "hasMessage" | null>(null);
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
 
   // const userEmail = "liam.burbidge@well.co.uk";
@@ -193,34 +193,48 @@ const Portal: React.FC = () => {
     setStatusFilter(e.target.value);
   };
 
-  const handleSort = (field: "date" | "account") => {
-  if (sortField === field) {
-    setSortDirection((prev) => (prev === "asc" ? "desc" : "asc"));
-  } else {
-    setSortField(field);
-    setSortDirection("asc");
-  }
-};
+  const handleSort = (field: "date" | "account" | "hasMessage") => {
+    if (sortField === field) {
+      setSortDirection((prev) => (prev === "asc" ? "desc" : "asc"));
+    } else {
+      setSortField(field);
+      setSortDirection("asc");
+    }
+  };
 
-const sortedData = useMemo(() => {
-  const data = [...portalData];
-  if (sortField === "date") {
-    data.sort((a, b) => {
-      const aDate = a.created_date;
-      const bDate = b.created_date;
-      return sortDirection === "asc" ? aDate - bDate : bDate - aDate;
-    });
-  } else if (sortField === "account") {
-    data.sort((a, b) => {
-      const aAcc = a.pharmacy_account_number || "";
-      const bAcc = b.pharmacy_account_number || "";
-      return sortDirection === "asc"
-        ? aAcc.localeCompare(bAcc)
-        : bAcc.localeCompare(aAcc);
-    });
-  }
-  return data;
-}, [portalData, sortField, sortDirection]);
+
+  const sortedData = useMemo(() => {
+    const data = [...portalData];
+
+    if (sortField === "date") {
+      data.sort((a, b) => {
+        const aDate = a.created_date;
+        const bDate = b.created_date;
+        return sortDirection === "asc" ? aDate - bDate : bDate - aDate;
+      });
+    }
+
+    else if (sortField === "account") {
+      const aVal = (x: any) => x.pharmacy_account_number || "";
+      data.sort((a, b) => {
+        return sortDirection === "asc"
+          ? aVal(a).localeCompare(aVal(b))
+          : aVal(b).localeCompare(aVal(a));
+      });
+    }
+
+    else if (sortField === "hasMessage") {
+      const hasMsg = (x: any) => Boolean(x.customer_comment || x.customer_record_status);
+      data.sort((a, b) => {
+        return sortDirection === "asc"
+          ? Number(hasMsg(a)) - Number(hasMsg(b))
+          : Number(hasMsg(b)) - Number(hasMsg(a));
+      });
+    }
+
+    return data;
+  }, [portalData, sortField, sortDirection]);
+
 
 
 
@@ -371,18 +385,18 @@ const sortedData = useMemo(() => {
           <Thead >
             <Tr>
               <Th width="50px"> </Th>
-             <Th width="50px" color={'white'} cursor="pointer" onClick={() => handleSort("date")}>
-  Date {sortField === "date" ? (sortDirection === "asc" ? "↑" : "↓") : ""}
-</Th>
-<Th textAlign="center" width="150px" color={'white'} cursor="pointer" onClick={() => handleSort("account")}>
-  Account {sortField === "account" ? (sortDirection === "asc" ? "↑" : "↓") : ""}
-</Th>
+              <Th textAlign="center" width="50px" color={'white'} cursor="pointer" onClick={() => handleSort("date")} _hover={{ backgroundColor: 'gray.500' }}>
+                Date {sortField === "date" ? (sortDirection === "asc" ? "↑" : "↓") : ""}
+              </Th>
+              <Th textAlign="center" width="150px" color={'white'} cursor="pointer" onClick={() => handleSort("account")} _hover={{ backgroundColor: 'gray.500' }}>
+                Account {sortField === "account" ? (sortDirection === "asc" ? "↑" : "↓") : ""}
+              </Th>
 
               <Th textAlign="center" width="200px" color={'white'}>
                 Barcode
               </Th>
-              <Th textAlign="center" width="250px" color={'white'}>
-                Name
+              <Th textAlign="center" width="250px" color={'white'} cursor="pointer" onClick={() => handleSort("hasMessage")} _hover={{ backgroundColor: 'gray.500' }}>
+                Name {sortField === "hasMessage" ? (sortDirection === "asc" ? "↑" : "↓") : ""}
               </Th>
               <Th textAlign="center" width="150px" color={'white'}>
                 Print
@@ -413,7 +427,7 @@ const sortedData = useMemo(() => {
                       onClick={() => handleExpandRow(data.id)}
                     />
                   </Td>
-                  <Td>{formatDate(data.created_date)}</Td>
+                  <Td textAlign="center">{formatDate(data.created_date)}</Td>
 
                   <Td textAlign="center" width="150px">
                     {data.pharmacy_account_number}
