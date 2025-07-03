@@ -46,25 +46,27 @@ import ExpandedRow from "../components/ExpandedRow";
 const Portal: React.FC = () => {
   const inputRef = useRef<HTMLInputElement>(null);
   const cancelRef = useRef(null);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  const [token, setToken] = useState("");
-  const [portalData, setPortalData] = useState<PortalType[]>([]);
-  const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [expandedRow, setExpandedRow] = useState<string | null>(null);
-  const [statusFilter, setStatusFilter] = useState("Submitted");
-  const [orderTypeFilter, setOrderTypeFilter] = useState("eps");
-  const [searchQuery, setSearchQuery] = useState("");
-  const [startDate, setStartDate] = useState("");
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [dialogMessage, setDialogMessage] = useState<React.ReactNode>("");
   const [dialogAction, setDialogAction] = useState<() => void>(() => { });
+  const [dialogMessage, setDialogMessage] = useState<React.ReactNode>("");
+  const [expandedRow, setExpandedRow] = useState<string | null>(null);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [loading, setLoading] = useState(false);
-  // const [secondsUntilRefresh, setSecondsUntilRefresh] = useState(120);
-  const [userEmail, setUserEmail] = useState('')
-  const [sortField, setSortField] = useState<"date" | "account" | "hasMessage" | null>(null);
+  const [orderTypeFilter, setOrderTypeFilter] = useState("eps");
+  const [portalData, setPortalData] = useState<PortalType[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedId, setSelectedId] = useState<string | null>(null);
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
+  const [sortField, setSortField] = useState<"date" | "account" | "hasMessage" | null>(null);
+  const [startDate, setStartDate] = useState("");
+  const [statusFilter, setStatusFilter] = useState("Submitted");
+  const [token, setToken] = useState("");
+  const [userEmail, setUserEmail] = useState("");
+  const [countdown, setCountdown] = useState(120);
+  const countdownIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  // const userEmail = "liam.burbidge@well.co.uk";
+
   const toast = useToast();
 
   const statusFilterRef = useRef(statusFilter);
@@ -72,10 +74,13 @@ const Portal: React.FC = () => {
   const searchQueryRef = useRef(searchQuery);
   const startDateRef = useRef(startDate);
 
-  useEffect(() => { statusFilterRef.current = statusFilter }, [statusFilter]);
-  useEffect(() => { orderTypeFilterRef.current = orderTypeFilter }, [orderTypeFilter]);
-  useEffect(() => { searchQueryRef.current = searchQuery }, [searchQuery]);
-  useEffect(() => { startDateRef.current = startDate }, [startDate]);
+  useEffect(() => {
+    statusFilterRef.current = statusFilter;
+    orderTypeFilterRef.current = orderTypeFilter;
+    searchQueryRef.current = searchQuery;
+    startDateRef.current = startDate;
+  }, [statusFilter, orderTypeFilter, searchQuery, startDate]);
+
 
   useEffect(() => {
     const storedToken = localStorage.getItem("bearerToken");
@@ -84,40 +89,57 @@ const Portal: React.FC = () => {
     if (storedEmail) setUserEmail(storedEmail)
   }, []);
 
+  const resetAutoRefreshTimer = () => {
+    if (intervalRef.current) clearInterval(intervalRef.current);
+    if (countdownIntervalRef.current) clearInterval(countdownIntervalRef.current);
+
+    setCountdown(120); // reset to full duration
+
+    intervalRef.current = setInterval(() => {
+      fetchPortalData();
+    }, 120000);
+
+    countdownIntervalRef.current = setInterval(() => {
+      setCountdown(prev => (prev > 0 ? prev - 1 : 0));
+    }, 1000);
+  };
+
+
   const fetchPortalData = useCallback(async () => {
     if (!token) return;
+
     setLoading(true);
+
     try {
-      const results = await fetchPortal(token, statusFilter, searchQueryRef.current, startDate);
+      const results = await fetchPortal(token, statusFilter, searchQueryRef.current, startDateRef.current);
       const items = results.flatMap((page) => page.items || []);
-      const seen = new Set();
-      const unique = items.filter((item) => !seen.has(item.id) && seen.add(item.id));
-      const filtered = unique.filter((item) => item.order_type === orderTypeFilter);
+
+      const uniqueItems = Array.from(new Map(items.map(item => [item.id, item])).values());
+      const filtered = uniqueItems.filter(item => item.order_type === orderTypeFilter);
+
       setPortalData(filtered);
     } catch (error) {
       console.error("Error fetching data:", error);
+    } finally {
+      setLoading(false);
+      resetAutoRefreshTimer();
     }
-    setLoading(false);
-  }, [token, statusFilter, startDate, orderTypeFilter]);
+  }, [token, statusFilter, orderTypeFilter]);
+
+
+  useEffect(() => {
+    if (!token) return;
+    resetAutoRefreshTimer();
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+      if (countdownIntervalRef.current) clearInterval(countdownIntervalRef.current);
+    };
+  }, [token]);
+
 
   useEffect(() => {
     fetchPortalData();
   }, [fetchPortalData]);
-
-  // Auto-refresh every 2 minutes
-  useEffect(() => {
-    if (!token) return;
-    const intervalId = setInterval(fetchPortalData, 120000);
-    return () => clearInterval(intervalId);
-  }, [token, fetchPortalData]);
-
-  // Countdown timer
-  // useEffect(() => {
-  //   const timer = setInterval(() => {
-  //     setSecondsUntilRefresh((s) => (s <= 1 ? 120 : s - 1));
-  //   }, 1000);
-  //   return () => clearInterval(timer);
-  // }, []);
 
   const printCount = portalData.length;
 
@@ -184,8 +206,15 @@ const Portal: React.FC = () => {
         isClosable: true,
       });
       fetchPortalData();
-    } catch (err) {
+    } catch (err: any) {
       console.error("Failed to update order:", err);
+      toast({
+        title: "Failed to update order",
+        description: err?.message || "An unexpected error occurred",
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+      });
     }
   };
 
@@ -202,39 +231,20 @@ const Portal: React.FC = () => {
     }
   };
 
-
   const sortedData = useMemo(() => {
     const data = [...portalData];
-
-    if (sortField === "date") {
-      data.sort((a, b) => {
-        const aDate = a.created_date;
-        const bDate = b.created_date;
-        return sortDirection === "asc" ? aDate - bDate : bDate - aDate;
-      });
-    }
-
-    else if (sortField === "account") {
-      const aVal = (x: any) => x.pharmacy_account_number || "";
-      data.sort((a, b) => {
-        return sortDirection === "asc"
-          ? aVal(a).localeCompare(aVal(b))
-          : aVal(b).localeCompare(aVal(a));
-      });
-    }
-
-    else if (sortField === "hasMessage") {
-      const hasMsg = (x: any) => Boolean(x.customer_comment || x.customer_record_status);
-      data.sort((a, b) => {
-        return sortDirection === "asc"
-          ? Number(hasMsg(a)) - Number(hasMsg(b))
-          : Number(hasMsg(b)) - Number(hasMsg(a));
-      });
-    }
-
+    const comparators = {
+      date: (a: any, b: any) => sortDirection === "asc" ? a.created_date - b.created_date : b.created_date - a.created_date,
+      account: (a: any, b: any) => sortDirection === "asc"
+        ? (a.pharmacy_account_number || "").localeCompare(b.pharmacy_account_number || "")
+        : (b.pharmacy_account_number || "").localeCompare(a.pharmacy_account_number || ""),
+      hasMessage: (a: any, b: any) => sortDirection === "asc"
+        ? Number(Boolean(b.customer_comment || b.customer_record_status)) - Number(Boolean(a.customer_comment || a.customer_record_status))
+        : Number(Boolean(a.customer_comment || a.customer_record_status)) - Number(Boolean(b.customer_comment || b.customer_record_status)),
+    };
+    if (sortField) data.sort(comparators[sortField]);
     return data;
   }, [portalData, sortField, sortDirection]);
-
 
 
 
@@ -256,12 +266,12 @@ const Portal: React.FC = () => {
           Total: {printCount}{" "}
           {orderTypeFilter === "trade" ? "Trade: £" + totalTradePrice : ""}
         </Text>
+
+
       </Flex>
-      {/* <Text color="gray.300" fontSize="sm" textAlign="center" mt={1}>
-        Auto-refreshing in {secondsUntilRefresh} seconds
-      </Text> */}
-
-
+      <Text textAlign="center" color="white" fontSize="sm">
+        Automaticallt refreshing in {countdown}s
+      </Text>
       <HStack m="auto" justifyContent="center" w="100%">
         <InputGroup w="20%" m="10px">
           <Input
@@ -291,28 +301,27 @@ const Portal: React.FC = () => {
         </InputGroup>
         <InputGroup w="50%">
           <Input
-            color={"white"}
+            color="white"
             placeholder="Search"
-            textAlign={"center"}
-            outline={"green"}
-            fontSize={"xs"}
-            onChange={(e) => setSearchQuery(e.target.value)}  // Update searchQuery state on input change
+            textAlign="center"
+            fontSize="xs"
+            onChange={(e) => setSearchQuery(e.target.value)}
             onKeyDown={(e) => {
-              if (e.key === 'Enter') {  // Check if the Enter key is pressed
-                e.preventDefault();  // Prevent the default Enter behavior (like form submission)
-                fetchPortalData();  // Trigger the fetch (same as clicking search button)
+              if (e.key === "Enter") {
+                e.preventDefault();
+                fetchPortalData();
               }
             }}
           />
-
           <InputRightElement>
             <SearchIcon
-              color={"white"}
+              color="white"
               _hover={{ color: "green", cursor: "pointer" }}
               onClick={fetchPortalData}
             />
           </InputRightElement>
         </InputGroup>
+
         <Select
           key={orderTypeFilter}
           color="white"
@@ -359,26 +368,40 @@ const Portal: React.FC = () => {
         </Select>
       </HStack>
       {loading && (
-        <Box
-          position="fixed"
-          backgroundColor="white"
-          top="50%"
-          left="50%"
-          transform="translate(-50%, -50%)"
-          p={6}
-          borderRadius="md"
-          boxShadow="lg"
-          display="flex"
-          alignItems="center"
-          justifyContent="center"
-          zIndex={9999}
-          flexDir={'column'}
-        >
-          <Spinner size="xl" color="green.500" />
-          <Text m='5' mb='0'>Loading...</Text>
-        </Box>
-
+        <>
+          <Box
+            position="fixed"
+            top={0}
+            left={0}
+            right={0}
+            bottom={0}
+            bg="rgba(0,0,0,0.3)" // dim background, or "transparent" if you prefer
+            zIndex={9998}
+            pointerEvents="auto" // this blocks interactions underneath
+          />
+          <Box
+            position="fixed"
+            backgroundColor="white"
+            top="50%"
+            left="50%"
+            transform="translate(-50%, -50%)"
+            p={6}
+            borderRadius="md"
+            boxShadow="lg"
+            display="flex"
+            alignItems="center"
+            justifyContent="center"
+            zIndex={9999} // above the overlay
+            flexDir={'column'}
+          >
+            <Spinner size="xl" color="green.500" />
+            <Text m='5' mb='0'>Loading...</Text>
+          </Box>
+        </>
       )}
+
+
+
       <TableContainer m="auto" maxWidth="100vw" overflowX="auto">
         <Table size="sm" variant="simple">
           <Thead >
@@ -567,6 +590,7 @@ const Portal: React.FC = () => {
                       textOverflow="ellipsis"
                       maxWidth="400px"
                       textAlign="center"
+                      whiteSpace={'normal'}
                       borderTopRadius={10}
                       paddingLeft="2"
                       paddingRight="2"

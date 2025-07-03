@@ -48,7 +48,6 @@ const ExpandedRow: React.FC<ExpandedRowProps> = ({
     let orderDateIso: string | undefined = undefined;
 
     if (orderDate) {
-      // Combine selected date with current time to get full ISO string
       const now = new Date();
       const [year, month, day] = orderDate.split('-').map(Number);
 
@@ -62,7 +61,7 @@ const ExpandedRow: React.FC<ExpandedRowProps> = ({
         now.getUTCMilliseconds()
       ));
 
-      orderDateIso = fullDate.toISOString(); // ✅ Matches required format
+      orderDateIso = fullDate.toISOString();
     }
 
     const overrides: OrderOverrides = {
@@ -87,13 +86,16 @@ const ExpandedRow: React.FC<ExpandedRowProps> = ({
         <Flex p={4} align="start" wrap="nowrap" gap={6}>
           {/* Left: Info Section */}
           <VStack
-            width="30%"
+            width="25%"
             align="start"
             spacing={4}
             color="white"
             bg="gray.600"
+            boxShadow="md"
             p={4}
             borderRadius="md"
+            borderColor="blue.400"
+            borderWidth={1}
           >
             {data.pharmacy_name !== "n/a" && (
               <Text fontWeight="semibold" fontStyle="italic">{data.pharmacy_name}</Text>
@@ -113,7 +115,7 @@ const ExpandedRow: React.FC<ExpandedRowProps> = ({
             )}
 
             {data.out_of_stock_item && (
-              <Text color="red.200">
+              <Text color="red.200" whiteSpace="normal">
                 OOS: <Text as="span" fontWeight="semibold">{data.out_of_stock_item}</Text>
               </Text>
             )}
@@ -135,9 +137,9 @@ const ExpandedRow: React.FC<ExpandedRowProps> = ({
                 {data.order_items.map((o, idx) => (
                   <>
                     <Text key={idx} whiteSpace="normal">{o.productName}</Text>
-                    <Text fontSize={12}>  - {o.quantity}  {o.singles} </Text>
-                    <Text fontSize={12} fontStyle={'italic'}>{o.customisation && `  - ${o.customisation}`}</Text>
-                    <Divider m={2} />
+                    <Text fontSize={12} whiteSpace="normal">  - {o.quantity}  {o.singles} </Text>
+                    <Text fontSize={12} whiteSpace="normal" fontStyle={'italic'}>{o.customisation && `  - ${o.customisation}`}</Text>
+                    {data.order_items.length - 1 > idx && (<Divider m={2} borderColor="gray.500" borderWidth="1px" my={2} w="90%" />)}
                   </>
                 ))}
               </Box>
@@ -153,6 +155,7 @@ const ExpandedRow: React.FC<ExpandedRowProps> = ({
                   placeholder="Patient Name"
                   value={patientName}
                   onChange={(e) => setPatientName(e.target.value)}
+
                 />
                 <Input
                   flex="1"
@@ -162,7 +165,7 @@ const ExpandedRow: React.FC<ExpandedRowProps> = ({
                   onChange={(e) => setScriptNumber(e.target.value)}
                 />
 
-                <Button colorScheme="green" onClick={handleCompleteOrder}>
+                <Button colorScheme="green" onClick={handleCompleteOrder} boxShadow="sm" >
                   Update
                 </Button>
               </Flex>
