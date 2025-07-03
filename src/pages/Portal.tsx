@@ -270,7 +270,7 @@ const Portal: React.FC = () => {
 
       </Flex>
       <Text textAlign="center" color="white" fontSize="sm">
-        Automaticallt refreshing in {countdown}s
+        Auto-refresh in {countdown}s
       </Text>
       <HStack m="auto" justifyContent="center" w="100%">
         <InputGroup w="20%" m="10px">
