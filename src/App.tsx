@@ -1,20 +1,30 @@
 import React from "react";
-import { Routes, Route } from "react-router-dom"; // Import Routes and Route components
+import { Routes, Route, useLocation } from "react-router-dom"; // Import Routes and Route components
 import Home from "./pages/Home";
 import BranchCodes from "./pages/BranchCodes";
 import Templates from "./pages/Templates";
 import Portal from "./pages/Portal";
 import Reports from "./pages/Reports";
+import { AnimatePresence } from "framer-motion";
+import PageWrapper from "./components/PageWrapper";
+
 
 const App: React.FC = () => {
+  const location = useLocation()
+
   return (
-    <Routes>
-      <Route path="/" element={<Home />} />
-      <Route path="/branch-codes" element={<BranchCodes />} />
-      <Route path="/templates" element={<Templates />} />
-      <Route path="/portal" element={<Portal />} />
-      <Route path="/reports" element={<Reports />} />
-    </Routes>
+        <div style={{ position: "relative", width: "100%", height: "100%" }}>
+
+    <AnimatePresence mode="popLayout" initial={false} >
+      <Routes location={location} key={location.pathname}>
+        <Route path="/" element={<PageWrapper><Home /></PageWrapper>} />
+        <Route path="/branch-codes" element={<PageWrapper><BranchCodes /></PageWrapper>} />
+        <Route path="/templates" element={<PageWrapper><Templates /> </PageWrapper>} />
+        <Route path="/portal" element={<PageWrapper><Portal /></PageWrapper>} />
+        <Route path="/reports" element={<PageWrapper><Reports /></PageWrapper>} />
+      </Routes>
+    </AnimatePresence >
+    </div>
   );
 };
 

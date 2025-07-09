@@ -14,7 +14,6 @@ import {
   AlertDialogOverlay,
   Box,
   Button,
-  Flex,
   Input,
   IconButton,
   Text,
@@ -26,22 +25,25 @@ import {
   Td,
   TableContainer,
   useToast,
-  Spinner,
   InputGroup,
   InputRightElement,
   Select,
   HStack,
+  Divider,
+  Checkbox,
 } from "@chakra-ui/react";
 import {
   EditIcon,
   SearchIcon,
   ChatIcon,
   CalendarIcon,
+  TimeIcon
 } from "@chakra-ui/icons";
 import { fetchPortal } from "../utils/fetchPortal";
 import { updateOrder } from "../utils/updateOrder";
 import { PortalType } from "../types/PortalType";
 import ExpandedRow from "../components/ExpandedRow";
+import LoadingSpinner from "../components/LoadingSpinner";
 
 const Portal: React.FC = () => {
   const inputRef = useRef<HTMLInputElement>(null);
@@ -64,6 +66,7 @@ const Portal: React.FC = () => {
   const [token, setToken] = useState("");
   const [userEmail, setUserEmail] = useState("");
   const [countdown, setCountdown] = useState(120);
+  const [fastMode, setFastMode] = useState(false);
   const countdownIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
 
@@ -111,7 +114,7 @@ const Portal: React.FC = () => {
     setLoading(true);
 
     try {
-      const results = await fetchPortal(token, statusFilter, searchQueryRef.current, startDateRef.current);
+      const results = await fetchPortal(token, statusFilter, searchQueryRef.current, startDateRef.current, fastMode);
       const items = results.flatMap((page) => page.items || []);
 
       const uniqueItems = Array.from(new Map(items.map(item => [item.id, item])).values());
@@ -249,158 +252,167 @@ const Portal: React.FC = () => {
 
 
   return (
+    <>
+  {loading && <LoadingSpinner />}
+
     <Box bg="gray.800" minHeight="100vh" mt='-2'>
-      <Flex p={2} borderRadius="5" color={"white"} justifyContent={"center"}>
-        <Text
-          marginTop="0"
-          textAlign="center"
-          color="orange"
-          w="60%"
-          border="solid white 2px"
-          borderRadius="5"
-          height="38px"
-          display="flex"
-          alignItems="center"
-          justifyContent="center"
-        >
-          Total: {printCount}{" "}
-          {orderTypeFilter === "trade" ? "Trade: £" + totalTradePrice : ""}
-        </Text>
+      <Divider mt='2' borderColor={'white'} borderBottomWidth="2px"  boxShadow="none" 
+  opacity={1} />
+<HStack 
+paddingY={5}  
+m="auto" 
+  justifyContent="center" 
+  w="100%" 
+  spacing="4" // equal spacing between items
+>
+  {/* Time/Countdown */}
+  <HStack 
+    height="38px" 
+    borderRadius={5} 
+    borderWidth={1} 
+    p={2} 
+    w="10%" 
+    justifyContent="center"
+  >
+    <TimeIcon color="white" />
+    <Text textAlign="center" color="white" fontSize="sm" p={2}>
+      {countdown}s
+    </Text>
+  </HStack>
 
+  {/* Print Count */}
+  <Text
+    textAlign="center"
+    color="orange"
+    border="solid white 1px"
+    borderRadius="5"
+    h="38px"
+    w="10%"
+    lineHeight="38px"
+    display="flex"
+    alignItems="center"
+    justifyContent="center"
+  >
+    Total: {printCount}{" "}
+    {orderTypeFilter === "trade" ? "Trade: £" + totalTradePrice : ""}
+  </Text>
 
-      </Flex>
-      <Text textAlign="center" color="white" fontSize="sm">
-        Auto-refresh in {countdown}s
-      </Text>
-      <HStack m="auto" justifyContent="center" w="100%">
-        <InputGroup w="20%" m="10px">
-          <Input
-            ref={inputRef}
-            color="white"
-            type="date"
-            onChange={(e) => setStartDate(e.target.value)}
-            sx={{
-              '::-webkit-calendar-picker-indicator': {
-                opacity: 0,
-                display: 'none',
-                WebkitAppearance: 'none',
-              },
-            }}
+  {/* Date Picker */}
+  <InputGroup w="10%" m="0">
+    <Input
+      ref={inputRef}
+      color="white"
+      type="date"
+      onChange={(e) => setStartDate(e.target.value)}
+      sx={{
+        '::-webkit-calendar-picker-indicator': {
+          opacity: 0,
+          display: 'none',
+          WebkitAppearance: 'none',
+        },
+      }}
+      height="38px"
+      borderRadius={5}
+      borderWidth={1}
+      px={2}
+    />
+    <InputRightElement>
+      <IconButton
+        aria-label="Open calendar"
+        icon={<CalendarIcon color="white" />}
+        size="sm"
+        variant="ghost"
+        onClick={() => inputRef.current?.showPicker()}
+      />
+    </InputRightElement>
+  </InputGroup>
 
-          />
-          <InputRightElement>
-            <IconButton
-              aria-label="Open calendar"
-              icon={<CalendarIcon color="white" />}
-              size="sm"
-              variant="ghost"
-              onClick={() => inputRef.current?.showPicker()}
+  {/* Search Input */}
+  <InputGroup w="20%" m="0">
+    <Input
+      color="white"
+      placeholder="Search"
+      textAlign="center"
+      fontSize="xs"
+      onChange={(e) => setSearchQuery(e.target.value)}
+      onKeyDown={(e) => {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          fetchPortalData();
+        }
+      }}
+      height="38px"
+      borderRadius={5}
+      borderWidth={1}
+      px={2}
+    />
+    <InputRightElement>
+      <SearchIcon
+        color="white"
+        _hover={{ color: "green", cursor: "pointer" }}
+        onClick={fetchPortalData}
+      />
+    </InputRightElement>
+  </InputGroup>
 
-            />
-          </InputRightElement>
-        </InputGroup>
-        <InputGroup w="50%">
-          <Input
-            color="white"
-            placeholder="Search"
-            textAlign="center"
-            fontSize="xs"
-            onChange={(e) => setSearchQuery(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                e.preventDefault();
-                fetchPortalData();
-              }
-            }}
-          />
-          <InputRightElement>
-            <SearchIcon
-              color="white"
-              _hover={{ color: "green", cursor: "pointer" }}
-              onClick={fetchPortalData}
-            />
-          </InputRightElement>
-        </InputGroup>
+  {/* Order Type Select */}
+  <Select
+    key={orderTypeFilter}
+    color="white"
+    w="20%"
+    height="38px"
+    borderRadius={5}
+    borderWidth={1}
+    onChange={(e) => setOrderTypeFilter(e.target.value)}
+    value={orderTypeFilter}
+    sx={{
+      option: {
+        backgroundColor: "gray.800",
+        color: "white",
+      },
+    }}
+  >
+    <option value="eps">EPS</option>
+    <option value="trade">Trade</option>
+    <option value="mtm">MTM</option>
+    <option value="manual">Manual</option>
+  </Select>
 
-        <Select
-          key={orderTypeFilter}
-          color="white"
-          w="30%"
-          onChange={(e) => setOrderTypeFilter(e.target.value)}
-          value={orderTypeFilter}
-          sx={{
-            option: {
-              backgroundColor: "gray.800",
-              color: "white",
-            },
-          }}
-        >
-          <option value="eps">EPS</option>
-          <option value="trade">Trade</option>
-          <option value="mtm">MTM</option>
-          <option value="manual">Manual</option>
-        </Select>
-
-        <Select
-          key={statusFilter}
-          color="white"
-          w="30%"
-          onChange={handleStatusChange}
-          value={statusFilter}
-          sx={{
-            option: {
-              backgroundColor: "gray.800",
-              color: "white",
-            },
-          }}
-        >
-          <option value="Submitted">Request Submitted</option>
-          <option value="Downloaded">Token Downloaded</option>
-          <option value="RTS">Return to Spine</option>
-          <option value="Cancelled">Request Cancelled</option>
-          <option value="Ordered">Ordered</option>
-          <option value="OOS">Item Out of stock</option>
-          <option value="Call">Please Call Wardles</option>
-          <option value="Comments">Comments Added</option>
-          <option value="Stop">Account on stop</option>
-          <option value="Invalid">Invalid Barcode</option>
-          <option value="">No Filter</option>
-        </Select>
-      </HStack>
-      {loading && (
-        <>
-          <Box
-            position="fixed"
-            top={0}
-            left={0}
-            right={0}
-            bottom={0}
-            bg="rgba(0,0,0,0.3)" // dim background, or "transparent" if you prefer
-            zIndex={9998}
-            pointerEvents="auto" // this blocks interactions underneath
-          />
-          <Box
-            position="fixed"
-            backgroundColor="white"
-            top="50%"
-            left="50%"
-            transform="translate(-50%, -50%)"
-            p={6}
-            borderRadius="md"
-            boxShadow="lg"
-            display="flex"
-            alignItems="center"
-            justifyContent="center"
-            zIndex={9999} // above the overlay
-            flexDir={'column'}
-          >
-            <Spinner size="xl" color="green.500" />
-            <Text m='5' mb='0'>Loading...</Text>
-          </Box>
-        </>
-      )}
-
-
+  {/* Status Select */}
+  <Select
+    key={statusFilter}
+    color="white"
+    w="20%"
+    height="38px"
+    borderRadius={5}
+    borderWidth={1}
+    onChange={handleStatusChange}
+    value={statusFilter}
+    sx={{
+      option: {
+        backgroundColor: "gray.800",
+        color: "white",
+      },
+    }}
+  >
+    <option value="Submitted">Request Submitted</option>
+    <option value="Downloaded">Token Downloaded</option>
+    <option value="RTS">Return to Spine</option>
+    <option value="Cancelled">Request Cancelled</option>
+    <option value="Ordered">Ordered</option>
+    <option value="OOS">Item Out of stock</option>
+    <option value="Call">Please Call Wardles</option>
+    <option value="Comments">Comments Added</option>
+    <option value="Stop">Account on stop</option>
+    <option value="Invalid">Invalid Barcode</option>
+    <option value="">No Filter</option>
+  </Select>
+  <Checkbox isChecked={fastMode} onChange={(e) => setFastMode(e.target.checked)}>
+    <Text fontSize={'xs'} color={'white'} >
+       Fast Mode
+  </Text>
+</Checkbox>
+</HStack>
 
       <TableContainer m="auto" maxWidth="100vw" overflowX="auto">
         <Table size="sm" variant="simple">
@@ -644,7 +656,8 @@ const Portal: React.FC = () => {
           </AlertDialogContent>
         </AlertDialogOverlay>
       </AlertDialog>
-    </Box>
+    </Box> 
+</>
   );
 };
 

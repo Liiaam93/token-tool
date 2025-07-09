@@ -26,7 +26,8 @@ export const fetchPortal = async (
   token: string,
   statusFilter: string,
   searchQuery: string,
-  startDate?: string
+  startDate?: string,
+  fastMode?: boolean
 ) => {
   const status = statusMap[statusFilter] || "";
   const baseParams = new URLSearchParams({ pageSize: "200" });
@@ -66,7 +67,8 @@ export const fetchPortal = async (
 
   const allItems = [];
   let lastEvaluatedKey: LastEvaluatedKey | undefined;
-  const maxPages = 7;
+  const maxPages = fastMode ? 2 : 7; 
+
 
   for (let page = 0; page < maxPages; page++) {
     const data = await fetchPage(lastEvaluatedKey);

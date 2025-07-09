@@ -64,7 +64,7 @@ const Reports: React.FC = () => {
 
     for (let i = 0; i < statusFilters.length; i++) {
       const status = statusFilters[i];
-      const allResults = await fetchPortal(token, status, '', startDate);
+      const allResults = await fetchPortal(token, status, '', startDate, false);
       const flattenedData = allResults.flatMap(pageData => pageData.items || []);
       const uniqueData = flattenedData.filter((item: PortalType, index, self) =>
         self.findIndex(i => i.id === item.id) === index
