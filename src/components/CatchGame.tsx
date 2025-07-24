@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Box, Button, Center, Stack, Text } from '@chakra-ui/react';
+import { Box, Button, Center, Flex, Stack, Text } from '@chakra-ui/react';
 
 const GAME_WIDTH = 400;
 const GAME_HEIGHT = 500;
@@ -129,7 +129,7 @@ const CatchGame = () => {
 
       // Increase fall speed every 10s
       speedTimer += delta;
-      if (speedTimer >= 10_000) {
+      if (speedTimer >= 8_000) {
         fallSpeedRef.current += 2;
         speedTimer = 0;
       }
@@ -162,79 +162,98 @@ const CatchGame = () => {
   };
 
   return (
-    <Center m='auto' mt={5} flexDirection="column" borderWidth={1} w={'50%'}>
-      {!isRunning && !gameOver && (
-        <Button colorScheme="green" size="lg" onClick={startGame}>
-          Start Game
-        </Button>
-      )}
-
-      {gameOver && (
-        <Stack spacing={4} align="center">
-          <Text fontSize="2xl" fontWeight="bold">Game Over</Text>
-          <Text>Your score: {score}</Text>
-          <Button colorScheme="blue" onClick={startGame}>
-            Play Again
-          </Button>
-        </Stack>
-      )}
-
+    <Flex mt={10} justify="center" align="flex-start" gap={10}>
+      {/* Instructions Panel */}
       <Box
-        width={`${GAME_WIDTH}px`}
-        height={`${GAME_HEIGHT}px`}
-        border="2px solid"
+        w="250px"
+        p={4}
+        borderWidth={1}
         borderColor="gray.300"
-        position="relative"
-        mt={6}
-        bg="blue.50"
-        overflow="hidden"
-        display={isRunning ? 'block' : 'none'}
+        borderRadius="md"
+        bg="gray.50"
       >
-        {/* Player bin */}
-        <Box
-          position="absolute"
-          bottom="0"
-          left={`${renderPlayerX}px`}
-          width={`${PLAYER_WIDTH}px`}
-          height="40px"
-          display="flex"
-          alignItems="center"
-          justifyContent="center"
-          fontSize="30px"
-        >
-          🗑️
-        </Box>
+        <Text fontSize="xl" fontWeight="bold" mb={2}>How to Play</Text>
+        <Text fontSize="sm" mb={2}>➡️ Use arrow keys to move the bin left and right.</Text>
+        <Text fontSize="sm" mb={2}>🩹🧦 Collect prescriptions with items like bandages and stockings.</Text>
+        <Text fontSize="sm" mb={2}>💊 Avoid pills or the game ends!</Text>
+        <Text fontSize="sm">⏱️ Game lasts for 40 seconds. Try for the highest score!</Text>
+      </Box>
 
-        {/* Falling items */}
-        {renderItems.map((item) => (
+      {/* Game Panel */}
+      <Center flexDirection="column" borderWidth={1}>
+        {!isRunning && !gameOver && (
+          <Button colorScheme="green" size="lg" onClick={startGame}>
+            Start Game
+          </Button>
+        )}
+
+        {gameOver && (
+          <Stack spacing={4} align="center">
+            <Text fontSize="2xl" fontWeight="bold">Game Over</Text>
+            <Text>Your score: {score}</Text>
+            <Button colorScheme="blue" onClick={startGame}>
+              Play Again
+            </Button>
+          </Stack>
+        )}
+
+        <Box
+          width={`${GAME_WIDTH}px`}
+          height={`${GAME_HEIGHT}px`}
+          border="2px solid"
+          borderColor="gray.300"
+          position="relative"
+          bg="blue.50"
+          overflow="hidden"
+          display={isRunning ? 'block' : 'none'}
+        >
+          {/* Player bin */}
           <Box
-            key={item.id}
             position="absolute"
-            top={`${item.y}px`}
-            left={`${item.x}px`}
-            width={`${ITEM_WIDTH}px`}
-            height={`${ITEM_HEIGHT}px`}
+            bottom="0"
+            left={`${renderPlayerX}px`}
+            width={`${PLAYER_WIDTH}px`}
+            height="40px"
             display="flex"
             alignItems="center"
             justifyContent="center"
-            fontSize="20px"
-            bg="green.100"
-            border="2px solid"
-            borderColor="green.500"
-            borderRadius="md"
-            pointerEvents="none"
+            fontSize="30px"
           >
-            {item.icon}
+            🗑️
           </Box>
-        ))}
 
-        {/* Score */}
-        <Text position="absolute" top="5px" left="10px" fontWeight="bold">
-          Score: {score}
-        </Text>
-      </Box>
-    </Center>
+          {/* Falling items */}
+          {renderItems.map((item) => (
+            <Box
+              key={item.id}
+              position="absolute"
+              top={`${item.y}px`}
+              left={`${item.x}px`}
+              width={`${ITEM_WIDTH}px`}
+              height={`${ITEM_HEIGHT}px`}
+              display="flex"
+              alignItems="center"
+              justifyContent="center"
+              fontSize="20px"
+              bg="green.100"
+              border="2px solid"
+              borderColor="green.500"
+              borderRadius="md"
+              pointerEvents="none"
+            >
+              {item.icon}
+            </Box>
+          ))}
+
+          {/* Score */}
+          <Text position="absolute" top="5px" left="10px" fontWeight="bold">
+            Score: {score}
+          </Text>
+        </Box>
+      </Center>
+    </Flex>
   );
+
 };
 
 export default CatchGame;
