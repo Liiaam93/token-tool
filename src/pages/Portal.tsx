@@ -66,7 +66,7 @@ const Portal: React.FC = () => {
   const [token, setToken] = useState("");
   const [userEmail, setUserEmail] = useState("");
   const [countdown, setCountdown] = useState(120);
-  const [fastMode, setFastMode] = useState(false);
+  const [fastMode, setFastMode] = useState(true);
   const countdownIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
 
@@ -287,7 +287,7 @@ m="auto"
     border="solid white 1px"
     borderRadius="5"
     h="38px"
-    w="10%"
+    w="15%"
     lineHeight="38px"
     display="flex"
     alignItems="center"
@@ -597,28 +597,29 @@ m="auto"
                       Cancelled
                     </Button>
                     <Text
-                      color="white"
-                      overflow="hidden"
-                      textOverflow="ellipsis"
-                      maxWidth="400px"
-                      textAlign="center"
-                      whiteSpace={'normal'}
-                      borderTopRadius={10}
-                      paddingLeft="2"
-                      paddingRight="2"
-                      fontSize="sm"
-                      backgroundColor={
-                        data.record_status === "Order placed"
-                          ? "whatsapp.700"
-                          : "orange.600"
-                      }
-                      marginBottom={-2}
-                    >
-                      {data.record_status}
-                      {data.record_status === "Order placed"
-                        ? ": " + data.awards_script_number
-                        : ""}
-                    </Text>
+  color="white"
+  overflow="hidden"
+  textOverflow="ellipsis"
+  maxWidth="400px"
+  textAlign="center"
+  whiteSpace="normal"
+  borderTopRadius={10}
+  paddingLeft="2"
+  paddingRight="2"
+  fontSize="sm"
+  backgroundColor={
+    data.record_status === "Order placed"
+      ? "whatsapp.700"
+      : data.customer_record_status
+      ? "yellow.500"
+      : "orange.600"
+  }
+  marginBottom={-2}
+>
+  {data.customer_record_status ? data.customer_record_status : data.record_status}
+  {data.record_status === "Order placed" ? `: ${data.awards_script_number}` : ""}
+</Text>
+
                   </Td>
                 </Tr>
                 {expandedRow === data.id && (

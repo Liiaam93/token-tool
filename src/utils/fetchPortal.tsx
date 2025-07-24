@@ -67,7 +67,7 @@ export const fetchPortal = async (
 
   const allItems = [];
   let lastEvaluatedKey: LastEvaluatedKey | undefined;
-  const maxPages = fastMode ? 2 : 7; 
+  const maxPages = fastMode ? 2 : 8; 
 
 
   for (let page = 0; page < maxPages; page++) {
