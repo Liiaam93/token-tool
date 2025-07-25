@@ -616,7 +616,7 @@ const Portal: React.FC = () => {
                         }
                         marginBottom={-2}
                       >
-                        {data.customer_record_status ? data.customer_record_status : data.record_status}
+                        {data.record_status}
                         {data.record_status === "Order placed" ? `: ${data.awards_script_number}` : ""}
                       </Text>
 
