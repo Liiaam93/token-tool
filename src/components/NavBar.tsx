@@ -13,6 +13,7 @@ const Links = [
   { name: "Templates", path: "/templates" },
   { name: "Portal", path: "/portal" },
   { name: "Report", path: "/reports" },
+  { name: "Barcode Fix", path: "/barcode-corrector" },
 ];
 
 const NavLink = ({ name, path }: { name: string; path: string }) => (

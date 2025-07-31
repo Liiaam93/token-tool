@@ -109,25 +109,29 @@ const Portal: React.FC = () => {
 
 
   const fetchPortalData = useCallback(async () => {
-    if (!token) return;
+  if (!token) return;
 
-    setLoading(true);
+  setLoading(true);
 
-    try {
-      const results = await fetchPortal(token, statusFilter, searchQueryRef.current, startDateRef.current, fastMode);
-      const items = results.flatMap((page) => page.items || []);
+  try {
+    const results = await fetchPortal(token, statusFilter, searchQueryRef.current, startDateRef.current, fastMode);
+    const items = results.flatMap((page) => page.items || []);
 
-      const uniqueItems = Array.from(new Map(items.map(item => [item.id, item])).values());
-      const filtered = uniqueItems.filter(item => item.order_type === orderTypeFilter);
+    const uniqueItems = Array.from(new Map(items.map(item => [item.id, item])).values());
 
-      setPortalData(filtered);
-    } catch (error) {
-      console.error("Error fetching data:", error);
-    } finally {
-      setLoading(false);
-      resetAutoRefreshTimer();
-    }
-  }, [token, statusFilter, orderTypeFilter]);
+    const filtered = orderTypeFilter
+      ? uniqueItems.filter(item => item.order_type === orderTypeFilter)
+      : uniqueItems;
+
+    setPortalData(filtered);
+  } catch (error) {
+    console.error("Error fetching data:", error);
+  } finally {
+    setLoading(false);
+    resetAutoRefreshTimer();
+  }
+}, [token, statusFilter, orderTypeFilter]);
+
 
 
   useEffect(() => {
@@ -152,23 +156,34 @@ const Portal: React.FC = () => {
     return parseFloat(sum.toFixed(2));
   }, [portalData, orderTypeFilter]);
 
-  const formatDate = (timestamp: number) => {
-    const d = new Date(timestamp * 1000);
-    const date = d.toLocaleDateString("en-GB", { day: "2-digit", month: "2-digit" });
-    const time = d.toLocaleTimeString("en-US", { hour: "numeric", minute: "numeric", hour12: true });
-    return `${date} ${time}`;
-  };
+const formatDate = (timestamp: number) => {
+  const d = new Date(timestamp * 1000);
+  const date = d.toLocaleDateString("en-GB", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric", // Added year
+  });
+  const time = d.toLocaleTimeString("en-US", {
+    hour: "numeric",
+    minute: "numeric",
+    hour12: true,
+  });
+  return `${date} ${time}`;
+};
 
-  const formatModifiedDate = (modified: string) => {
-    const d = new Date(modified);
-    return new Intl.DateTimeFormat("en-GB", {
-      day: "2-digit",
-      month: "short",
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: true,
-    }).format(d).replace(",", "");
-  };
+
+const formatModifiedDate = (modified: string) => {
+  const d = new Date(modified);
+  d.setHours(d.getHours() + 1); // Add 1 hour
+  return new Intl.DateTimeFormat("en-GB", {
+    day: "2-digit",
+    month: "short",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: true,
+  }).format(d).replace(",", "");
+};
+
 
   const handleExpandRow = (id: string) => {
     setExpandedRow((prev) => (prev === id ? null : id));
@@ -376,6 +391,7 @@ const Portal: React.FC = () => {
             <option value="trade">Trade</option>
             <option value="mtm">MTM</option>
             <option value="manual">Manual</option>
+            <option value="">No Filter</option>
           </Select>
 
           {/* Status Select */}
@@ -460,11 +476,14 @@ const Portal: React.FC = () => {
                         _hover={{ cursor: "pointer" }}
                         onClick={() => handleExpandRow(data.id)}
                       />
+                      {' '}{orderTypeFilter === '' && data.order_type}
+
                     </Td>
                     <Td textAlign="center">{formatDate(data.created_date)}</Td>
 
                     <Td textAlign="center" width="150px">
                       {data.pharmacy_account_number}
+
                     </Td>
 
                     <Td textAlign="center" width="200px">
@@ -616,7 +635,7 @@ const Portal: React.FC = () => {
                         }
                         marginBottom={-2}
                       >
-                        {data.record_status}
+                       {data.record_status}
                         {data.record_status === "Order placed" ? `: ${data.awards_script_number}` : ""}
                       </Text>
 

@@ -8,6 +8,7 @@ import Reports from "./pages/Reports";
 import { AnimatePresence } from "framer-motion";
 import PageWrapper from "./components/PageWrapper";
 import NotFound from "./pages/NotFound";
+import BarcodeCorrector from "./pages/BarcodeCorrector";
 
 
 const App: React.FC = () => {
@@ -23,6 +24,7 @@ const App: React.FC = () => {
         <Route path="/templates" element={<PageWrapper><Templates /> </PageWrapper>} />
         <Route path="/portal" element={<PageWrapper><Portal /></PageWrapper>} />
         <Route path="/reports" element={<PageWrapper><Reports /></PageWrapper>} />
+        <Route path="/barcode-corrector" element={<PageWrapper><BarcodeCorrector /></PageWrapper>} />
         <Route path="*" element={<PageWrapper><NotFound /></PageWrapper>} />
                 
 
