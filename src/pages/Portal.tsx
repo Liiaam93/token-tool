@@ -372,7 +372,6 @@ const formatModifiedDate = (modified: string) => {
 
           {/* Order Type Select */}
           <Select
-            key={orderTypeFilter}
             color="white"
             w="20%"
             height="38px"
@@ -396,7 +395,6 @@ const formatModifiedDate = (modified: string) => {
 
           {/* Status Select */}
           <Select
-            key={statusFilter}
             color="white"
             w="20%"
             height="38px"
