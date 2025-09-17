@@ -4,7 +4,8 @@ interface OrderItem {
   productId: string,
   customisation: string,
   productName: string,
-  vmpId: string
+  vmpId: string,
+  caseQty: string
 }
 
 export interface PortalType {
@@ -14,6 +15,7 @@ export interface PortalType {
   email: string;
   id: string;
   modified_time: string;
+  modified_by: string;
   order_open: boolean;
   order_search_id: string;
   order_type: string;

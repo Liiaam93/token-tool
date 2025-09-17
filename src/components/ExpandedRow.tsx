@@ -137,13 +137,14 @@ const ExpandedRow: React.FC<ExpandedRowProps> = ({
                 {data.order_items.map((o, idx) => (
                   <>
                     <Text key={idx} whiteSpace="normal">{o.productName}</Text>
-                    <Text fontSize={12} whiteSpace="normal">  - {o.quantity}  {o.singles} </Text>
+                    <Text fontSize={12} whiteSpace="normal">  - {o.quantity} X {o.singles === 'EACH' ? 'SINGLES' : o.singles} {o.singles === 'PACKS' && ' OF '+  o.caseQty} </Text>
                     <Text fontSize={12} whiteSpace="normal" fontStyle={'italic'}>{o.customisation && `  - ${o.customisation}`}</Text>
                     {data.order_items.length - 1 > idx && (<Divider m={2} borderColor="gray.500" borderWidth="1px" my={2} w="90%" />)}
                   </>
                 ))}
               </Box>
             )}
+            <Text>Last updated: {data.modified_by}</Text>
           </VStack>
 
           {/* Right: Editable Fields */}
