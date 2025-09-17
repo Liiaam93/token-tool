@@ -182,19 +182,19 @@ const handleSearch = () => {
       {loading && <LoadingSpinner />}
       
       <Box bg="gray.900" minHeight="100vh" mt="-2">
-        <Divider mt="2" borderColor="gray.600" borderBottomWidth="2px" opacity={1} />
+        <Divider mt="2" borderColor="gray.500" borderBottomWidth="2px" opacity={1} />
           <Box
-  position="sticky"
-  top="0"
-  zIndex={1000}
-  bg="gray.900"
-  borderBottom="2px solid"
-  borderColor="gray.600"
->
+              position="sticky"
+              top="0"
+              zIndex={1000}
+              bg="gray.900"
+              borderBottom="2px solid"
+              borderColor="gray.500"
+              >     
   <HStack py={5} justify="center" w="100%" spacing={4} maxW="1200px" mx="auto" px={4}>
           <HStack h="38px" borderRadius="md" borderWidth={1} p={2} w="10%" justify="center" borderColor="gray.600">
             <TimeIcon color="gray.300" />
-            <Text color="gray.300" fontSize="sm" px={2}>{countdown}s</Text>
+            <Text color={countdown > 30 ? "gray.300" : 'red.300'} fontSize="sm" px={2}>{countdown}s</Text>
           </HStack>
           <Text
             textAlign="center"
