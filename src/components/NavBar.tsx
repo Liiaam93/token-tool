@@ -21,11 +21,11 @@ const NavLink = ({ name, path }: { name: string; path: string }) => (
     as={RouterLink}
     to={path}
     px={8}
-    color={"whatsapp.200"}
+    color={"green.200"}
     pb={2}
     _hover={{
       textDecoration: "none",
-      bg: "whatsapp.800",
+      bg: "green.800",
       transition: "background-color 0.3s",
       border: "solid white 2px",
       borderTopRadius: "md",
