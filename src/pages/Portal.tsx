@@ -100,7 +100,9 @@ const results = await fetchPortal(token, status, appliedSearch, startDate, fastM
 
 const handleSearch = () => {
   setAppliedSearch(filters.search);
+  fetchPortalData(); // <- This guarantees the refresh
 };
+
 
 
   useEffect(() => {
