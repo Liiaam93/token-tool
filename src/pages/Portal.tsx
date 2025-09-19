@@ -39,15 +39,20 @@ const Portal: React.FC = () => {
   const [userEmail, setUserEmail] = useState("");
   const [countdown, setCountdown] = useState(120);
   const [fastMode, setFastMode] = useState(true);
-  const [appliedSearch, setAppliedSearch] = useState("");
 
-
+  // UI filters
   const [filters, setFilters] = useState({
     orderType: "eps",
     status: "Submitted",
     search: "",
     startDate: "",
   });
+
+  // Refs for fetching (stable values)
+  const searchRef = useRef("");
+  const statusRef = useRef("Submitted");
+  const orderTypeRef = useRef("eps");
+  const startDateRef = useRef("");
 
   const [sortState, setSortState] = useState<{
     field: "date" | "account" | "hasMessage" | null;
@@ -80,15 +85,20 @@ const Portal: React.FC = () => {
 
   const fetchPortalData = useCallback(async () => {
     if (!token) return;
-
     setLoading(true);
-    const { orderType, status, startDate } = filters;
-
     try {
-const results = await fetchPortal(token, status, appliedSearch, startDate, fastMode);
+      const results = await fetchPortal(
+        token,
+        statusRef.current,
+        searchRef.current,
+        startDateRef.current,
+        fastMode
+      );
       const items = results.flatMap((page) => page.items || []);
       const uniqueItems = Array.from(new Map(items.map((i) => [i.id, i])).values());
-      const filtered = orderType ? uniqueItems.filter((i) => i.order_type === orderType) : uniqueItems;
+      const filtered = orderTypeRef.current
+        ? uniqueItems.filter((i) => i.order_type === orderTypeRef.current)
+        : uniqueItems;
       setPortalData(filtered);
     } catch (err) {
       console.error("Error fetching portal data:", err);
@@ -96,15 +106,25 @@ const results = await fetchPortal(token, status, appliedSearch, startDate, fastM
       setLoading(false);
       resetAutoRefreshTimer();
     }
-}, [token, filters.orderType, filters.status, filters.startDate, appliedSearch, fastMode]);
+  }, [token, fastMode]);
 
-const handleSearch = () => {
-  setAppliedSearch(filters.search);
-  fetchPortalData(); // <- This guarantees the refresh
-};
+  // Apply search manually
+  const handleSearch = () => {
+    searchRef.current = filters.search;
+    fetchPortalData();
+  };
 
+  // Keep refs in sync when user changes dropdowns/date
+  useEffect(() => {
+    statusRef.current = filters.status;
+    orderTypeRef.current = filters.orderType;
+    startDateRef.current = filters.startDate;
 
+    // only trigger fetch if a non-search filter changed
+    fetchPortalData();
+  }, [filters.status, filters.orderType, filters.startDate, fetchPortalData]);
 
+  // Initial + auto-refresh
   useEffect(() => {
     if (!token) return;
     resetAutoRefreshTimer();
@@ -123,7 +143,8 @@ const handleSearch = () => {
     return parseFloat(total.toFixed(2));
   }, [portalData, filters.orderType]);
 
-  const handleExpandRow = (id: string) => setExpandedRow((prev) => (prev === id ? null : id));
+  const handleExpandRow = (id: string) =>
+    setExpandedRow((prev) => (prev === id ? null : id));
 
   const handleCopyToClipboard = (id: string) => {
     navigator.clipboard.writeText(id);
@@ -168,9 +189,11 @@ const handleSearch = () => {
   };
 
   const handleSort = (field: "date" | "account" | "hasMessage") => {
-    setSortState((prev) => prev.field === field
-      ? { ...prev, direction: prev.direction === "asc" ? "desc" : "asc" }
-      : { field, direction: "asc" });
+    setSortState((prev) =>
+      prev.field === field
+        ? { ...prev, direction: prev.direction === "asc" ? "desc" : "asc" }
+        : { field, direction: "asc" }
+    );
   };
 
   const sortedData = useMemo(() => {
@@ -180,124 +203,124 @@ const handleSearch = () => {
   return (
     <>
       {loading && <LoadingSpinner />}
-      
+
       <Box bg="gray.900" minHeight="100vh" mt="-2">
         <Divider mt="2" borderColor="gray.500" borderBottomWidth="2px" opacity={1} />
-          <Box
-              position="sticky"
-              top="0"
-              zIndex={1000}
-              bg="gray.900"
-              borderBottom="2px solid"
-              borderColor="gray.500"
-              >     
-  <HStack py={5} justify="center" w="100%" spacing={4} maxW="1200px" mx="auto" px={4}>
-          <HStack h="38px" borderRadius="md" borderWidth={1} p={2} w="10%" justify="center" borderColor="gray.600">
-            <TimeIcon color="gray.300" />
-            <Text color={countdown > 30 ? "gray.300" : 'red.300'} fontSize="sm" px={2}>{countdown}s</Text>
-          </HStack>
-          <Text
-            textAlign="center"
-            color="orange.300"
-            border="1px solid"
-            borderColor="gray.600"
-            borderRadius="md"
-            h="38px"
-            w="15%"
-            display="flex"
-            alignItems="center"
-            justifyContent="center"
-            fontWeight="semibold"
-          >
-            Total: {printCount} {filters.orderType === "trade" ? `Trade: £${totalTradePrice}` : ""}
-          </Text>
-          <InputGroup w="20%">
-            <Input
-      
-              ref={inputRef}
-              color="gray.100"
-              type="date"
-              value={filters.startDate}
-              onChange={(e) => setFilters((f) => ({ ...f, startDate: e.target.value }))}
-              h="38px"
-              borderRadius="md"
-              borderColor="gray.600"
-              px={2}
-            />
-            <InputRightElement>
-              <IconButton
-                aria-label="Open calendar"
-                icon={<CalendarIcon color="gray.300" />}
-                size="sm"
-                variant="ghost"
-                onClick={() => inputRef.current?.showPicker()}
-              />
-            </InputRightElement>
-          </InputGroup>
-          <InputGroup w="20%">
-            <Input
-              color="gray.100"
-              placeholder="Search"
+        <Box
+          position="sticky"
+          top="0"
+          zIndex={1000}
+          bg="gray.900"
+          borderBottom="2px solid"
+          borderColor="gray.500"
+        >
+          <HStack py={5} justify="center" w="100%" spacing={4} maxW="1200px" mx="auto" px={4}>
+            <HStack h="38px" borderRadius="md" borderWidth={1} p={2} w="10%" justify="center" borderColor="gray.600">
+              <TimeIcon color="gray.300" />
+              <Text color={countdown > 30 ? "gray.300" : 'red.300'} fontSize="sm" px={2}>{countdown}s</Text>
+            </HStack>
+            <Text
               textAlign="center"
-              fontSize="sm"
-              value={filters.search}
-              onChange={(e) => setFilters((f) => ({ ...f, search: e.target.value }))}
-              onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), handleSearch())}
+              color="orange.300"
+              border="1px solid"
+              borderColor="gray.600"
+              borderRadius="md"
+              h="38px"
+              w="25%"
+              display="flex"
+              alignItems="center"
+              justifyContent="center"
+              fontWeight="semibold"
+            >
+              Total: {printCount} {filters.orderType === "trade" ? `Trade: £${totalTradePrice}` : ""}
+            </Text>
+            <InputGroup w="20%">
+              <Input
+
+                ref={inputRef}
+                color="gray.100"
+                type="date"
+                value={filters.startDate}
+                onChange={(e) => setFilters((f) => ({ ...f, startDate: e.target.value }))}
+                h="38px"
+                borderRadius="md"
+                borderColor="gray.600"
+                px={2}
+              />
+              <InputRightElement>
+                <IconButton
+                  aria-label="Open calendar"
+                  icon={<CalendarIcon color="gray.300" />}
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => inputRef.current?.showPicker()}
+                />
+              </InputRightElement>
+            </InputGroup>
+            <InputGroup w="20%">
+              <Input
+                color="gray.100"
+                placeholder="Search"
+                textAlign="center"
+                fontSize="sm"
+                value={filters.search}
+                onChange={(e) => setFilters((f) => ({ ...f, search: e.target.value }))}
+                onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), handleSearch())}
+                h="38px"
+                borderRadius="md"
+                borderColor="gray.600"
+                px={2}
+              />
+              <InputRightElement>
+                <SearchIcon
+                  color="gray.300"
+                  _hover={{ color: "green.400", cursor: "pointer" }}
+                  onClick={handleSearch}
+                />
+              </InputRightElement>
+            </InputGroup>
+            <Select
+              color="gray.100"
+              w="20%"
               h="38px"
               borderRadius="md"
               borderColor="gray.600"
-              px={2}
-            />
-            <InputRightElement>
-              <SearchIcon
-                color="gray.300"
-                _hover={{ color: "green.400", cursor: "pointer" }}
-                onClick={handleSearch}
-              />
-            </InputRightElement>
-          </InputGroup>
-          <Select
-            color="gray.100"
-            w="20%"
-            h="38px"
-            borderRadius="md"
-            borderColor="gray.600"
-            value={filters.orderType}
-            onChange={(e) => setFilters((f) => ({ ...f, orderType: e.target.value }))}
-            sx={{ option: { bg: "gray.900", color: "gray.100" } }}
-          >
-            <option value="eps">EPS</option>
-            <option value="trade">Trade</option>
-            <option value="mtm">MTM</option>
-            <option value="manual">Manual</option>
-            <option value="">No Filter</option>
-          </Select>
-          <Select
-            color="gray.100"
-            w="20%"
-            h="38px"
-            borderRadius="md"
-            borderColor="gray.600"
-            value={filters.status}
-            onChange={(e) => setFilters((f) => ({ ...f, status: e.target.value }))}
-            sx={{ option: { bg: "gray.900", color: "gray.100" } }}
-          >
-            <option value="Submitted">Request Submitted</option>
-            <option value="Downloaded">Token Downloaded</option>
-            <option value="RTS">Return to Spine</option>
-            <option value="Cancelled">Request Cancelled</option>
-            <option value="Ordered">Ordered</option>
-            <option value="OOS">Item Out of stock</option>
-            <option value="Call">Please Call Wardles</option>
-            <option value="Comments">Comments Added</option>
-            <option value="Stop">Account on stop</option>
-            <option value="Invalid">Invalid Barcode</option>
-            <option value="">No Filter</option>
-          </Select>
-          <Checkbox isChecked={fastMode} onChange={(e) => setFastMode(e.target.checked)} colorScheme="green">
-            <Text fontSize="sm" color="gray.300">Fast-Mode</Text>
-          </Checkbox>
-        </HStack>
+              value={filters.orderType}
+              onChange={(e) => setFilters((f) => ({ ...f, orderType: e.target.value }))}
+              sx={{ option: { bg: "gray.900", color: "gray.100" } }}
+            >
+              <option value="eps">EPS</option>
+              <option value="trade">Trade</option>
+              <option value="mtm">MTM</option>
+              <option value="manual">Manual</option>
+              <option value="">No Filter</option>
+            </Select>
+            <Select
+              color="gray.100"
+              w="20%"
+              h="38px"
+              borderRadius="md"
+              borderColor="gray.600"
+              value={filters.status}
+              onChange={(e) => setFilters((f) => ({ ...f, status: e.target.value }))}
+              sx={{ option: { bg: "gray.900", color: "gray.100" } }}
+            >
+              <option value="Submitted">Request Submitted</option>
+              <option value="Downloaded">Token Downloaded</option>
+              <option value="RTS">Return to Spine</option>
+              <option value="Cancelled">Request Cancelled</option>
+              <option value="Ordered">Ordered</option>
+              <option value="OOS">Item Out of stock</option>
+              <option value="Call">Please Call Wardles</option>
+              <option value="Comments">Comments Added</option>
+              <option value="Stop">Account on stop</option>
+              <option value="Invalid">Invalid Barcode</option>
+              <option value="">No Filter</option>
+            </Select>
+            <Checkbox isChecked={fastMode} onChange={(e) => setFastMode(e.target.checked)} colorScheme="green">
+              <Text fontSize="sm" color="gray.300">Fast-Mode</Text>
+            </Checkbox>
+          </HStack>
         </Box>
 
         <TableContainer maxW="100vw" overflowX="auto" px={4} mt={4}>
