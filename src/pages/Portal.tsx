@@ -601,7 +601,7 @@ const Portal: React.FC = () => {
                         fontSize="sm"
                         backgroundColor={
                           data.record_status === "Order placed"
-                            ? "whatsapp.700"
+                            ? "green.700"
                             : data.customer_record_status
                               ? "yellow.500"
                               : "orange.600"
