@@ -81,6 +81,8 @@ const Portal: React.FC = () => {
   const searchQueryRef = useRef(searchQuery);
   const startDateRef = useRef(startDate);
 
+
+  
   useEffect(() => {
     statusFilterRef.current = statusFilter;
     orderTypeFilterRef.current = orderTypeFilter;
@@ -96,20 +98,23 @@ const Portal: React.FC = () => {
     if (storedEmail) setUserEmail(storedEmail)
   }, []);
 
-  const resetAutoRefreshTimer = () => {
-    if (intervalRef.current) clearInterval(intervalRef.current);
-    if (countdownIntervalRef.current) clearInterval(countdownIntervalRef.current);
+const resetAutoRefreshTimer = () => {
+  if (intervalRef.current) clearInterval(intervalRef.current);
+  if (countdownIntervalRef.current) clearInterval(countdownIntervalRef.current);
 
-    setCountdown(120); // reset to full duration
+  if (expandedRow !== null) return; // Don't restart timer if row is expanded
 
-    intervalRef.current = setInterval(() => {
-      fetchPortalData();
-    }, 120000);
+  setCountdown(120); // reset to full duration
 
-    countdownIntervalRef.current = setInterval(() => {
-      setCountdown(prev => (prev > 0 ? prev - 1 : 0));
-    }, 1000);
-  };
+  intervalRef.current = setInterval(() => {
+    fetchPortalData();
+  }, 120000);
+
+  countdownIntervalRef.current = setInterval(() => {
+    setCountdown(prev => (prev > 0 ? prev - 1 : 0));
+  }, 1000);
+};
+
 
 
   const fetchPortalData = useCallback(async () => {
@@ -151,6 +156,24 @@ const Portal: React.FC = () => {
   useEffect(() => {
     fetchPortalData();
   }, [fetchPortalData]);
+
+  useEffect(() => {
+  if (expandedRow !== null) {
+    // Pause auto-refresh when a row is expanded
+    if (intervalRef.current) clearInterval(intervalRef.current);
+    if (countdownIntervalRef.current) clearInterval(countdownIntervalRef.current);
+  } else {
+    // Resume auto-refresh when no row is expanded
+    resetAutoRefreshTimer();
+  }
+
+  // Cleanup if component unmounts while row is expanded
+  return () => {
+    if (intervalRef.current) clearInterval(intervalRef.current);
+    if (countdownIntervalRef.current) clearInterval(countdownIntervalRef.current);
+  };
+}, [expandedRow]);
+
 
   const printCount = portalData.length;
 
