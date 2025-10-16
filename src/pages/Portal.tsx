@@ -25,24 +25,20 @@ import {
   useToast,
   Divider,
 } from "@chakra-ui/react";
-import {
-  EditIcon,
-  ChatIcon,
-} from "@chakra-ui/icons";
+import { EditIcon, ChatIcon } from "@chakra-ui/icons";
+
 import { fetchPortal } from "../utils/fetchPortal";
 import { updateOrder } from "../utils/updateOrder";
 import PortalHeader from "../components/PortalHeader";
 import { PortalType } from "../types/PortalType";
 import ExpandedRow from "../components/ExpandedRow";
 import LoadingSpinner from "../components/LoadingSpinner";
-import {
-  formatDate,
-  formatModifiedDate,
-} from "../utils/helpers";
+import { formatDate, formatModifiedDate } from "../utils/helpers";
 
 const Portal: React.FC = () => {
   const cancelRef = useRef(null);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const countdownIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const [dialogAction, setDialogAction] = useState<() => void>(() => { });
   const [dialogMessage, setDialogMessage] = useState<React.ReactNode>("");
@@ -61,17 +57,14 @@ const Portal: React.FC = () => {
   const [userEmail, setUserEmail] = useState("");
   const [countdown, setCountdown] = useState(120);
   const [fastMode, setFastMode] = useState(true);
-  const countdownIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
-
-
-  const toast = useToast();
+  const [isPaused, setIsPaused] = useState(false);
 
   const statusFilterRef = useRef(statusFilter);
   const orderTypeFilterRef = useRef(orderTypeFilter);
   const searchQueryRef = useRef(searchQuery);
   const startDateRef = useRef(startDate);
 
-
+  const toast = useToast();
 
   useEffect(() => {
     statusFilterRef.current = statusFilter;
@@ -80,46 +73,48 @@ const Portal: React.FC = () => {
     startDateRef.current = startDate;
   }, [statusFilter, orderTypeFilter, searchQuery, startDate]);
 
-
   useEffect(() => {
     const storedToken = localStorage.getItem("bearerToken");
     if (storedToken) setToken(storedToken);
-    const storedEmail = localStorage.getItem('PortalEmail');
-    if (storedEmail) setUserEmail(storedEmail)
+    const storedEmail = localStorage.getItem("PortalEmail");
+    if (storedEmail) setUserEmail(storedEmail);
   }, []);
 
   const resetAutoRefreshTimer = () => {
     if (intervalRef.current) clearInterval(intervalRef.current);
     if (countdownIntervalRef.current) clearInterval(countdownIntervalRef.current);
+    if (expandedRow !== null || isPaused) return;
 
-    if (expandedRow !== null) return; // Don't restart timer if row is expanded
+    setCountdown(120);
 
-    setCountdown(120); // reset to full duration
-
-    intervalRef.current = setInterval(() => {
-      fetchPortalData();
-    }, 120000);
-
+    intervalRef.current = setInterval(() => fetchPortalData(), 120000);
     countdownIntervalRef.current = setInterval(() => {
-      setCountdown(prev => (prev > 0 ? prev - 1 : 0));
+      setCountdown((prev) => (prev > 0 ? prev - 1 : 0));
     }, 1000);
   };
 
+  const togglePause = () => setIsPaused((prev) => !prev);
 
+  useEffect(() => {
+    if (isPaused || expandedRow !== null) {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+      if (countdownIntervalRef.current) clearInterval(countdownIntervalRef.current);
+    } else {
+      resetAutoRefreshTimer();
+    }
+  }, [isPaused, expandedRow]);
 
   const fetchPortalData = useCallback(async () => {
     if (!token) return;
 
     setLoading(true);
-
     try {
       const results = await fetchPortal(token, statusFilter, searchQueryRef.current, startDateRef.current, fastMode);
       const items = results.flatMap((page) => page.items || []);
-
-      const uniqueItems = Array.from(new Map(items.map(item => [item.id, item])).values());
+      const uniqueItems = Array.from(new Map(items.map((item) => [item.id, item])).values());
 
       const filtered = orderTypeFilter
-        ? uniqueItems.filter(item => item.order_type === orderTypeFilter)
+        ? uniqueItems.filter((item) => item.order_type === orderTypeFilter)
         : uniqueItems;
 
       setPortalData(filtered);
@@ -131,8 +126,6 @@ const Portal: React.FC = () => {
     }
   }, [token, statusFilter, orderTypeFilter]);
 
-
-
   useEffect(() => {
     if (!token) return;
     resetAutoRefreshTimer();
@@ -142,34 +135,22 @@ const Portal: React.FC = () => {
     };
   }, [token]);
 
-
   useEffect(() => {
     fetchPortalData();
   }, [fetchPortalData]);
 
   useEffect(() => {
-    if (expandedRow && !portalData.some(item => item.id === expandedRow)) {
-      setExpandedRow(null); // Collapse row if it's no longer in the data
+    if (expandedRow && !portalData.some((item) => item.id === expandedRow)) {
+      setExpandedRow(null);
     }
   }, [portalData, expandedRow]);
 
   useEffect(() => {
-    if (expandedRow !== null) {
-      // Pause auto-refresh when a row is expanded
-      if (intervalRef.current) clearInterval(intervalRef.current);
-      if (countdownIntervalRef.current) clearInterval(countdownIntervalRef.current);
-    } else {
-      // Resume auto-refresh when no row is expanded
-      resetAutoRefreshTimer();
-    }
-
-    // Cleanup if component unmounts while row is expanded
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current);
       if (countdownIntervalRef.current) clearInterval(countdownIntervalRef.current);
     };
   }, [expandedRow]);
-
 
   const printCount = portalData.length;
 
@@ -179,9 +160,6 @@ const Portal: React.FC = () => {
     return parseFloat(sum.toFixed(2));
   }, [portalData, orderTypeFilter]);
 
-
-
-
   const handleExpandRow = (id: string) => {
     setExpandedRow((prev) => (prev === id ? null : id));
   };
@@ -189,12 +167,7 @@ const Portal: React.FC = () => {
   const handleCopyToClipboard = (id: string) => {
     navigator.clipboard.writeText(id);
     setSelectedId(id);
-    toast({
-      title: "Copied to clipboard",
-      status: "success",
-      duration: 2000,
-      isClosable: true,
-    });
+    toast({ title: "Copied to clipboard", status: "success", duration: 2000, isClosable: true });
   };
 
   const handleOpenDialog = (message: React.ReactNode, action: () => void) => {
@@ -249,19 +222,20 @@ const Portal: React.FC = () => {
   const sortedData = useMemo(() => {
     const data = [...portalData];
     const comparators = {
-      date: (a: any, b: any) => sortDirection === "asc" ? a.created_date - b.created_date : b.created_date - a.created_date,
-      account: (a: any, b: any) => sortDirection === "asc"
-        ? (a.pharmacy_account_number || "").localeCompare(b.pharmacy_account_number || "")
-        : (b.pharmacy_account_number || "").localeCompare(a.pharmacy_account_number || ""),
-      hasMessage: (a: any, b: any) => sortDirection === "asc"
-        ? Number(Boolean(b.customer_comment || b.customer_record_status)) - Number(Boolean(a.customer_comment || a.customer_record_status))
-        : Number(Boolean(a.customer_comment || a.customer_record_status)) - Number(Boolean(b.customer_comment || b.customer_record_status)),
+      date: (a: any, b: any) =>
+        sortDirection === "asc" ? a.created_date - b.created_date : b.created_date - a.created_date,
+      account: (a: any, b: any) =>
+        sortDirection === "asc"
+          ? (a.pharmacy_account_number || "").localeCompare(b.pharmacy_account_number || "")
+          : (b.pharmacy_account_number || "").localeCompare(a.pharmacy_account_number || ""),
+      hasMessage: (a: any, b: any) =>
+        sortDirection === "asc"
+          ? Number(Boolean(b.customer_comment || b.customer_record_status)) - Number(Boolean(a.customer_comment || a.customer_record_status))
+          : Number(Boolean(a.customer_comment || a.customer_record_status)) - Number(Boolean(b.customer_comment || b.customer_record_status)),
     };
     if (sortField) data.sort(comparators[sortField]);
     return data;
   }, [portalData, sortField, sortDirection]);
-
-
 
   return (
     <>
@@ -283,6 +257,8 @@ const Portal: React.FC = () => {
           handleStatusChange={handleStatusChange}
           fastMode={fastMode}
           setFastMode={setFastMode}
+          isPaused={isPaused}           // <----- Pass this
+          togglePause={togglePause}
         />
 
         <TableContainer m="auto" maxWidth="100vw" overflowX="auto">
@@ -472,23 +448,17 @@ const Portal: React.FC = () => {
                       </Button>
                       <Text
                         color="white"
-                        overflow="hidden"
-                        textOverflow="ellipsis"
-                        maxWidth="400px"
+                        maxW="400px"
                         textAlign="center"
-                        whiteSpace="normal"
-                        borderTopRadius={10}
-                        paddingLeft="2"
-                        paddingRight="2"
                         fontSize="sm"
-                        backgroundColor={
+                        bg={
                           data.record_status === "Order placed"
                             ? "green.700"
                             : data.customer_record_status
                               ? "yellow.500"
                               : "orange.600"
                         }
-                        marginBottom={-2}
+                        borderRadius="md"
                       >
                         {data.record_status}
                         {data.record_status === "Order placed" ? `: ${data.awards_script_number}` : ""}

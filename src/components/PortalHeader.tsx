@@ -25,6 +25,8 @@ interface PortalHeaderProps {
     handleStatusChange: (event: React.ChangeEvent<HTMLSelectElement>) => void;
     fastMode: boolean;
     setFastMode: (fastMode: boolean) => void;
+    isPaused: boolean;
+    togglePause: () => void;
 }
 
 const PortalHeader: React.FC<PortalHeaderProps> = ({
@@ -40,6 +42,8 @@ const PortalHeader: React.FC<PortalHeaderProps> = ({
     handleStatusChange,
     fastMode,
     setFastMode,
+    isPaused,
+    togglePause
 }) => {
     const inputRef = useRef<HTMLInputElement>(null);
 
@@ -63,11 +67,19 @@ const PortalHeader: React.FC<PortalHeaderProps> = ({
                     w="10%"
                     justify="center"
                     borderColor="gray.600"
+
                 >
-                    <TimeIcon color="gray.300" />
+                    <TimeIcon
+                        color={isPaused ? "red.400" : "gray.300"}
+                        cursor="pointer"
+                        onClick={togglePause}
+                    // title={isPaused ? "Resume Timer" : "Pause Timer"}
+                    />
                     <Text color={countdown > 30 ? "gray.300" : "red.300"} fontSize="sm" px={2}>
                         {countdown}s
                     </Text>
+
+
                 </HStack>
 
                 {/* Print Count */}
