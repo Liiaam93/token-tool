@@ -448,17 +448,23 @@ const Portal: React.FC = () => {
                       </Button>
                       <Text
                         color="white"
-                        maxW="400px"
+                        overflow="hidden"
+                        textOverflow="ellipsis"
+                        maxWidth="400px"
                         textAlign="center"
+                        whiteSpace="normal"
+                        borderTopRadius={10}
+                        paddingLeft="2"
+                        paddingRight="2"
                         fontSize="sm"
-                        bg={
+                        backgroundColor={
                           data.record_status === "Order placed"
                             ? "green.700"
                             : data.customer_record_status
                               ? "yellow.500"
                               : "orange.600"
                         }
-                        borderRadius="md"
+                        marginBottom={-2}
                       >
                         {data.record_status}
                         {data.record_status === "Order placed" ? `: ${data.awards_script_number}` : ""}
