@@ -64,7 +64,7 @@ const MessageDisplay: React.FC<DisplayMessageProps> = ({
     <>
       {messageText !== "" && (
         <>
-          <Flex bgColor="slategrey" m="2" w="90%" borderRadius="5">
+          <Flex bgColor="gray.200" m="2" w="90%" borderRadius="5">
             <Text p="5" color="black">
               <div style={{ whiteSpace: "pre-line" }}>
                 Hi, thank you for your e-mail,{"\n"}
@@ -77,8 +77,8 @@ const MessageDisplay: React.FC<DisplayMessageProps> = ({
           <Button
             m="2"
             w="90%"
-            color={"black"}
-            colorScheme="whatsapp"
+            color={"white"}
+            colorScheme="green"
             onClick={() => copyToClipboard()}
           >
             Copy
