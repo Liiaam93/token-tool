@@ -14,6 +14,7 @@ const Links = [
   { name: "Portal", path: "/portal" },
   { name: "Report", path: "/reports" },
   { name: "Barcode Fix", path: "/barcode-corrector" },
+  { name: "Account checker", path: "/account-checker" },
 ];
 
 const NavLink = ({ name, path }: { name: string; path: string }) => (

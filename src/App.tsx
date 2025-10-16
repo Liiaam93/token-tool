@@ -9,27 +9,30 @@ import { AnimatePresence } from "framer-motion";
 import PageWrapper from "./components/PageWrapper";
 import NotFound from "./pages/NotFound";
 import BarcodeCorrector from "./pages/BarcodeCorrector";
+import AccountChecker from "./pages/AccountChecker";
 
 
 const App: React.FC = () => {
   const location = useLocation()
 
   return (
-        <div style={{ position: "relative", width: "100%", height: "100%" }}>
+    <div style={{ position: "relative", width: "100%", height: "100%" }}>
 
-    <AnimatePresence mode="popLayout" initial={false} >
-      <Routes location={location} key={location.pathname}>
-        <Route path="/" element={<PageWrapper><Home /></PageWrapper>} />
-        <Route path="/branch-codes" element={<PageWrapper><BranchCodes /></PageWrapper>} />
-        <Route path="/templates" element={<PageWrapper><Templates /> </PageWrapper>} />
-        <Route path="/portal" element={<PageWrapper><Portal /></PageWrapper>} />
-        <Route path="/reports" element={<PageWrapper><Reports /></PageWrapper>} />
-        <Route path="/barcode-corrector" element={<PageWrapper><BarcodeCorrector /></PageWrapper>} />
-        <Route path="*" element={<PageWrapper><NotFound /></PageWrapper>} />
-                
+      <AnimatePresence mode="popLayout" initial={false} >
+        <Routes location={location} key={location.pathname}>
+          <Route path="/" element={<PageWrapper><Home /></PageWrapper>} />
+          <Route path="/branch-codes" element={<PageWrapper><BranchCodes /></PageWrapper>} />
+          <Route path="/templates" element={<PageWrapper><Templates /> </PageWrapper>} />
+          <Route path="/portal" element={<PageWrapper><Portal /></PageWrapper>} />
+          <Route path="/reports" element={<PageWrapper><Reports /></PageWrapper>} />
+          <Route path="/barcode-corrector" element={<PageWrapper><BarcodeCorrector /></PageWrapper>} />
+          <Route path="/account-checker" element={<PageWrapper><AccountChecker /></PageWrapper>} />
 
-      </Routes>
-    </AnimatePresence >
+          <Route path="*" element={<PageWrapper><NotFound /></PageWrapper>} />
+
+
+        </Routes>
+      </AnimatePresence >
     </div>
   );
 };
